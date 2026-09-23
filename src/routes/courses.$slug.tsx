@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
+import { CourseChat } from "@/components/course-chat";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AddToCart } from "@/components/add-to-cart";
-import { Award, BookOpen, Calendar, Check, ChevronRight, Clock3, Globe, GraduationCap, MapPin, MessageCircle, Share2, Star, Users } from "lucide-react";
+import { Award, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock3, HelpCircle, Globe, GraduationCap, MapPin, MessageCircle, Share2, Star, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CourseCard } from "@/components/course-card";
@@ -114,7 +116,8 @@ function FaqBlock({ badge, onAsk }: { badge: string; onAsk: () => void }) {
 
 function CoursePage() {
   const course = Route.useLoaderData();
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  useEffect(() => { if (window.matchMedia("(min-width: 1280px)").matches) setChatOpen(true); }, []);
   const related = courses.filter((c) => c.category === course.category && c.slug !== course.slug).slice(0, 3);
   const wa = `${contact.whatsapp}?text=${encodeURIComponent(`Hi SOQ, I'd like to enquire about the "${course.title}" course (${course.duration}, ${course.mode}). Could you share the upcoming schedule and fees?`)}`;
   const learn = course.sections.find((s) => /outcome|learn/i.test(s.title))?.items ?? course.outcomes;
@@ -264,6 +267,24 @@ function CoursePage() {
           </div>
         </section>
       )}
-    </>
+    </div>
+    {chatOpen && (
+      <>
+        <aside className="sticky top-0 hidden h-screen w-[380px] shrink-0 border-l border-border xl:block">
+          <CourseChat slug={course.slug} title={course.title} onClose={() => setChatOpen(false)} />
+        </aside>
+        <div className="fixed inset-0 z-50 flex justify-end bg-foreground/30 xl:hidden" onClick={() => setChatOpen(false)}>
+          <div className="h-full w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <CourseChat slug={course.slug} title={course.title} onClose={() => setChatOpen(false)} />
+          </div>
+        </div>
+      </>
+    )}
+    {!chatOpen && (
+      <button onClick={() => setChatOpen(true)} className="fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg">
+        <MessageCircle className="size-4" /> Is this right for me?
+      </button>
+    )}
+    </div>
   );
 }

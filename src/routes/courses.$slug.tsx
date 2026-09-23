@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FeeBreakdown } from "@/components/fee-breakdown";
 import { CourseChat } from "@/components/course-chat";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AddToCart } from "@/components/add-to-cart";
@@ -244,10 +245,10 @@ function CoursePage() {
           <FaqBlock badge={course.badge} onAsk={() => setChatOpen(true)} />
         </div>
 
-        <aside className="self-start rounded-lg border border-border bg-card p-6 shadow-sm lg:sticky lg:top-20">
-          <p className="text-sm text-muted-foreground">Course fee</p>
-          <p className="mt-1 font-serif text-3xl text-primary">{course.price}</p>
-          <ul className="mt-5 space-y-3 text-sm">
+        <aside className="self-start space-y-4 lg:sticky lg:top-20">
+          <FeeBreakdown price={course.price} badge={course.badge} />
+          <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+          <ul className="space-y-3 text-sm">
             <li className="flex gap-2"><Clock3 className="size-4 text-brand-gold" />{course.duration}</li>
             <li className="flex gap-2"><MapPin className="size-4 text-brand-gold" />{course.mode}</li>
             <li className="flex gap-2"><Users className="size-4 text-brand-gold" />Small classes</li>
@@ -256,6 +257,7 @@ function CoursePage() {
           <Button asChild variant="outline" className="mt-3 h-12 w-full rounded-md"><a href={wa}>Enquire on WhatsApp</a></Button>
           <AddToCart slug={course.slug} title={course.title} price={course.price} />
           <Link to="/compare" className="mt-3 block text-center text-sm text-primary underline underline-offset-4">Compare with other courses</Link>
+          </div>
         </aside>
       </div>
 

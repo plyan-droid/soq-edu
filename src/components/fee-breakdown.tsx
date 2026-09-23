@@ -30,7 +30,7 @@ export function FeeBreakdown({ price, badge }: { price: string; badge: string })
   const schemes = wsq
     ? [
         { label: "SkillsFuture Credit", cls: "border-primary text-primary" },
-        { label: "WSQ Course Fee Funding", cls: "border-emerald-700 text-emerald-700" },
+        { label: "WSQ Course Fee Funding", cls: "border-foreground text-foreground" },
         { label: "UTAP (NTUC members)", cls: "border-brand-gold text-brand-gold" },
         { label: "Absentee Payroll", cls: "border-muted-foreground text-muted-foreground" },
       ]

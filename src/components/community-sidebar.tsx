@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, HelpCircle, Images, Briefcase, BookHeart, Cpu, Users, Bookmark, Sparkles, CalendarDays, Wallet, LayoutDashboard, ScrollText, FileText, ShieldCheck, ChevronDown } from "lucide-react";
+import { Home, HelpCircle, Images, Briefcase, BookHeart, Cpu, Users, Bookmark, Sparkles, CalendarDays, Wallet, LayoutDashboard, ScrollText, FileText, ShieldCheck, ChevronDown, Radio } from "lucide-react";
 import { memberTypes } from "@/lib/community";
 
 export const sections = [
@@ -39,6 +39,7 @@ export function CommunitySidebar({ active, who }: Props) {
         {sections.map(({ tag, label, Icon }) => (
           <Link key={tag} to="/community" search={{ tag }} className={item(active === tag)}><Icon className="size-4 text-brand-gold" />{label}</Link>
         ))}
+        <Link to="/community/live" className={item(active === "live")}><Radio className="size-4 text-brand-gold" />Livestreams</Link>
         <Link to="/community/members" className={item(active === "members")}><Users className="size-4 text-brand-gold" />Members</Link>
         <Link to="/community/saved" className={item(active === "saved")}><Bookmark className="size-4 text-brand-gold" />Saved posts</Link>
       </nav>
@@ -77,6 +78,7 @@ export function CommunityMobileNav({ active }: { active: string }) {
     <nav className="-mx-5 mb-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:hidden">
       <Link to="/community" className={chip(active === "home")}>Home</Link>
       {sections.map(s => <Link key={s.tag} to="/community" search={{ tag: s.tag }} className={chip(active === s.tag)}>{s.label}</Link>)}
+      <Link to="/community/live" className={chip(active === "live")}>Livestreams</Link>
       <Link to="/community/members" className={chip(active === "members")}>Members</Link>
       <Link to="/community/saved" className={chip(active === "saved")}>Saved</Link>
       <Link to="/community/guidelines" className={chip(active === "guidelines")}>Guidelines</Link>

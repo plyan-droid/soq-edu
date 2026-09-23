@@ -47,6 +47,42 @@ export type Database = {
         }
         Relationships: []
       }
+      community_livestreams: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          hosts: string | null
+          id: string
+          starts_at: string
+          status: string
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          hosts?: string | null
+          id?: string
+          starts_at: string
+          status?: string
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          hosts?: string | null
+          id?: string
+          starts_at?: string
+          status?: string
+          title?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       community_profiles: {
         Row: {
           bio: string | null

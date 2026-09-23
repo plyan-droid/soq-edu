@@ -49,17 +49,62 @@ export function Reports() {
 type TrainerApp = { id: string; full_name: string; email: string; phone: string | null; expertise: string; experience: string; portfolio_url: string | null; status: string; created_at: string };
 export function TrainerApplications() {
   const qc = useQueryClient();
-  const { data = [] } = useQuery({ queryKey: ["admin-trainers"], queryFn: async () => ((await supabase.from("trainer_applications").select("*").order("created_at", { ascending: false })).data ?? []) as TrainerApp[] });
-  const setStatus = async (id: string, status: string) => { await supabase.from("trainer_applications").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); };
-  if (!data.length) return <p className="mt-6 text-muted-foreground">No trainer applications yet. The form is at /teach.</p>;
-  return <Table head={["Date", "Applicant", "Expertise", "Experience", "Status"]}>{data.map(a => (
-    <tr key={a.id} className="border-t border-border">
-      <td className={td}>{date(a.created_at)}</td>
-      <td className={td}>{a.full_name}<div><a className="underline" href={`mailto:${a.email}`}>{a.email}</a></div><div>{a.phone}</div>{a.portfolio_url && <a className="text-xs underline" href={a.portfolio_url.startsWith("http") ? a.portfolio_url : `https://${a.portfolio_url}`} target="_blank" rel="noreferrer">Portfolio</a>}</td>
-      <td className={td}>{a.expertise}</td>
-      <td className={`${td} max-w-sm whitespace-pre-line text-xs`}>{a.experience}</td>
-      <td className={td}><select className={sel} value={a.status} onChange={e => void setStatus(a.id, e.target.value)}>{["pending", "approved", "rejected"].map(s => <option key={s}>{s}</option>)}</select>{a.status === "approved" && <p className="mt-1 text-xs text-muted-foreground">Give them the Verified tick under Community members.</p>}</td>
-    </tr>))}</Table>;
+  const [adding, setAdding] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const { data = [] } = useQuery({ queryKey: ["admin-trainers"], queryFn: async () => ((await supabase.from("trainer_applications").select("*").order("created_at", { ascending: false })).data ?? []) as (TrainerApp & { user_id: string | null })[] });
+  const setStatus = async (a: TrainerApp & { user_id: string | null }, status: string) => {
+    const { error } = await supabase.from("trainer_applications").update({ status }).eq("id", a.id);
+    if (error) { setMsg(`Couldn't update: ${error.message}`); return; }
+    if (status === "approved" && a.user_id) {
+      const r = await supabase.from("user_roles").insert({ user_id: a.user_id, role: "trainer" as never });
+      setMsg(r.error && !r.error.message.includes("duplicate") ? `Approved, but couldn't open the Trainer Dashboard for them: ${r.error.message}` : `${a.full_name} is approved and can now open the Trainer Dashboard.`);
+    } else if (status === "approved") setMsg(`${a.full_name} is approved. They applied without an account, so ask them to sign up, then use "Make trainer" under Users & roles.`);
+    else setMsg(null);
+    void qc.invalidateQueries({ queryKey: ["admin-trainers"] });
+  };
+  const add = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); setBusy(true);
+    const f = new FormData(e.currentTarget); const g = (k: string) => String(f.get(k) ?? "").trim();
+    const { error } = await supabase.from("trainer_applications").insert({ full_name: g("full_name"), email: g("email"), phone: g("phone") || null, expertise: g("expertise"), experience: g("experience"), portfolio_url: g("portfolio_url") || null, status: g("status") || "pending" });
+    setBusy(false);
+    if (error) { setMsg(`Couldn't save: ${error.message}`); return; }
+    setMsg(`Application for ${g("full_name")} added.`); setAdding(false); void qc.invalidateQueries({ queryKey: ["admin-trainers"] });
+  };
+  const inp = "w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
+  return (
+    <div>
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        <Button size="sm" className="rounded-full" onClick={() => setAdding(v => !v)}>{adding ? "Cancel" : "+ Add trainer application"}</Button>
+        <span className="text-sm text-muted-foreground">{data.filter(a => a.status === "pending").length} waiting for review · Public form at /teach</span>
+      </div>
+      {msg && <p className="mt-3 rounded-md bg-secondary p-3 text-sm">{msg}</p>}
+      {adding && (
+        <form onSubmit={add} className="mt-4 grid gap-3 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
+          <input name="full_name" required minLength={2} placeholder="Full name" className={inp} />
+          <input name="email" type="email" required placeholder="Email" className={inp} />
+          <input name="phone" placeholder="Mobile (optional)" className={inp} />
+          <input name="expertise" required minLength={2} placeholder="Expertise, e.g. Lash extension, AI marketing" className={inp} />
+          <textarea name="experience" required minLength={20} rows={3} placeholder="Teaching / industry experience and qualifications" className={`${inp} sm:col-span-2`} />
+          <input name="portfolio_url" placeholder="Portfolio or LinkedIn link (optional)" className={inp} />
+          <select name="status" className={inp} defaultValue="pending"><option value="pending">Pending review</option><option value="approved">Approved</option></select>
+          <Button type="submit" disabled={busy} className="rounded-full sm:col-span-2">{busy ? "Saving..." : "Save application"}</Button>
+        </form>
+      )}
+      {!data.length ? <p className="mt-6 text-muted-foreground">No trainer applications yet.</p> :
+      <Table head={["Date", "Applicant", "Expertise", "Experience", "Decision"]}>{data.map(a => (
+        <tr key={a.id} className="border-t border-border">
+          <td className={td}>{date(a.created_at)}</td>
+          <td className={td}>{a.full_name}<div><a className="underline" href={`mailto:${a.email}`}>{a.email}</a></div><div>{a.phone}</div>{a.portfolio_url && <a className="text-xs underline" href={a.portfolio_url.startsWith("http") ? a.portfolio_url : `https://${a.portfolio_url}`} target="_blank" rel="noreferrer">Portfolio</a>}</td>
+          <td className={td}>{a.expertise}</td>
+          <td className={`${td} max-w-sm whitespace-pre-line text-xs`}>{a.experience}</td>
+          <td className={td}>
+            {a.status === "pending" ? <div className="flex gap-2"><Button size="sm" className="rounded-full" onClick={() => void setStatus(a, "approved")}>Approve</Button><Button size="sm" variant="outline" className="rounded-full" onClick={() => void setStatus(a, "rejected")}>Reject</Button></div>
+              : <div><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.status === "approved" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{a.status}</span><button className="ml-2 text-xs underline" onClick={() => void setStatus(a, "pending")}>Undo</button></div>}
+          </td>
+        </tr>))}</Table>}
+    </div>
+  );
 }
 
 /* ---------- Support inbox ---------- */

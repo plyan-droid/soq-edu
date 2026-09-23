@@ -62,35 +62,14 @@ function Community() {
         </div>
       </section>
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-12 lg:grid-cols-[220px_1fr_260px] lg:px-8">
-        <aside className="hidden content-start gap-6 lg:grid">
-          <nav className="grid gap-0.5 text-sm">
-            {mainNav.map(({ to, label, Icon }) => (
-              <Link key={label} to={to} className="flex items-center gap-3 rounded-md px-3 py-2 text-foreground/80 hover:bg-brand-gold-soft hover:text-primary" activeOptions={{ exact: true }} activeProps={{ className: "bg-brand-gold-soft font-medium text-primary" }}>
-                <Icon className="size-4 text-brand-gold" />{label}
-              </Link>
-            ))}
-          </nav>
-          <div>
-            <p className="eyebrow mb-2 px-3">Posts from</p>
-            <div className="grid gap-0.5">
-              <Link to="/community" search={{ tag, sort }} className={side(!who)}>Everyone</Link>
-              {Object.entries(memberTypes).map(([k, v]) => <Link key={k} to="/community" search={{ tag, sort, who: k }} className={side(who === k)}>{v === "Alumni" ? v : v === "Business" ? "Businesses" : `${v}s`}</Link>)}
-            </div>
-          </div>
-          <div>
-            <p className="eyebrow mb-2 px-3">Other</p>
-            <nav className="grid gap-0.5 text-sm">
-              {otherNav.map(({ to, label, Icon }) => (
-                <Link key={label} to={to} className="flex items-center gap-3 rounded-md px-3 py-2 text-foreground/80 hover:bg-brand-gold-soft hover:text-primary"><Icon className="size-4 text-muted-foreground" />{label}</Link>
-              ))}
-            </nav>
-          </div>
-        </aside>
+        <CommunitySidebar active={tag && sections.some(s => s.tag === tag) ? tag : tag ? "" : "home"} who={who} />
         <div>
+          <CommunityMobileNav active={tag ?? "home"} />
+          {section && <h2 className="mb-4 flex items-center gap-2 font-serif text-3xl text-primary"><section.Icon className="size-6 text-brand-gold" />{section.label}</h2>}
           <div className="mb-5 flex items-center gap-2">
             <Link to="/community" search={{ tag, who }} className={pill(sort === "latest")}>Latest</Link>
             <Link to="/community" search={{ tag, who, sort: "top" }} className={pill(sort === "top")}>Top</Link>
-            {tag && <span className="ml-auto text-sm">Showing <strong>#{tag}</strong> · <Link to="/community" search={{ sort, who }} className="underline">clear</Link></span>}
+            {tag && !section && <span className="ml-auto text-sm">Showing <strong>#{tag}</strong> · <Link to="/community" search={{ sort, who }} className="underline">clear</Link></span>}
           </div>
           {isLoading ? <p className="text-muted-foreground">Loading posts…</p> : list.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-10 text-center">

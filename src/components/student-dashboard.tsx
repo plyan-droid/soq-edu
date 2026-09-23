@@ -87,7 +87,7 @@ export function StudentDashboard({ userId, email, isAdmin }: { userId: string; e
                     <p className="font-serif text-4xl text-primary">{e.progress}%</p>
                   </div>
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-brand-gold" style={{ width: `${e.progress}%` }} /></div>
-                  <p className="mt-3 text-sm text-muted-foreground">{t.filter(x => x.status === "done").length} of {t.length} items completed</p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{t.filter(x => x.status === "done").length} of {t.length} items completed</p><Link to="/learn/$slug" params={{ slug: e.course_slug }} className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">Open lessons &amp; live classes</Link></div>
                 </div>
               );
             })}

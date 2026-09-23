@@ -34,6 +34,7 @@ import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TeachRouteImport } from './routes/teach'
+import { Route as TrainerRouteImport } from './routes/trainer'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
@@ -43,6 +44,7 @@ import { Route as CommunityNewRouteImport } from './routes/community.new'
 import { Route as CommunitySavedRouteImport } from './routes/community.saved'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
 import { Route as CommunityPostIdRouteImport } from './routes/community.post.$id'
 import { Route as CommunityUUsernameRouteImport } from './routes/community.u.$username'
@@ -172,6 +174,11 @@ const TeachRoute = TeachRouteImport.update({
   path: '/teach',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrainerRoute = TrainerRouteImport.update({
+  id: '/trainer',
+  path: '/trainer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainersRoute = TrainersRouteImport.update({
   id: '/trainers',
   path: '/trainers',
@@ -217,10 +224,15 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CoursesRoute,
 } as any)
-const TrainerListRoute = TrainerListRouteImport.update({
-  id: '/trainer/list',
-  path: '/trainer/list',
+const LearnSlugRoute = LearnSlugRouteImport.update({
+  id: '/learn/$slug',
+  path: '/learn/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const TrainerListRoute = TrainerListRouteImport.update({
+  id: '/list',
+  path: '/list',
+  getParentRoute: () => TrainerRoute,
 } as any)
 const CommunityPostIdRoute = CommunityPostIdRouteImport.update({
   id: '/community/post/$id',
@@ -259,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/teach': typeof TeachRoute
+  '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -266,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
@@ -297,6 +311,7 @@ export interface FileRoutesByTo {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/teach': typeof TeachRoute
+  '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -304,6 +319,7 @@ export interface FileRoutesByTo {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community': typeof CommunityIndexRoute
   '/courses': typeof CoursesIndexRoute
@@ -337,6 +353,7 @@ export interface FileRoutesById {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/teach': typeof TeachRoute
+  '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -344,6 +361,7 @@ export interface FileRoutesById {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/learn/$slug': typeof LearnSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
@@ -378,6 +396,7 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/teach'
+    | '/trainer'
     | '/trainers'
     | '/verify-certificate'
     | '/community/guidelines'
@@ -385,6 +404,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/trainer/list'
     | '/community/'
     | '/courses/'
@@ -416,6 +436,7 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/teach'
+    | '/trainer'
     | '/trainers'
     | '/verify-certificate'
     | '/community/guidelines'
@@ -423,6 +444,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/trainer/list'
     | '/community'
     | '/courses'
@@ -455,6 +477,7 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/teach'
+    | '/trainer'
     | '/trainers'
     | '/verify-certificate'
     | '/community/guidelines'
@@ -462,6 +485,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/learn/$slug'
     | '/trainer/list'
     | '/community/'
     | '/courses/'
@@ -495,13 +519,14 @@ export interface RootRouteChildren {
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
   TeachRoute: typeof TeachRoute
+  TrainerRoute: typeof TrainerRouteWithChildren
   TrainersRoute: typeof TrainersRoute
   VerifyCertificateRoute: typeof VerifyCertificateRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
   CommunitySavedRoute: typeof CommunitySavedRoute
-  TrainerListRoute: typeof TrainerListRoute
+  LearnSlugRoute: typeof LearnSlugRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
   CommunityPostIdRoute: typeof CommunityPostIdRoute
   CommunityUUsernameRoute: typeof CommunityUUsernameRoute
@@ -684,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeachRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/trainer': {
+      id: '/trainer'
+      path: '/trainer'
+      fullPath: '/trainer'
+      preLoaderRoute: typeof TrainerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainers': {
       id: '/trainers'
       path: '/trainers'
@@ -747,12 +779,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/learn/$slug': {
+      id: '/learn/$slug'
+      path: '/learn/$slug'
+      fullPath: '/learn/$slug'
+      preLoaderRoute: typeof LearnSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainer/list': {
       id: '/trainer/list'
-      path: '/trainer/list'
+      path: '/list'
       fullPath: '/trainer/list'
       preLoaderRoute: typeof TrainerListRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof TrainerRoute
     }
     '/community/post/$id': {
       id: '/community/post/$id'
@@ -784,6 +823,17 @@ const CoursesRouteChildren: CoursesRouteChildren = {
 const CoursesRouteWithChildren =
   CoursesRoute._addFileChildren(CoursesRouteChildren)
 
+interface TrainerRouteChildren {
+  TrainerListRoute: typeof TrainerListRoute
+}
+
+const TrainerRouteChildren: TrainerRouteChildren = {
+  TrainerListRoute: TrainerListRoute,
+}
+
+const TrainerRouteWithChildren =
+  TrainerRoute._addFileChildren(TrainerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -810,13 +860,14 @@ const rootRouteChildren: RootRouteChildren = {
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
   TeachRoute: TeachRoute,
+  TrainerRoute: TrainerRouteWithChildren,
   TrainersRoute: TrainersRoute,
   VerifyCertificateRoute: VerifyCertificateRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,
   CommunitySavedRoute: CommunitySavedRoute,
-  TrainerListRoute: TrainerListRoute,
+  LearnSlugRoute: LearnSlugRoute,
   CommunityIndexRoute: CommunityIndexRoute,
   CommunityPostIdRoute: CommunityPostIdRoute,
   CommunityUUsernameRoute: CommunityUUsernameRoute,

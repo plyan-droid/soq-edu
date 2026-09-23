@@ -125,6 +125,54 @@ export type Database = {
         }
         Relationships: []
       }
+      course_drafts: {
+        Row: {
+          category: string
+          created_at: string
+          duration: string | null
+          id: string
+          mode: string | null
+          outcomes: string[]
+          price: string | null
+          staff_note: string | null
+          status: string
+          summary: string
+          title: string
+          trainer_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          mode?: string | null
+          outcomes?: string[]
+          price?: string | null
+          staff_note?: string | null
+          status?: string
+          summary?: string
+          title: string
+          trainer_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          duration?: string | null
+          id?: string
+          mode?: string | null
+          outcomes?: string[]
+          price?: string | null
+          staff_note?: string | null
+          status?: string
+          summary?: string
+          title?: string
+          trainer_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_intakes: {
         Row: {
           apply_by: string | null
@@ -317,6 +365,104 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lesson_progress: {
+        Row: {
+          completed_at: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lessons: {
+        Row: {
+          body: string | null
+          course_slug: string
+          created_at: string
+          created_by: string | null
+          file_url: string | null
+          id: string
+          position: number
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          body?: string | null
+          course_slug: string
+          created_at?: string
+          created_by?: string | null
+          file_url?: string | null
+          id?: string
+          position?: number
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          body?: string | null
+          course_slug?: string
+          created_at?: string
+          created_by?: string | null
+          file_url?: string | null
+          id?: string
+          position?: number
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      live_sessions: {
+        Row: {
+          course_slug: string
+          created_at: string
+          duration_min: number
+          id: string
+          meeting_url: string | null
+          starts_at: string
+          status: string
+          title: string
+          trainer_id: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meeting_url?: string | null
+          starts_at: string
+          status?: string
+          title: string
+          trainer_id: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meeting_url?: string | null
+          starts_at?: string
+          status?: string
+          title?: string
+          trainer_id?: string
+        }
+        Relationships: []
       }
       newsletter_subscribers: {
         Row: {
@@ -618,7 +764,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "student"
+      app_role: "admin" | "student" | "trainer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -746,7 +892,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "student"],
+      app_role: ["admin", "student", "trainer"],
     },
   },
 } as const

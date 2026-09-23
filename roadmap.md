@@ -30,8 +30,8 @@
 - [x] Staff user list (roles, search)
 - [x] Reports (applications, enrolments, reviews, tickets counts)
 ### Phase 2 — learning
-- [ ] Lesson pages (video/files) for enrolled students
-- [ ] Trainer dashboard, trainer course drafts, staff approval, live class schedule
+- [x] Lesson pages (video/files) for enrolled students
+- [x] Trainer dashboard, trainer course drafts, staff approval, live class schedule
 ### Phase 3 — mock payments
 - [ ] Cart, mock checkout, discount codes, sales list
 ### Later

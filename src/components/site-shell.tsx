@@ -73,7 +73,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/verify-certificate">Verify a Certificate</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/trainer">Trainer Dashboard</Link><Link to="/verify-certificate">Verify a Certificate</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">

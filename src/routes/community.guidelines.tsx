@@ -28,7 +28,7 @@ const postRules = [
 ];
 
 const commentRules = [
-  ["Be constructive", "Disagree with the idea, not the person. "It's wrong because…" is fine. "You're stupid" is not."],
+  ["Be constructive", "Disagree with the idea, not the person. 'It's wrong because…' is fine. 'You're stupid' is not."],
   ["Stay on the thread's topic", "If a post is about lash glue, talk about lash glue. Start a new post for a different subject."],
   ["No self-promotion in comments", "Comments are for discussion, not for advertising your course, salon or service. Use Jobs & Gigs for that."],
   ["Don't pile on", "If a comment is already hidden or flagged, don't reply just to add another insult. Report it and move on."],

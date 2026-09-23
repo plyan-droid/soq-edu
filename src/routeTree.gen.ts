@@ -13,13 +13,19 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
+import { Route as CareersRouteImport } from './routes/careers'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CorporateTrainingRouteImport } from './routes/corporate-training'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FundingRouteImport } from './routes/funding'
+import { Route as JobMatchingRouteImport } from './routes/job-matching'
+import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
+import { Route as JoinUsRouteImport } from './routes/join-us'
+import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
@@ -43,6 +49,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
 const BusinessesRoute = BusinessesRouteImport.update({
   id: '/businesses',
   path: '/businesses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -75,9 +86,34 @@ const FundingRoute = FundingRouteImport.update({
   path: '/funding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JobMatchingRoute = JobMatchingRouteImport.update({
+  id: '/job-matching',
+  path: '/job-matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobMatchingProgramRoute = JobMatchingProgramRouteImport.update({
+  id: '/job-matching-program',
+  path: '/job-matching-program',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinUsRoute = JoinUsRouteImport.update({
+  id: '/join-us',
+  path: '/join-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeiProfileRoute = PeiProfileRouteImport.update({
+  id: '/pei-profile',
+  path: '/pei-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentPoliciesRoute = StudentPoliciesRouteImport.update({
+  id: '/student-policies',
+  path: '/student-policies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrainersRoute = TrainersRouteImport.update({
@@ -106,13 +142,19 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
   '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -123,12 +165,18 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
   '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -140,13 +188,19 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
   '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -159,13 +213,19 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/careers'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
     | '/courses'
     | '/faq'
     | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
     | '/resources'
+    | '/student-policies'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -176,12 +236,18 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/careers'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
     | '/faq'
     | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
     | '/resources'
+    | '/student-policies'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -192,13 +258,19 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/careers'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
     | '/courses'
     | '/faq'
     | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
     | '/resources'
+    | '/student-policies'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -210,13 +282,19 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
   BusinessesRoute: typeof BusinessesRoute
+  CareersRoute: typeof CareersRoute
   ContactRoute: typeof ContactRoute
   ContactUsRoute: typeof ContactUsRoute
   CorporateTrainingRoute: typeof CorporateTrainingRoute
   CoursesRoute: typeof CoursesRouteWithChildren
   FaqRoute: typeof FaqRoute
   FundingRoute: typeof FundingRoute
+  JobMatchingRoute: typeof JobMatchingRoute
+  JobMatchingProgramRoute: typeof JobMatchingProgramRoute
+  JoinUsRoute: typeof JoinUsRoute
+  PeiProfileRoute: typeof PeiProfileRoute
   ResourcesRoute: typeof ResourcesRoute
+  StudentPoliciesRoute: typeof StudentPoliciesRoute
   TrainersRoute: typeof TrainersRoute
   TrainerListRoute: typeof TrainerListRoute
 }
@@ -249,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/businesses'
       fullPath: '/businesses'
       preLoaderRoute: typeof BusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -293,11 +378,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FundingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/job-matching': {
+      id: '/job-matching'
+      path: '/job-matching'
+      fullPath: '/job-matching'
+      preLoaderRoute: typeof JobMatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/job-matching-program': {
+      id: '/job-matching-program'
+      path: '/job-matching-program'
+      fullPath: '/job-matching-program'
+      preLoaderRoute: typeof JobMatchingProgramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join-us': {
+      id: '/join-us'
+      path: '/join-us'
+      fullPath: '/join-us'
+      preLoaderRoute: typeof JoinUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pei-profile': {
+      id: '/pei-profile'
+      path: '/pei-profile'
+      fullPath: '/pei-profile'
+      preLoaderRoute: typeof PeiProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-policies': {
+      id: '/student-policies'
+      path: '/student-policies'
+      fullPath: '/student-policies'
+      preLoaderRoute: typeof StudentPoliciesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trainers': {
@@ -349,13 +469,19 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
   BusinessesRoute: BusinessesRoute,
+  CareersRoute: CareersRoute,
   ContactRoute: ContactRoute,
   ContactUsRoute: ContactUsRoute,
   CorporateTrainingRoute: CorporateTrainingRoute,
   CoursesRoute: CoursesRouteWithChildren,
   FaqRoute: FaqRoute,
   FundingRoute: FundingRoute,
+  JobMatchingRoute: JobMatchingRoute,
+  JobMatchingProgramRoute: JobMatchingProgramRoute,
+  JoinUsRoute: JoinUsRoute,
+  PeiProfileRoute: PeiProfileRoute,
   ResourcesRoute: ResourcesRoute,
+  StudentPoliciesRoute: StudentPoliciesRoute,
   TrainersRoute: TrainersRoute,
   TrainerListRoute: TrainerListRoute,
 }

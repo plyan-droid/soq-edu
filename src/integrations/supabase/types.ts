@@ -325,6 +325,36 @@ export type Database = {
           },
         ]
       }
+      discount_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_on: string | null
+          max_uses: number | null
+          percent_off: number
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_on?: string | null
+          max_uses?: number | null
+          percent_off: number
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_on?: string | null
+          max_uses?: number | null
+          percent_off?: number
+          used_count?: number
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           course_slug: string
@@ -485,6 +515,75 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_templates: {
+        Row: {
+          body: string
+          key: string
+          label: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          key: string
+          label: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          key?: string
+          label?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          created_at: string
+          discount_amount: number
+          discount_code: string | null
+          email: string
+          full_name: string
+          id: string
+          items: Json
+          payment_ref: string
+          status: string
+          subtotal: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_amount?: number
+          discount_code?: string | null
+          email: string
+          full_name: string
+          id?: string
+          items: Json
+          payment_ref: string
+          status?: string
+          subtotal: number
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_amount?: number
+          discount_code?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          items?: Json
+          payment_ref?: string
+          status?: string
+          subtotal?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_bookmarks: {
         Row: {
           created_at: string
@@ -641,6 +740,48 @@ export type Database = {
         }
         Relationships: []
       }
+      site_pages: {
+        Row: {
+          body: string
+          published: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          published?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           created_at: string
@@ -745,12 +886,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_discount: { Args: { _code: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      place_mock_order: {
+        Args: {
+          _code: string
+          _email: string
+          _full_name: string
+          _items: Json
+        }
+        Returns: string
       }
       verify_certificate: {
         Args: { _code: string }

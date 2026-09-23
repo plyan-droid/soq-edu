@@ -15,6 +15,7 @@ import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
@@ -45,6 +46,7 @@ import { Route as CommunitySavedRouteImport } from './routes/community.saved'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
 import { Route as CommunityPostIdRouteImport } from './routes/community.post.$id'
 import { Route as CommunityUUsernameRouteImport } from './routes/community.u.$username'
@@ -77,6 +79,11 @@ const CalendarRoute = CalendarRouteImport.update({
 const CareersRoute = CareersRouteImport.update({
   id: '/careers',
   path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -229,6 +236,11 @@ const LearnSlugRoute = LearnSlugRouteImport.update({
   path: '/learn/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainerListRoute = TrainerListRouteImport.update({
   id: '/list',
   path: '/list',
@@ -252,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
+  '/cart': typeof CartRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
@@ -280,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
@@ -293,6 +307,7 @@ export interface FileRoutesByTo {
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
+  '/cart': typeof CartRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
@@ -320,6 +335,7 @@ export interface FileRoutesByTo {
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community': typeof CommunityIndexRoute
   '/courses': typeof CoursesIndexRoute
@@ -334,6 +350,7 @@ export interface FileRoutesById {
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
+  '/cart': typeof CartRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
@@ -362,6 +379,7 @@ export interface FileRoutesById {
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
@@ -377,6 +395,7 @@ export interface FileRouteTypes {
     | '/businesses'
     | '/calendar'
     | '/careers'
+    | '/cart'
     | '/compare'
     | '/contact'
     | '/contact-us'
@@ -405,6 +424,7 @@ export interface FileRouteTypes {
     | '/community/saved'
     | '/courses/$slug'
     | '/learn/$slug'
+    | '/p/$slug'
     | '/trainer/list'
     | '/community/'
     | '/courses/'
@@ -418,6 +438,7 @@ export interface FileRouteTypes {
     | '/businesses'
     | '/calendar'
     | '/careers'
+    | '/cart'
     | '/compare'
     | '/contact'
     | '/contact-us'
@@ -445,6 +466,7 @@ export interface FileRouteTypes {
     | '/community/saved'
     | '/courses/$slug'
     | '/learn/$slug'
+    | '/p/$slug'
     | '/trainer/list'
     | '/community'
     | '/courses'
@@ -458,6 +480,7 @@ export interface FileRouteTypes {
     | '/businesses'
     | '/calendar'
     | '/careers'
+    | '/cart'
     | '/compare'
     | '/contact'
     | '/contact-us'
@@ -486,6 +509,7 @@ export interface FileRouteTypes {
     | '/community/saved'
     | '/courses/$slug'
     | '/learn/$slug'
+    | '/p/$slug'
     | '/trainer/list'
     | '/community/'
     | '/courses/'
@@ -500,6 +524,7 @@ export interface RootRouteChildren {
   BusinessesRoute: typeof BusinessesRoute
   CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
+  CartRoute: typeof CartRoute
   CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   ContactUsRoute: typeof ContactUsRoute
@@ -527,6 +552,7 @@ export interface RootRouteChildren {
   CommunityNewRoute: typeof CommunityNewRoute
   CommunitySavedRoute: typeof CommunitySavedRoute
   LearnSlugRoute: typeof LearnSlugRoute
+  PSlugRoute: typeof PSlugRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
   CommunityPostIdRoute: typeof CommunityPostIdRoute
   CommunityUUsernameRoute: typeof CommunityUUsernameRoute
@@ -574,6 +600,13 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers'
       preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -786,6 +819,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainer/list': {
       id: '/trainer/list'
       path: '/list'
@@ -841,6 +881,7 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessesRoute: BusinessesRoute,
   CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,
+  CartRoute: CartRoute,
   CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   ContactUsRoute: ContactUsRoute,
@@ -868,6 +909,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityNewRoute: CommunityNewRoute,
   CommunitySavedRoute: CommunitySavedRoute,
   LearnSlugRoute: LearnSlugRoute,
+  PSlugRoute: PSlugRoute,
   CommunityIndexRoute: CommunityIndexRoute,
   CommunityPostIdRoute: CommunityPostIdRoute,
   CommunityUUsernameRoute: CommunityUUsernameRoute,

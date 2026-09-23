@@ -83,9 +83,9 @@ function HomePage() {
         <div className="flex items-end justify-between gap-5"><div><p className="text-[11px] uppercase tracking-[0.35em] text-foreground/70">Explore your path</p><h2 className="mt-3 font-serif text-4xl text-primary md:text-5xl">What do you want to learn?</h2></div><Link to="/courses" className="hidden items-center gap-2 text-sm text-primary md:flex">View all courses <ArrowRight className="size-4" /></Link></div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
-            <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[6/5] flex-col overflow-hidden rounded-xl border border-border bg-brand-cream p-6 shadow-sm">
+            <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[5/4] flex-col overflow-hidden rounded-xl border border-border bg-brand-cream p-6 shadow-sm">
               <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute inset-0 -z-20 h-full w-full object-cover object-[70%_60%] transition-transform duration-500 group-hover:scale-105" />
-              <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-cream via-brand-cream/70 to-transparent" />
+              <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-cream/95 via-brand-cream/40 via-35% to-transparent to-60%" />
               <CornerSwoosh />
               <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Professional Qualifications" : category.name}</h3>
               <p className="mt-2 max-w-[12rem] text-sm leading-5 text-foreground/80">{category.copy}</p>

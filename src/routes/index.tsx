@@ -85,7 +85,7 @@ function HomePage() {
           {categories.map((category) => (
             <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[5/4] flex-col overflow-hidden rounded-xl border border-border bg-brand-cream p-6 shadow-sm">
               <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute inset-0 -z-20 h-full w-full object-cover object-[70%_60%] transition-transform duration-500 group-hover:scale-105" />
-              <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-cream/95 via-brand-cream/40 via-35% to-transparent to-60%" />
+              <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-br from-brand-cream from-20% via-brand-cream/75 via-40% to-transparent to-70%" />
               <CornerSwoosh />
               <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Professional Qualifications" : category.name}</h3>
               <p className="mt-2 max-w-[12rem] text-sm leading-5 text-foreground/80">{category.copy}</p>

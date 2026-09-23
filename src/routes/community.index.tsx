@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { PenLine, Home, GraduationCap, CalendarDays, Sparkles, Scale, Wallet, LayoutDashboard, Users, Info, Phone, ShieldCheck, FileText, BookOpen, Flame } from "lucide-react";
+import { PenLine, CalendarDays, Flame } from "lucide-react";
+import { CommunityMobileNav, CommunitySidebar, sections } from "@/components/community-sidebar";
 import { courses } from "@/lib/site-content";
 import type { Intake } from "@/lib/intakes";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/community-ui";
 import { supabase } from "@/integrations/supabase/client";
-import { POST_SELECT, countOf, memberTypes, suggestedTags, type PostRow } from "@/lib/community";
+import { POST_SELECT, countOf, suggestedTags, type PostRow } from "@/lib/community";
 
 export const Route = createFileRoute("/community/")({
   validateSearch: z.object({ tag: z.string().optional(), sort: z.enum(["latest", "top"]).optional(), who: z.string().optional() }),
@@ -47,7 +48,7 @@ function Community() {
   const byDay = Object.entries(intakes.slice(0, 5).reduce<Record<string, Intake[]>>((m, i) => { const k = fmt(i.start_date, true); (m[k] ??= []).push(i); return m; }, {}));
   const deadlines = intakes.filter(i => i.apply_by && new Date(i.apply_by) >= new Date(new Date().toDateString())).sort((a, b) => a.apply_by!.localeCompare(b.apply_by!)).slice(0, 4);
   const trending = [...posts].sort((a, b) => countOf(b.post_likes) + countOf(b.post_comments) * 2 - countOf(a.post_likes) - countOf(a.post_comments) * 2)[0];
-  const side = (active: boolean) => `rounded-md px-3 py-1.5 text-sm ${active ? "bg-brand-navy text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`;
+  const section = sections.find(s => s.tag === tag);
   const pill = (active: boolean) => `rounded-full px-4 py-1.5 text-sm ${active ? "bg-brand-navy text-primary-foreground" : "text-muted-foreground hover:bg-muted"}`;
 
   return (
@@ -124,21 +125,3 @@ function Community() {
 const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const fmt = (d: string, weekday = false) => new Date(d + "T00:00:00").toLocaleDateString("en-SG", weekday ? { weekday: "long", day: "numeric", month: "long" } : { day: "numeric", month: "long" });
 
-const mainNav = [
-  { to: "/community", label: "Community home", Icon: Home },
-  { to: "/courses", label: "All courses", Icon: GraduationCap },
-  { to: "/calendar", label: "Course calendar", Icon: CalendarDays },
-  { to: "/recommend", label: "Find my course", Icon: Sparkles },
-  { to: "/compare", label: "Compare courses", Icon: Scale },
-  { to: "/funding", label: "Funding & SkillsFuture", Icon: Wallet },
-  { to: "/student-portal", label: "Student portal", Icon: LayoutDashboard },
-  { to: "/trainers", label: "Our trainers", Icon: Users },
-  { to: "/resources", label: "Resources", Icon: BookOpen },
-  { to: "/about", label: "About SOQ", Icon: Info },
-  { to: "/contact", label: "Contact", Icon: Phone },
-] as const;
-
-const otherNav = [
-  { to: "/student-policies", label: "Student policies", Icon: FileText },
-  { to: "/pei-profile", label: "PEI profile", Icon: ShieldCheck },
-] as const;

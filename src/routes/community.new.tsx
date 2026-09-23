@@ -28,6 +28,7 @@ function NewPost() {
   const { data: profile, isLoading } = useMyCommunityProfile(user?.id);
   const navigate = useNavigate();
   const [title, setTitle] = useState(""); const [body, setBody] = useState(""); const [tags, setTags] = useState("");
+  const postTypes = [{ tag: "question", label: "Question" }, { tag: "showcase", label: "Showcase" }, { tag: "jobs", label: "Job" }, { tag: "story", label: "Story" }, { tag: "tech", label: "Guide" }];
   const [err, setErr] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
   if (loading || (user && isLoading)) return <div className="mx-auto max-w-3xl px-5 py-24 text-muted-foreground">Loading…</div>;
@@ -55,6 +56,13 @@ function NewPost() {
     <form onSubmit={publish} className="mx-auto grid max-w-3xl gap-5 px-5 py-14">
       <h1 className="font-serif text-4xl text-primary">Write a post</h1>
       <Input className="h-14 font-serif text-2xl" placeholder="Post title" maxLength={150} value={title} onChange={e => setTitle(e.target.value)} />
+      <div>
+        <p className="mb-2 text-sm font-medium text-primary">What kind of post is this?</p>
+        <div className="flex flex-wrap gap-2">{postTypes.map(pt => {
+          const on = normaliseTags(tags).includes(pt.tag);
+          return <button type="button" key={pt.tag} onClick={() => setTags(normaliseTags(`${tags.split(/\s+/).filter(t => !postTypes.some(x => x.tag === t.replace(/^#/, "").toLowerCase())).join(" ")} ${on ? "" : pt.tag}`).join(" "))} className={`rounded-full border px-4 py-1.5 text-sm ${on ? "border-brand-navy bg-brand-navy text-primary-foreground" : "border-border hover:border-brand-gold"}`}>{pt.label}</button>;
+        })}</div>
+      </div>
       <div>
         <Input placeholder="Up to 4 tags, e.g. lashes careers" value={tags} onChange={e => setTags(e.target.value)} />
         <div className="mt-2 flex flex-wrap gap-2">{suggestedTags.map(t => (

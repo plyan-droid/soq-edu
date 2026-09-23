@@ -92,6 +92,42 @@ export type Database = {
         }
         Relationships: []
       }
+      course_intakes: {
+        Row: {
+          apply_by: string | null
+          course_slug: string
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          session_time: string | null
+          start_date: string
+          status: string
+        }
+        Insert: {
+          apply_by?: string | null
+          course_slug: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          session_time?: string | null
+          start_date: string
+          status?: string
+        }
+        Update: {
+          apply_by?: string | null
+          course_slug?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          session_time?: string | null
+          start_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
       course_tasks: {
         Row: {
           created_at: string

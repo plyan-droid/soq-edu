@@ -5,4 +5,4 @@
 - [x] Build course catalogue and course detail pages
 - [x] Build business, funding, about, trainers, resources, FAQ, and contact pages
 - [x] Add metadata, redirects, and structured data
-- [ ] Verify desktop/mobile presentation and interactions
+- [x] Verify desktop/mobile presentation and interactions

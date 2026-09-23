@@ -24,7 +24,9 @@ import { Route as FundingRouteImport } from './routes/funding'
 import { Route as JobMatchingRouteImport } from './routes/job-matching'
 import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
 import { Route as JoinUsRouteImport } from './routes/join-us'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
+import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
@@ -109,9 +111,19 @@ const JoinUsRoute = JoinUsRouteImport.update({
   path: '/join-us',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PeiProfileRoute = PeiProfileRouteImport.update({
   id: '/pei-profile',
   path: '/pei-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalAdminRoute = PortalAdminRouteImport.update({
+  id: '/portal-admin',
+  path: '/portal-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecommendRoute = RecommendRouteImport.update({
@@ -171,7 +183,9 @@ export interface FileRoutesByFullPath {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -196,7 +210,9 @@ export interface FileRoutesByTo {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -223,7 +239,9 @@ export interface FileRoutesById {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -251,7 +269,9 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
+    | '/portal-admin'
     | '/recommend'
     | '/resources'
     | '/student-policies'
@@ -276,7 +296,9 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
+    | '/portal-admin'
     | '/recommend'
     | '/resources'
     | '/student-policies'
@@ -302,7 +324,9 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
+    | '/portal-admin'
     | '/recommend'
     | '/resources'
     | '/student-policies'
@@ -329,7 +353,9 @@ export interface RootRouteChildren {
   JobMatchingRoute: typeof JobMatchingRoute
   JobMatchingProgramRoute: typeof JobMatchingProgramRoute
   JoinUsRoute: typeof JoinUsRoute
+  LoginRoute: typeof LoginRoute
   PeiProfileRoute: typeof PeiProfileRoute
+  PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
@@ -445,11 +471,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinUsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pei-profile': {
       id: '/pei-profile'
       path: '/pei-profile'
       fullPath: '/pei-profile'
       preLoaderRoute: typeof PeiProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal-admin': {
+      id: '/portal-admin'
+      path: '/portal-admin'
+      fullPath: '/portal-admin'
+      preLoaderRoute: typeof PortalAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recommend': {
@@ -540,7 +580,9 @@ const rootRouteChildren: RootRouteChildren = {
   JobMatchingRoute: JobMatchingRoute,
   JobMatchingProgramRoute: JobMatchingProgramRoute,
   JoinUsRoute: JoinUsRoute,
+  LoginRoute: LoginRoute,
   PeiProfileRoute: PeiProfileRoute,
+  PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,

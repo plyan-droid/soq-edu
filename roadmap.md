@@ -10,3 +10,7 @@
 - [x] Official SOQ logo + favicon
 - [x] AI course recommender (goals -> courses)
 - [x] Course comparison (select multiple, side by side)
+
+## Current
+- [x] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
+- [ ] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first

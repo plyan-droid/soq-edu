@@ -46,6 +46,7 @@ function Admin() {
         {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
       </select>
       {studentId && <StudentEditor studentId={studentId} />}
+      <Applications />
     </div>
   );
 }
@@ -129,6 +130,39 @@ function EnrollmentCard({ e, tasks, onChange }: { e: Enrollment; tasks: Task[]; 
         <Input type="datetime-local" className="w-56" value={due} onChange={ev => setDue(ev.target.value)} />
         <Button variant="outline" className="rounded-full" onClick={addTask}>Add item</Button>
       </div>
+    </div>
+  );
+}
+
+type Application = { id: string; course_slug: string; full_name: string; email: string; phone: string; citizenship: string | null; preferred_intake: string | null; message: string | null; status: string; created_at: string };
+
+function Applications() {
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({
+    queryKey: ["admin-applications"],
+    queryFn: async () => ((await supabase.from("course_applications").select("*").order("created_at", { ascending: false }).limit(200)).data ?? []) as Application[],
+  });
+  const setStatus = async (id: string, status: string) => { await supabase.from("course_applications").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-applications"] }); };
+  return (
+    <div className="mt-14">
+      <h2 className="font-serif text-4xl text-primary">Course applications ({data.filter(a => a.status === "new").length} new)</h2>
+      {data.length === 0 ? <p className="mt-3 text-muted-foreground">No applications yet.</p> : (
+        <div className="mt-5 overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-muted"><tr>{["Date", "Name", "Contact", "Course", "Intake / notes", "Status"].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
+            <tbody>{data.map(a => (
+              <tr key={a.id} className="border-t border-border align-top">
+                <td className="p-3 whitespace-nowrap">{new Date(a.created_at).toLocaleDateString("en-SG")}</td>
+                <td className="p-3">{a.full_name}<div className="text-xs text-muted-foreground">{a.citizenship?.replace(/_/g, " ")}</div></td>
+                <td className="p-3"><a className="underline" href={`mailto:${a.email}`}>{a.email}</a><div>{a.phone}</div></td>
+                <td className="p-3">{courseTitle(a.course_slug)}</td>
+                <td className="p-3 max-w-64">{a.preferred_intake}<div className="text-xs text-muted-foreground">{a.message}</div></td>
+                <td className="p-3"><select className={sel} value={a.status} onChange={e => void setStatus(a.id, e.target.value)}>{["new", "contacted", "enrolled", "closed"].map(s => <option key={s}>{s}</option>)}</select></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

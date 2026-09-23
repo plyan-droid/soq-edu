@@ -49,6 +49,8 @@ import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
+import { Route as CommunityLiveIndexRouteImport } from './routes/community.live.index'
+import { Route as CommunityLiveIdRouteImport } from './routes/community.live.$id'
 import { Route as CommunityPostIdRouteImport } from './routes/community.post.$id'
 import { Route as CommunityUUsernameRouteImport } from './routes/community.u.$username'
 
@@ -252,6 +254,16 @@ const TrainerListRoute = TrainerListRouteImport.update({
   path: '/list',
   getParentRoute: () => TrainerRoute,
 } as any)
+const CommunityLiveIndexRoute = CommunityLiveIndexRouteImport.update({
+  id: '/community/live/',
+  path: '/community/live/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityLiveIdRoute = CommunityLiveIdRouteImport.update({
+  id: '/community/live/$id',
+  path: '/community/live/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityPostIdRoute = CommunityPostIdRouteImport.update({
   id: '/community/post/$id',
   path: '/community/post/$id',
@@ -304,8 +316,10 @@ export interface FileRoutesByFullPath {
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/community/live/$id': typeof CommunityLiveIdRoute
   '/community/post/$id': typeof CommunityPostIdRoute
   '/community/u/$username': typeof CommunityUUsernameRoute
+  '/community/live/': typeof CommunityLiveIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -347,8 +361,10 @@ export interface FileRoutesByTo {
   '/trainer/list': typeof TrainerListRoute
   '/community': typeof CommunityIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/community/live/$id': typeof CommunityLiveIdRoute
   '/community/post/$id': typeof CommunityPostIdRoute
   '/community/u/$username': typeof CommunityUUsernameRoute
+  '/community/live': typeof CommunityLiveIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -392,8 +408,10 @@ export interface FileRoutesById {
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/community/live/$id': typeof CommunityLiveIdRoute
   '/community/post/$id': typeof CommunityPostIdRoute
   '/community/u/$username': typeof CommunityUUsernameRoute
+  '/community/live/': typeof CommunityLiveIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -438,8 +456,10 @@ export interface FileRouteTypes {
     | '/trainer/list'
     | '/community/'
     | '/courses/'
+    | '/community/live/$id'
     | '/community/post/$id'
     | '/community/u/$username'
+    | '/community/live/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -481,8 +501,10 @@ export interface FileRouteTypes {
     | '/trainer/list'
     | '/community'
     | '/courses'
+    | '/community/live/$id'
     | '/community/post/$id'
     | '/community/u/$username'
+    | '/community/live'
   id:
     | '__root__'
     | '/'
@@ -525,8 +547,10 @@ export interface FileRouteTypes {
     | '/trainer/list'
     | '/community/'
     | '/courses/'
+    | '/community/live/$id'
     | '/community/post/$id'
     | '/community/u/$username'
+    | '/community/live/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -567,8 +591,10 @@ export interface RootRouteChildren {
   LearnSlugRoute: typeof LearnSlugRoute
   PSlugRoute: typeof PSlugRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
+  CommunityLiveIdRoute: typeof CommunityLiveIdRoute
   CommunityPostIdRoute: typeof CommunityPostIdRoute
   CommunityUUsernameRoute: typeof CommunityUUsernameRoute
+  CommunityLiveIndexRoute: typeof CommunityLiveIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -853,6 +879,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrainerListRouteImport
       parentRoute: typeof TrainerRoute
     }
+    '/community/live/': {
+      id: '/community/live/'
+      path: '/community/live'
+      fullPath: '/community/live/'
+      preLoaderRoute: typeof CommunityLiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/live/$id': {
+      id: '/community/live/$id'
+      path: '/community/live/$id'
+      fullPath: '/community/live/$id'
+      preLoaderRoute: typeof CommunityLiveIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community/post/$id': {
       id: '/community/post/$id'
       path: '/community/post/$id'
@@ -932,8 +972,10 @@ const rootRouteChildren: RootRouteChildren = {
   LearnSlugRoute: LearnSlugRoute,
   PSlugRoute: PSlugRoute,
   CommunityIndexRoute: CommunityIndexRoute,
+  CommunityLiveIdRoute: CommunityLiveIdRoute,
   CommunityPostIdRoute: CommunityPostIdRoute,
   CommunityUUsernameRoute: CommunityUUsernameRoute,
+  CommunityLiveIndexRoute: CommunityLiveIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

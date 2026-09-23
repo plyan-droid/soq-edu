@@ -1,3 +1,4 @@
+import { useMergedCourse } from "@/lib/course-overrides";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, Clock3, MapPin, Plus } from "lucide-react";
 import type { Course } from "@/lib/site-content";
@@ -22,7 +23,8 @@ export function CompareToggle({ slug }: { slug: string }) {
   );
 }
 
-export function CourseCard({ course, showCompare = true }: { course: Course; showCompare?: boolean }) {
+export function CourseCard({ course: base, showCompare = true }: { course: Course; showCompare?: boolean }) {
+  const course = useMergedCourse(base);
   const from = course.price.startsWith("From ");
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-transform duration-300 hover:-translate-y-1">

@@ -35,7 +35,7 @@ function ComparePage() {
 
   return (
     <>
-      <PageHero eyebrow="Compare courses" title="Weigh your options side by side." description={`Select up to ${max} courses to compare fees, durations, modes and outcomes.`} />
+      <PageHero eyebrow="Compare courses" title="Weigh your options side by side." intro={`Select up to ${max} courses to compare fees, durations, modes and outcomes.`} />
       <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
         <div className="flex flex-wrap items-center gap-3">
           <select

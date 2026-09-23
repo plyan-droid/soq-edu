@@ -55,7 +55,7 @@ function RecommendPage() {
 
   return (
     <>
-      <PageHero eyebrow="AI course advisor" title="Tell us your goals. We'll find your course." description="Describe where you are today and where you want to go — our AI advisor matches you with the most relevant SOQ programmes." />
+      <PageHero eyebrow="AI course advisor" title="Tell us your goals. We'll find your course." intro="Describe where you are today and where you want to go — our AI advisor matches you with the most relevant SOQ programmes." />
       <section className="mx-auto max-w-4xl px-5 py-14 lg:px-8">
         <form onSubmit={submit} className="rounded-lg border border-border bg-card p-6">
           <label htmlFor="goals" className="font-serif text-2xl text-brand-navy">What do you want to learn or achieve?</label>

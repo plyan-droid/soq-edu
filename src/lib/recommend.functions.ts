@@ -12,7 +12,7 @@ const Schema = z.object({
 });
 
 export const recommendCourses = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("AI service is not configured.");

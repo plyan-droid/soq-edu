@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -58,6 +59,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
 const BusinessesRoute = BusinessesRouteImport.update({
   id: '/businesses',
   path: '/businesses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersRoute = CareersRouteImport.update({
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -294,6 +303,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -326,6 +336,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -357,6 +368,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -390,6 +402,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
   BusinessesRoute: typeof BusinessesRoute
+  CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
   CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
@@ -444,6 +457,13 @@ declare module '@tanstack/react-router' {
       path: '/businesses'
       fullPath: '/businesses'
       preLoaderRoute: typeof BusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers': {
@@ -649,6 +669,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
   BusinessesRoute: BusinessesRoute,
+  CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,
   CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,

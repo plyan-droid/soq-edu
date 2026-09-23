@@ -177,7 +177,7 @@ function CalendarPage() {
             <div className="rounded-lg border border-border bg-card p-6">
               <h3 className="font-serif text-2xl text-primary">Can't find a date?</h3>
               <p className="mt-2 text-sm text-muted-foreground">Many courses open on request. Ask us for the next class.</p>
-              <Button asChild className="mt-4 w-full rounded-full"><a href={`https://wa.me/${contact.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Hi SOQ, I'd like to know the next intake dates.")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp us</a></Button>
+              <Button asChild className="mt-4 w-full rounded-full"><a href={`${contact.whatsapp}?text=${encodeURIComponent("Hi SOQ, I'd like to know the next intake dates.")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp us</a></Button>
             </div>
           </aside>
         </div>

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/community/post/$id")({
   component: PostPage,
 });
 
-type CommentRow = { id: string; body: string; created_at: string; author_id: string; hidden: boolean; author: { username: string; display_name: string; member_type: string } | null };
+type CommentRow = { id: string; body: string; created_at: string; author_id: string; hidden: boolean; author: { username: string; display_name: string; member_type: string; verified: boolean } | null };
 
 function PostPage() {
   const { id } = Route.useParams();

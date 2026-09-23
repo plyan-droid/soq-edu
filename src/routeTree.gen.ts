@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -29,6 +30,7 @@ import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TrainersRouteImport } from './routes/trainers'
@@ -58,6 +60,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
 const BusinessesRoute = BusinessesRouteImport.update({
   id: '/businesses',
   path: '/businesses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersRoute = CareersRouteImport.update({
@@ -140,6 +147,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffCoursesRoute = StaffCoursesRouteImport.update({
+  id: '/staff-courses',
+  path: '/staff-courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentPoliciesRoute = StudentPoliciesRouteImport.update({
   id: '/student-policies',
   path: '/student-policies',
@@ -196,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -212,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -228,6 +242,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -243,6 +258,7 @@ export interface FileRoutesByTo {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -260,6 +276,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
   '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
@@ -276,6 +293,7 @@ export interface FileRoutesById {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -294,6 +312,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -310,6 +329,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -326,6 +346,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -341,6 +362,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -357,6 +379,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/businesses'
+    | '/calendar'
     | '/careers'
     | '/compare'
     | '/contact'
@@ -373,6 +396,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -390,6 +414,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
   BusinessesRoute: typeof BusinessesRoute
+  CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
   CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
@@ -406,6 +431,7 @@ export interface RootRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
+  StaffCoursesRoute: typeof StaffCoursesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
   TrainersRoute: typeof TrainersRoute
@@ -444,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/businesses'
       fullPath: '/businesses'
       preLoaderRoute: typeof BusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers': {
@@ -558,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff-courses': {
+      id: '/staff-courses'
+      path: '/staff-courses'
+      fullPath: '/staff-courses'
+      preLoaderRoute: typeof StaffCoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student-policies': {
       id: '/student-policies'
       path: '/student-policies'
@@ -649,6 +689,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
   BusinessesRoute: BusinessesRoute,
+  CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,
   CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
@@ -665,6 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,
+  StaffCoursesRoute: StaffCoursesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
   TrainersRoute: TrainersRoute,

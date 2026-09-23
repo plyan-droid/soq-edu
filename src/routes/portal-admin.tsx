@@ -40,13 +40,15 @@ function Admin() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
-      <p className="mt-2 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
+      <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
+      <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
       <select className={`${sel} mt-6 w-full max-w-md`} value={studentId} onChange={e => setStudentId(e.target.value)}>
         <option value="">Select a student…</option>
         {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
       </select>
       {studentId && <StudentEditor studentId={studentId} />}
       <Applications />
+      <IntakesEditor />
       <CommunityMembers />
     </div>
   );
@@ -197,6 +199,54 @@ function CommunityMembers() {
               <td className="p-3 capitalize">{m.member_type}</td>
               <td className="p-3">{m.verified ? "Verified" : "Not verified"}</td>
               <td className="p-3 text-right"><Button size="sm" variant={m.verified ? "outline" : "default"} className="rounded-full" onClick={() => void toggle(m)}>{m.verified ? "Remove verification" : "Verify"}</Button></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+type IntakeRow = { id: string; course_slug: string; start_date: string; end_date: string | null; apply_by: string | null; session_time: string | null; status: string };
+
+function IntakesEditor() {
+  const qc = useQueryClient();
+  const [f, setF] = useState({ course_slug: courses[0]?.slug ?? "", start_date: "", end_date: "", apply_by: "", session_time: "" });
+  const { data = [] } = useQuery({
+    queryKey: ["admin-intakes"],
+    queryFn: async () => ((await supabase.from("course_intakes").select("*").order("start_date")).data ?? []) as IntakeRow[],
+  });
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-intakes"] }); void qc.invalidateQueries({ queryKey: ["intakes"] }); };
+  const add = async () => {
+    if (!f.start_date) return;
+    const { error } = await supabase.from("course_intakes").insert({ course_slug: f.course_slug, start_date: f.start_date, end_date: f.end_date || null, apply_by: f.apply_by || null, session_time: f.session_time || null, status: "confirmed" });
+    if (error) alert(error.message); else { setF({ ...f, start_date: "", end_date: "", apply_by: "" }); refresh(); }
+  };
+  const setStatus = async (id: string, status: string) => { await supabase.from("course_intakes").update({ status }).eq("id", id); refresh(); };
+  const del = async (id: string) => { await supabase.from("course_intakes").delete().eq("id", id); refresh(); };
+  return (
+    <div className="mt-14">
+      <h2 className="font-serif text-4xl text-primary">Course calendar intakes</h2>
+      <p className="mt-2 text-muted-foreground">These dates appear on the public Course Calendar page.</p>
+      <div className="mt-5 grid gap-3 rounded-lg border border-border bg-card p-5 md:grid-cols-6">
+        <select className={`${sel} md:col-span-2`} value={f.course_slug} onChange={e => setF({ ...f, course_slug: e.target.value })}>{courses.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select>
+        <label className="text-xs text-muted-foreground">Start<Input type="date" value={f.start_date} onChange={e => setF({ ...f, start_date: e.target.value })} /></label>
+        <label className="text-xs text-muted-foreground">End<Input type="date" value={f.end_date} onChange={e => setF({ ...f, end_date: e.target.value })} /></label>
+        <label className="text-xs text-muted-foreground">Apply by<Input type="date" value={f.apply_by} onChange={e => setF({ ...f, apply_by: e.target.value })} /></label>
+        <label className="text-xs text-muted-foreground">Class time<Input placeholder="9.30am - 4.30pm" value={f.session_time} onChange={e => setF({ ...f, session_time: e.target.value })} /></label>
+        <Button className="rounded-full md:col-span-6 md:justify-self-start" onClick={() => void add()}>Add intake</Button>
+      </div>
+      <div className="mt-5 overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-left text-sm">
+          <thead className="bg-muted"><tr>{["Course", "Dates", "Apply by", "Time", "Status", ""].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
+          <tbody>{data.map(i => (
+            <tr key={i.id} className="border-t border-border">
+              <td className="p-3">{courseTitle(i.course_slug)}</td>
+              <td className="p-3 whitespace-nowrap">{i.start_date}{i.end_date ? ` → ${i.end_date}` : ""}</td>
+              <td className="p-3">{i.apply_by ?? "—"}</td>
+              <td className="p-3">{i.session_time ?? "—"}</td>
+              <td className="p-3"><select className={sel} value={i.status} onChange={e => void setStatus(i.id, e.target.value)}>{["tentative", "confirmed", "full", "cancelled"].map(s => <option key={s}>{s}</option>)}</select></td>
+              <td className="p-3"><Button size="icon" variant="ghost" onClick={() => void del(i.id)}><Trash2 /></Button></td>
             </tr>
           ))}</tbody>
         </table>

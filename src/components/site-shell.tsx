@@ -52,7 +52,7 @@ export function SiteHeader() {
       {open && (
         <nav className="border-t border-border bg-background px-5 py-5 lg:hidden" aria-label="Mobile navigation">
           <div className="mx-auto grid max-w-7xl gap-1">
-            {[...nav, { label: "Find My Course", to: "/recommend" as const }, { label: "Compare Courses", to: "/compare" as const }, { label: "Community", to: "/community" as const }, { label: "Student Portal", to: "/student-portal" as const }].map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
+            {[...nav, { label: "Find My Course", to: "/recommend" as const }, { label: "Compare Courses", to: "/compare" as const }, { label: "Course Calendar", to: "/calendar" as const }, { label: "Community", to: "/community" as const }, { label: "Student Portal", to: "/student-portal" as const }].map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
             <Link to="/contact" onClick={() => setOpen(false)} className="mt-2 rounded-md bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Get Course Advice</Link>
           </div>
         </nav>
@@ -72,7 +72,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">

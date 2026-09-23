@@ -92,6 +92,84 @@ export type Database = {
         }
         Relationships: []
       }
+      course_intakes: {
+        Row: {
+          apply_by: string | null
+          course_slug: string
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          session_time: string | null
+          start_date: string
+          status: string
+        }
+        Insert: {
+          apply_by?: string | null
+          course_slug: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          session_time?: string | null
+          start_date: string
+          status?: string
+        }
+        Update: {
+          apply_by?: string | null
+          course_slug?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          session_time?: string | null
+          start_date?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      course_overrides: {
+        Row: {
+          badge: string | null
+          duration: string | null
+          mode: string | null
+          outcomes: string[] | null
+          price: string | null
+          sections: Json | null
+          slug: string
+          summary: string | null
+          title: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          badge?: string | null
+          duration?: string | null
+          mode?: string | null
+          outcomes?: string[] | null
+          price?: string | null
+          sections?: Json | null
+          slug: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          badge?: string | null
+          duration?: string | null
+          mode?: string | null
+          outcomes?: string[] | null
+          price?: string | null
+          sections?: Json | null
+          slug?: string
+          summary?: string | null
+          title?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       course_tasks: {
         Row: {
           created_at: string

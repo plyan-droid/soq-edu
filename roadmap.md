@@ -16,3 +16,5 @@
 - [x] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first
 - [x] Course application form on each course page with on-screen confirmation; staff can view applications
 - [x] Community: dev.to-style mock posts, comments and members (seed data)
+- [x] Course calendar page (intakes, class hours, deadlines)
+- [x] Staff course editor: syllabi, fees, dates, outcomes (admin only)

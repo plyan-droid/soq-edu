@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PageHero } from "@/components/page-hero";
 import { ContactBand } from "@/components/content-sections";
-const faqs=[
+const faqs: Array<[string, string]> = [
   ["What types of courses does SOQ offer?","SOQ offers WSQ courses, professional diplomas, workshops and customised corporate training across AI and business, beauty and wellness, retail and service skills."],
   ["Where is training conducted?","Training is held at International Plaza near Tanjong Pagar MRT. Some programmes may include blended learning; check the individual course details."],
   ["Can I use SkillsFuture Credit?","Eligible Singapore Citizens may use SkillsFuture Credit for approved programmes. Funding depends on the specific course and current eligibility rules."],

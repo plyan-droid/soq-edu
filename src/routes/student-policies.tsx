@@ -1,0 +1,6 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { PageHero } from "@/components/page-hero";
+import { TextSection } from "@/components/content-sections";
+import { Button } from "@/components/ui/button";
+export const Route=createFileRoute("/student-policies")({head:()=>({meta:[{title:"Student Policies | SOQ"},{name:"description",content:"Access SOQ International Academy student policies and registration guidance."},{property:"og:title",content:"Student Policies | SOQ"},{property:"og:description",content:"Important policy and registration documents for SOQ learners."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:PoliciesPage});
+function PoliciesPage(){return <><PageHero eyebrow="Student policies" title="Clear guidance for every learner." intro="Review the documents that explain registration, student responsibilities and academy policies."/><TextSection title="Official documents"><div className="flex flex-wrap gap-3"><Button asChild><a href="https://soq.edu.sg/upload/general/student-policy.pdf">Student policy</a></Button><Button asChild variant="outline"><a href="https://soq.edu.sg/upload/general/reg-guide.pdf">Registration guide</a></Button><Button asChild variant="outline"><a href="https://soq.edu.sg/data-policy">Data protection policy</a></Button></div></TextSection></>}

@@ -44,6 +44,45 @@ export type Database = {
         }
         Relationships: []
       }
+      course_applications: {
+        Row: {
+          citizenship: string | null
+          course_slug: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          phone: string
+          preferred_intake: string | null
+          status: string
+        }
+        Insert: {
+          citizenship?: string | null
+          course_slug: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          phone: string
+          preferred_intake?: string | null
+          status?: string
+        }
+        Update: {
+          citizenship?: string | null
+          course_slug?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          phone?: string
+          preferred_intake?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       course_tasks: {
         Row: {
           created_at: string

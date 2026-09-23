@@ -41,6 +41,8 @@ export function SiteHeader() {
         </nav>
         <div className="hidden items-center gap-4 lg:flex">
           <Link to="/recommend" aria-label="Find my course" className="grid size-10 place-items-center text-primary"><Search className="size-5" /></Link>
+          <Link to="/community" className="text-sm font-medium text-primary hover:text-brand-gold">Community</Link>
+          <Link to="/student-portal" className="text-sm font-medium text-primary hover:text-brand-gold">Log in</Link>
           <Button asChild className="h-11 rounded-full bg-brand-gold px-6 text-brand-navy shadow-none hover:bg-brand-gold/85">
             <Link to="/contact">Get Course Advice <ArrowRight /></Link>
           </Button>
@@ -50,7 +52,7 @@ export function SiteHeader() {
       {open && (
         <nav className="border-t border-border bg-background px-5 py-5 lg:hidden" aria-label="Mobile navigation">
           <div className="mx-auto grid max-w-7xl gap-1">
-            {[...nav, { label: "Find My Course", to: "/recommend" as const }, { label: "Compare Courses", to: "/compare" as const }].map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
+            {[...nav, { label: "Find My Course", to: "/recommend" as const }, { label: "Compare Courses", to: "/compare" as const }, { label: "Community", to: "/community" as const }, { label: "Student Portal", to: "/student-portal" as const }].map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
             <Link to="/contact" onClick={() => setOpen(false)} className="mt-2 rounded-md bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Get Course Advice</Link>
           </div>
         </nav>
@@ -70,7 +72,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">

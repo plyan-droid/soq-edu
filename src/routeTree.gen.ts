@@ -26,6 +26,7 @@ import { Route as FundingRouteImport } from './routes/funding'
 import { Route as JobMatchingRouteImport } from './routes/job-matching'
 import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
 import { Route as JoinUsRouteImport } from './routes/join-us'
+import { Route as LiveClassesRouteImport } from './routes/live-classes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
@@ -137,6 +138,11 @@ const JobMatchingProgramRoute = JobMatchingProgramRouteImport.update({
 const JoinUsRoute = JoinUsRouteImport.update({
   id: '/join-us',
   path: '/join-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveClassesRoute = LiveClassesRouteImport.update({
+  id: '/live-classes',
+  path: '/live-classes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -385,6 +393,7 @@ export interface FileRoutesById {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -433,6 +442,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/live-classes'
     | '/login'
     | '/pei-profile'
     | '/portal-admin'
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/live-classes'
     | '/login'
     | '/pei-profile'
     | '/portal-admin'
@@ -524,6 +535,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/live-classes'
     | '/login'
     | '/pei-profile'
     | '/portal-admin'
@@ -571,6 +583,7 @@ export interface RootRouteChildren {
   JobMatchingRoute: typeof JobMatchingRoute
   JobMatchingProgramRoute: typeof JobMatchingProgramRoute
   JoinUsRoute: typeof JoinUsRoute
+  LiveClassesRoute: typeof LiveClassesRoute
   LoginRoute: typeof LoginRoute
   PeiProfileRoute: typeof PeiProfileRoute
   PortalAdminRoute: typeof PortalAdminRoute
@@ -716,6 +729,13 @@ declare module '@tanstack/react-router' {
       path: '/join-us'
       fullPath: '/join-us'
       preLoaderRoute: typeof JoinUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live-classes': {
+      id: '/live-classes'
+      path: '/live-classes'
+      fullPath: '/live-classes'
+      preLoaderRoute: typeof LiveClassesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -952,6 +972,7 @@ const rootRouteChildren: RootRouteChildren = {
   JobMatchingRoute: JobMatchingRoute,
   JobMatchingProgramRoute: JobMatchingProgramRoute,
   JoinUsRoute: JoinUsRoute,
+  LiveClassesRoute: LiveClassesRoute,
   LoginRoute: LoginRoute,
   PeiProfileRoute: PeiProfileRoute,
   PortalAdminRoute: PortalAdminRoute,

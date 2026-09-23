@@ -39,7 +39,7 @@ function ProfilePage() {
         <div className="mx-auto flex max-w-3xl flex-col items-center px-5 py-14 text-center">
           <Avatar name={profile.display_name} size={88} />
           <h1 className="mt-4 font-serif text-5xl">{profile.display_name}</h1>
-          <p className="mt-1 flex items-center gap-2 text-primary-foreground/70">@{profile.username} <MemberBadge type={profile.member_type} /></p>
+          <p className="mt-1 flex items-center gap-2 text-primary-foreground/70">@{profile.username} <MemberBadge type={profile.member_type} verified={profile.verified} /></p>
           {profile.bio && <p className="mt-4 max-w-xl text-primary-foreground/80">{profile.bio}</p>}
           <p className="mt-3 text-sm text-primary-foreground/60">Joined {timeAgo(profile.created_at)} · {posts.length} posts</p>
         </div>

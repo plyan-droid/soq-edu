@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type CommunityProfile = { id: string; username: string; display_name: string; bio: string | null; member_type: string; website: string | null; created_at: string };
-export type PostRow = { id: string; author_id: string; title: string; body: string; tags: string[]; hidden: boolean; created_at: string; author: Pick<CommunityProfile, "username" | "display_name" | "member_type"> | null; post_likes: { count: number }[]; post_comments: { count: number }[] };
+export type CommunityProfile = { id: string; username: string; display_name: string; bio: string | null; member_type: string; website: string | null; created_at: string; verified: boolean };
+export type PostRow = { id: string; author_id: string; title: string; body: string; tags: string[]; hidden: boolean; created_at: string; author: Pick<CommunityProfile, "username" | "display_name" | "member_type" | "verified"> | null; post_likes: { count: number }[]; post_comments: { count: number }[] };
 
-export const POST_SELECT = "id,author_id,title,body,tags,hidden,created_at,author:community_profiles!posts_author_id_fkey(username,display_name,member_type),post_likes(count),post_comments(count)";
+export const POST_SELECT = "id,author_id,title,body,tags,hidden,created_at,author:community_profiles!posts_author_id_fkey(username,display_name,member_type,verified),post_likes(count),post_comments(count)";
 
 export const memberTypes: Record<string, string> = { member: "Member", student: "Student", alumni: "Alumni", trainer: "Trainer", business: "Business" };
 export const suggestedTags = ["beauty", "lashes", "makeup", "wellness", "ai", "business", "careers", "retail", "caregiving", "funding", "studytips", "jobs"];

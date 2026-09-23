@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_profile_verification() FROM PUBLIC, anon, authenticated;

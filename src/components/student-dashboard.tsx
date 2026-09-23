@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, ClipboardCheck, LogOut, Settings } from "lucide-react";
+import { CalendarClock, ClipboardCheck, FileText, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
@@ -8,18 +8,22 @@ import { courses } from "@/lib/site-content";
 export type Task = { id: string; enrollment_id: string; kind: string; title: string; due_at: string; status: string; result: string | null };
 export type Enrollment = { id: string; course_slug: string; progress: number; start_date: string | null; end_date: string | null; status: string };
 
+type MyApp = { id: string; course_slug: string; preferred_intake: string | null; status: string; created_at: string };
+const statusLabel: Record<string, string> = { new: "Received", contacted: "Adviser contacted you", enrolled: "Enrolled", closed: "Closed" };
+
 export const courseTitle = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const fmt = (d: string) => new Date(d).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
 export function StudentDashboard({ userId, email, isAdmin }: { userId: string; email: string; isAdmin: boolean }) {
   const { data, isLoading } = useQuery({
-    queryKey: ["portal", userId],
+    queryKey: ["portal", userId, email],
     queryFn: async () => {
       const { data: enr, error } = await supabase.from("enrollments").select("*").eq("student_id", userId).order("created_at");
       if (error) throw error;
       const ids = (enr ?? []).map(e => e.id);
       const { data: tasks } = ids.length ? await supabase.from("course_tasks").select("*").in("enrollment_id", ids).order("due_at") : { data: [] };
-      return { enrollments: (enr ?? []) as Enrollment[], tasks: (tasks ?? []) as Task[] };
+      const { data: apps } = await supabase.from("course_applications").select("id,course_slug,preferred_intake,status,created_at").ilike("email", email).order("created_at", { ascending: false });
+      return { enrollments: (enr ?? []) as Enrollment[], tasks: (tasks ?? []) as Task[], apps: (apps ?? []) as MyApp[] };
     },
   });
   const now = Date.now();
@@ -39,6 +43,27 @@ export function StudentDashboard({ userId, email, isAdmin }: { userId: string; e
           <Button variant="ghost" className="rounded-full" onClick={() => void supabase.auth.signOut()}><LogOut /> Sign out</Button>
         </div>
       </div>
+
+      {!isLoading && data && (
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          {[["Applications", String(data.apps.length)], ["Active courses", String(data.enrollments.filter(e => e.status === "active").length)], ["Next deadline", upcoming[0] ? new Date(upcoming[0].due_at).toLocaleDateString("en-SG", { day: "numeric", month: "short" }) : "None"]].map(([l, v]) => (
+            <div key={l} className="rounded-lg border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{l}</p><p className="mt-1 font-serif text-4xl text-primary">{v}</p></div>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && (data?.apps.length ?? 0) > 0 && (
+        <div className="mt-8 rounded-lg border border-border bg-card p-6">
+          <h2 className="flex items-center gap-2 font-serif text-3xl text-primary"><FileText className="size-5 text-brand-gold" /> My applications</h2>
+          <ul className="mt-4 divide-y divide-border">{data!.apps.map(a => (
+            <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+              <div><Link to="/courses/$slug" params={{ slug: a.course_slug }} className="font-medium text-primary hover:text-brand-gold">{courseTitle(a.course_slug)}</Link>
+                <p className="text-muted-foreground">Sent {new Date(a.created_at).toLocaleDateString("en-SG")}{a.preferred_intake ? ` · Intake: ${a.preferred_intake}` : ""}</p></div>
+              <span className="rounded-full bg-brand-gold-soft px-3 py-1 text-xs font-semibold text-primary">{statusLabel[a.status] ?? a.status}</span>
+            </li>
+          ))}</ul>
+        </div>
+      )}
 
       {isLoading ? <p className="mt-10 text-muted-foreground">Loading your courses…</p> : (data?.enrollments.length ?? 0) === 0 ? (
         <div className="mt-10 rounded-lg border border-border bg-card p-8">

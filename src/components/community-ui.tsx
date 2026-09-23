@@ -1,15 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { countOf, memberTypes, readingTime, timeAgo, type PostRow } from "@/lib/community";
 
-export function MemberBadge({ type }: { type: string }) {
-  return <span className="rounded-full bg-brand-gold-soft px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary">{memberTypes[type] ?? type}</span>;
+export function MemberBadge({ type, verified = false }: { type: string; verified?: boolean }) {
+  const claimed = type === "trainer" || type === "business";
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${claimed && !verified ? "bg-muted text-muted-foreground" : "bg-brand-gold-soft text-primary"}`} title={claimed && !verified ? "Not yet verified by SOQ staff" : undefined}>
+        {memberTypes[type] ?? type}{claimed && !verified ? " · unverified" : ""}
+      </span>
+      {verified && <span className="inline-flex items-center gap-1 rounded-full bg-brand-navy px-2 py-0.5 text-[11px] font-semibold text-brand-gold" title="Verified by SOQ staff"><BadgeCheck className="size-3.5" /> Verified SOQ</span>}
+    </span>
+  );
 }
 
 export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
@@ -23,7 +31,7 @@ export function PostCard({ post }: { post: PostRow }) {
         <Link to="/community/u/$username" params={{ username: post.author.username }} className="flex items-center gap-3">
           <Avatar name={post.author.display_name} size={36} />
           <div>
-            <p className="flex items-center gap-2 text-sm font-medium">{post.author.display_name} <MemberBadge type={post.author.member_type} /></p>
+            <p className="flex items-center gap-2 text-sm font-medium">{post.author.display_name} <MemberBadge type={post.author.member_type} verified={post.author.verified} /></p>
             <p className="text-xs text-muted-foreground">{timeAgo(post.created_at)}</p>
           </div>
         </Link>

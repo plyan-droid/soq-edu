@@ -23,7 +23,7 @@ export const Route = createFileRoute("/community/post/$id")({
   component: PostPage,
 });
 
-type CommentRow = { id: string; body: string; created_at: string; author_id: string; hidden: boolean; author: { username: string; display_name: string; member_type: string } | null };
+type CommentRow = { id: string; body: string; created_at: string; author_id: string; hidden: boolean; author: { username: string; display_name: string; member_type: string; verified: boolean } | null };
 
 function PostPage() {
   const { id } = Route.useParams();
@@ -37,7 +37,7 @@ function PostPage() {
     queryKey: ["post", id, user?.id],
     queryFn: async () => {
       const { data: post } = await supabase.from("posts").select(POST_SELECT).eq("id", id).maybeSingle();
-      const { data: comments } = await supabase.from("post_comments").select("id,body,created_at,author_id,hidden,author:community_profiles!post_comments_author_id_fkey(username,display_name,member_type)").eq("post_id", id).order("created_at");
+      const { data: comments } = await supabase.from("post_comments").select("id,body,created_at,author_id,hidden,author:community_profiles!post_comments_author_id_fkey(username,display_name,member_type,verified)").eq("post_id", id).order("created_at");
       let liked = false, saved = false;
       if (user) {
         liked = !!(await supabase.from("post_likes").select("post_id").eq("post_id", id).eq("user_id", user.id).maybeSingle()).data;
@@ -76,7 +76,7 @@ function PostPage() {
         <Link to="/community/u/$username" params={{ username: post.author.username }} className="mt-6 flex items-center gap-3">
           <Avatar name={post.author.display_name} />
           <div>
-            <p className="flex items-center gap-2 font-medium">{post.author.display_name} <MemberBadge type={post.author.member_type} /></p>
+            <p className="flex items-center gap-2 font-medium">{post.author.display_name} <MemberBadge type={post.author.member_type} verified={post.author.verified} /></p>
             <p className="text-sm text-muted-foreground">{timeAgo(post.created_at)} · {readingTime(post.body)} min read</p>
           </div>
         </Link>
@@ -110,7 +110,7 @@ function PostPage() {
           <li key={c.id} className="rounded-lg border border-border bg-card p-4">
             <div className="flex items-center gap-2 text-sm">
               {c.author && <Link to="/community/u/$username" params={{ username: c.author.username }} className="font-medium">{c.author.display_name}</Link>}
-              {c.author && <MemberBadge type={c.author.member_type} />}
+              {c.author && <MemberBadge type={c.author.member_type} verified={c.author.verified} />}
               <span className="text-muted-foreground">· {timeAgo(c.created_at)}</span>
               {c.hidden && <span className="text-xs text-destructive">hidden</span>}
               {user && (user.id === c.author_id || isAdmin) && (

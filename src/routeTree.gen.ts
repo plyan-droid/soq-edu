@@ -32,9 +32,13 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TrainersRouteImport } from './routes/trainers'
+import { Route as CommunityIndexRouteImport } from './routes/community.index'
+import { Route as CommunityNewRouteImport } from './routes/community.new'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
+import { Route as CommunityPostIdRouteImport } from './routes/community.post.$id'
+import { Route as CommunityUUsernameRouteImport } from './routes/community.u.$username'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -151,6 +155,16 @@ const TrainersRoute = TrainersRouteImport.update({
   path: '/trainers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityIndexRoute = CommunityIndexRouteImport.update({
+  id: '/community/',
+  path: '/community/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityNewRoute = CommunityNewRouteImport.update({
+  id: '/community/new',
+  path: '/community/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -164,6 +178,16 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
 const TrainerListRoute = TrainerListRouteImport.update({
   id: '/trainer/list',
   path: '/trainer/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityPostIdRoute = CommunityPostIdRouteImport.update({
+  id: '/community/post/$id',
+  path: '/community/post/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityUUsernameRoute = CommunityUUsernameRouteImport.update({
+  id: '/community/u/$username',
+  path: '/community/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -191,9 +215,13 @@ export interface FileRoutesByFullPath {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/new': typeof CommunityNewRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
+  '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/community/post/$id': typeof CommunityPostIdRoute
+  '/community/u/$username': typeof CommunityUUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -218,9 +246,13 @@ export interface FileRoutesByTo {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/new': typeof CommunityNewRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
+  '/community': typeof CommunityIndexRoute
   '/courses': typeof CoursesIndexRoute
+  '/community/post/$id': typeof CommunityPostIdRoute
+  '/community/u/$username': typeof CommunityUUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -247,9 +279,13 @@ export interface FileRoutesById {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/new': typeof CommunityNewRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
+  '/community/': typeof CommunityIndexRoute
   '/courses/': typeof CoursesIndexRoute
+  '/community/post/$id': typeof CommunityPostIdRoute
+  '/community/u/$username': typeof CommunityUUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -277,9 +313,13 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/new'
     | '/courses/$slug'
     | '/trainer/list'
+    | '/community/'
     | '/courses/'
+    | '/community/post/$id'
+    | '/community/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -304,9 +344,13 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/new'
     | '/courses/$slug'
     | '/trainer/list'
+    | '/community'
     | '/courses'
+    | '/community/post/$id'
+    | '/community/u/$username'
   id:
     | '__root__'
     | '/'
@@ -332,9 +376,13 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/new'
     | '/courses/$slug'
     | '/trainer/list'
+    | '/community/'
     | '/courses/'
+    | '/community/post/$id'
+    | '/community/u/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -361,7 +409,11 @@ export interface RootRouteChildren {
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
   TrainersRoute: typeof TrainersRoute
+  CommunityNewRoute: typeof CommunityNewRoute
   TrainerListRoute: typeof TrainerListRoute
+  CommunityIndexRoute: typeof CommunityIndexRoute
+  CommunityPostIdRoute: typeof CommunityPostIdRoute
+  CommunityUUsernameRoute: typeof CommunityUUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -527,6 +579,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrainersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community/': {
+      id: '/community/'
+      path: '/community'
+      fullPath: '/community/'
+      preLoaderRoute: typeof CommunityIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/new': {
+      id: '/community/new'
+      path: '/community/new'
+      fullPath: '/community/new'
+      preLoaderRoute: typeof CommunityNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/courses/': {
       id: '/courses/'
       path: '/'
@@ -546,6 +612,20 @@ declare module '@tanstack/react-router' {
       path: '/trainer/list'
       fullPath: '/trainer/list'
       preLoaderRoute: typeof TrainerListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/post/$id': {
+      id: '/community/post/$id'
+      path: '/community/post/$id'
+      fullPath: '/community/post/$id'
+      preLoaderRoute: typeof CommunityPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/u/$username': {
+      id: '/community/u/$username'
+      path: '/community/u/$username'
+      fullPath: '/community/u/$username'
+      preLoaderRoute: typeof CommunityUUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -588,7 +668,11 @@ const rootRouteChildren: RootRouteChildren = {
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
   TrainersRoute: TrainersRoute,
+  CommunityNewRoute: CommunityNewRoute,
   TrainerListRoute: TrainerListRoute,
+  CommunityIndexRoute: CommunityIndexRoute,
+  CommunityPostIdRoute: CommunityPostIdRoute,
+  CommunityUUsernameRoute: CommunityUUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

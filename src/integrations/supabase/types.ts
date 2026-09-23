@@ -22,6 +22,9 @@ export type Database = {
           id: string
           member_type: string
           username: string
+          verified: boolean
+          verified_at: string | null
+          verified_by: string | null
           website: string | null
         }
         Insert: {
@@ -31,6 +34,9 @@ export type Database = {
           id: string
           member_type?: string
           username: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
           website?: string | null
         }
         Update: {
@@ -40,6 +46,9 @@ export type Database = {
           id?: string
           member_type?: string
           username?: string
+          verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
           website?: string | null
         }
         Relationships: []

@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
 import { Route as CareersRouteImport } from './routes/careers'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CorporateTrainingRouteImport } from './routes/corporate-training'
@@ -24,6 +25,7 @@ import { Route as JobMatchingRouteImport } from './routes/job-matching'
 import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
 import { Route as JoinUsRouteImport } from './routes/join-us'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
+import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as TrainersRouteImport } from './routes/trainers'
@@ -54,6 +56,11 @@ const BusinessesRoute = BusinessesRouteImport.update({
 const CareersRoute = CareersRouteImport.update({
   id: '/careers',
   path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -106,6 +113,11 @@ const PeiProfileRoute = PeiProfileRouteImport.update({
   path: '/pei-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecommendRoute = RecommendRouteImport.update({
+  id: '/recommend',
+  path: '/recommend',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -143,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
   '/careers': typeof CareersRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
@@ -153,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
@@ -166,6 +180,7 @@ export interface FileRoutesByTo {
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
   '/careers': typeof CareersRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
@@ -175,6 +190,7 @@ export interface FileRoutesByTo {
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
@@ -189,6 +205,7 @@ export interface FileRoutesById {
   '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
   '/careers': typeof CareersRoute
+  '/compare': typeof CompareRoute
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
@@ -199,6 +216,7 @@ export interface FileRoutesById {
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/trainers': typeof TrainersRoute
@@ -214,6 +232,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/businesses'
     | '/careers'
+    | '/compare'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
@@ -224,6 +243,7 @@ export interface FileRouteTypes {
     | '/job-matching-program'
     | '/join-us'
     | '/pei-profile'
+    | '/recommend'
     | '/resources'
     | '/student-policies'
     | '/trainers'
@@ -237,6 +257,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/businesses'
     | '/careers'
+    | '/compare'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
@@ -246,6 +267,7 @@ export interface FileRouteTypes {
     | '/job-matching-program'
     | '/join-us'
     | '/pei-profile'
+    | '/recommend'
     | '/resources'
     | '/student-policies'
     | '/trainers'
@@ -259,6 +281,7 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/businesses'
     | '/careers'
+    | '/compare'
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
@@ -269,6 +292,7 @@ export interface FileRouteTypes {
     | '/job-matching-program'
     | '/join-us'
     | '/pei-profile'
+    | '/recommend'
     | '/resources'
     | '/student-policies'
     | '/trainers'
@@ -283,6 +307,7 @@ export interface RootRouteChildren {
   AboutUsRoute: typeof AboutUsRoute
   BusinessesRoute: typeof BusinessesRoute
   CareersRoute: typeof CareersRoute
+  CompareRoute: typeof CompareRoute
   ContactRoute: typeof ContactRoute
   ContactUsRoute: typeof ContactUsRoute
   CorporateTrainingRoute: typeof CorporateTrainingRoute
@@ -293,6 +318,7 @@ export interface RootRouteChildren {
   JobMatchingProgramRoute: typeof JobMatchingProgramRoute
   JoinUsRoute: typeof JoinUsRoute
   PeiProfileRoute: typeof PeiProfileRoute
+  RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   TrainersRoute: typeof TrainersRoute
@@ -334,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers'
       preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -406,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PeiProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recommend': {
+      id: '/recommend'
+      path: '/recommend'
+      fullPath: '/recommend'
+      preLoaderRoute: typeof RecommendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -470,6 +510,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutUsRoute: AboutUsRoute,
   BusinessesRoute: BusinessesRoute,
   CareersRoute: CareersRoute,
+  CompareRoute: CompareRoute,
   ContactRoute: ContactRoute,
   ContactUsRoute: ContactUsRoute,
   CorporateTrainingRoute: CorporateTrainingRoute,
@@ -480,6 +521,7 @@ const rootRouteChildren: RootRouteChildren = {
   JobMatchingProgramRoute: JobMatchingProgramRoute,
   JoinUsRoute: JoinUsRoute,
   PeiProfileRoute: PeiProfileRoute,
+  RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
   TrainersRoute: TrainersRoute,

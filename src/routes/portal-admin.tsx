@@ -40,7 +40,8 @@ function Admin() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
-      <p className="mt-2 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
+      <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
+      <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
       <select className={`${sel} mt-6 w-full max-w-md`} value={studentId} onChange={e => setStudentId(e.target.value)}>
         <option value="">Select a student…</option>
         {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}

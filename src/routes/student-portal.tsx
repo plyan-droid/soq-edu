@@ -58,7 +58,7 @@ function StudentPortal() {
           <LifeBuoy className="size-10 shrink-0 text-brand-gold" />
           <div className="flex-1">
             <h2 className="font-serif text-3xl text-primary">Forgot your login or missing a class?</h2>
-            <p className="mt-2 text-muted-foreground">Message our student services team on WhatsApp ({contact.whatsappDisplay ?? "+65 8718 2308"}) or email {contact.email}. Remember: you need at least 75% attendance to complete your course.</p>
+            <p className="mt-2 text-muted-foreground">Message our student services team on WhatsApp (+65 8718 2308) or email {contact.email}. Remember: you need at least 75% attendance to complete your course.</p>
           </div>
           <Button asChild className="rounded-full"><a href={`mailto:${contact.email}`}>Email us</a></Button>
         </div>

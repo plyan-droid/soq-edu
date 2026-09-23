@@ -28,6 +28,7 @@ import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
+import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
@@ -128,6 +129,11 @@ const StudentPoliciesRoute = StudentPoliciesRouteImport.update({
   path: '/student-policies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentPortalRoute = StudentPortalRouteImport.update({
+  id: '/student-portal',
+  path: '/student-portal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainersRoute = TrainersRouteImport.update({
   id: '/trainers',
   path: '/trainers',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
+  '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
+  '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
   '/student-policies': typeof StudentPoliciesRoute
+  '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -246,6 +255,7 @@ export interface FileRouteTypes {
     | '/recommend'
     | '/resources'
     | '/student-policies'
+    | '/student-portal'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/recommend'
     | '/resources'
     | '/student-policies'
+    | '/student-portal'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/recommend'
     | '/resources'
     | '/student-policies'
+    | '/student-portal'
     | '/trainers'
     | '/courses/$slug'
     | '/trainer/list'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
+  StudentPortalRoute: typeof StudentPortalRoute
   TrainersRoute: typeof TrainersRoute
   TrainerListRoute: typeof TrainerListRoute
 }
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentPoliciesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student-portal': {
+      id: '/student-portal'
+      path: '/student-portal'
+      fullPath: '/student-portal'
+      preLoaderRoute: typeof StudentPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainers': {
       id: '/trainers'
       path: '/trainers'
@@ -524,6 +544,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
+  StudentPortalRoute: StudentPortalRoute,
   TrainersRoute: TrainersRoute,
   TrainerListRoute: TrainerListRoute,
 }

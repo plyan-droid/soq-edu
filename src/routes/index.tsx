@@ -45,8 +45,8 @@ function HomePage() {
     <>
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-background">
-        <img src={heroImage} alt="Adult learners in a bright Singapore classroom" width={1536} height={1024} className="absolute inset-y-0 right-0 h-full w-full object-cover object-[65%_center] lg:w-[68%]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent lg:via-background/40" />
+        <img src={heroImage} alt="Adult learners in a bright Singapore classroom" width={1536} height={1024} className="absolute inset-y-0 right-0 h-full w-full object-cover object-[65%_center]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-transparent lg:via-background/60" />
         {/* gold diagonal swoosh */}
         <svg aria-hidden viewBox="0 0 1000 700" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block">
           <path d="M560 0 C470 180 470 420 620 700 L660 700 C520 430 520 190 610 0 Z" className="fill-brand-gold/35" />
@@ -85,7 +85,7 @@ function HomePage() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
             <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[5/4] flex-col overflow-hidden rounded-lg border border-border bg-brand-cream p-5 shadow-sm">
-              <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute bottom-0 right-0 -z-10 h-[70%] w-[75%] rounded-tl-[3rem] object-cover transition-transform duration-500 group-hover:scale-105" />
+              <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute bottom-0 right-0 -z-10 h-[52%] w-[62%] rounded-tl-[2.5rem] object-cover transition-transform duration-500 group-hover:scale-105" />
               <CornerSwoosh />
               <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Professional Qualifications" : category.name}</h3>
               <p className="mt-2 max-w-[11rem] text-sm leading-5 text-foreground/75">{category.copy}</p>
@@ -119,8 +119,8 @@ function HomePage() {
           <h2 className="mt-3 font-serif text-3xl leading-tight text-primary">Not sure which course is right for you?</h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">Tell us what you’re looking to achieve and we’ll recommend suitable programmes.</p>
           <div className="mt-5 grid gap-3">
-            <Select value={goal} onValueChange={setGoal}><SelectTrigger className="h-12 bg-background"><span className="flex items-center gap-3"><User className="size-4 text-primary" /><SelectValue placeholder="I want to…" /></span></SelectTrigger><SelectContent><SelectItem value="upskill">Upskill for my role</SelectItem><SelectItem value="career">Change my career</SelectItem><SelectItem value="business">Train my team</SelectItem></SelectContent></Select>
-            <Select value={interest} onValueChange={setInterest}><SelectTrigger className="h-12 bg-background"><span className="flex items-center gap-3"><LayoutGrid className="size-4 text-primary" /><SelectValue placeholder="I’m interested in…" /></span></SelectTrigger><SelectContent>{categories.map((c) => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}</SelectContent></Select>
+            <Select value={goal} onValueChange={setGoal}><div className="relative"><User className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-primary" /><SelectTrigger className="h-12 bg-background pl-10"><SelectValue placeholder="I want to…" /></SelectTrigger></div><SelectContent><SelectItem value="upskill">Upskill for my role</SelectItem><SelectItem value="career">Change my career</SelectItem><SelectItem value="business">Train my team</SelectItem></SelectContent></Select>
+            <Select value={interest} onValueChange={setInterest}><div className="relative"><LayoutGrid className="pointer-events-none absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-primary" /><SelectTrigger className="h-12 bg-background pl-10"><SelectValue placeholder="I’m interested in…" /></SelectTrigger></div><SelectContent>{categories.map((c) => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}</SelectContent></Select>
             <Button onClick={findCourses} className="h-12 rounded-full">Show my courses <ArrowRight /></Button>
             <Link to="/recommend" className="flex items-center justify-center gap-1.5 text-xs font-semibold text-primary"><Sparkles className="size-3.5 text-brand-gold" />Or describe your goals to our AI advisor</Link>
           </div>

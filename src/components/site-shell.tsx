@@ -1,3 +1,4 @@
+import { NewsletterSignup } from "@/components/newsletter-signup";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";

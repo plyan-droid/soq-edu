@@ -5,6 +5,7 @@ import { Bookmark, EyeOff, Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, MemberBadge, ProfileSetup } from "@/components/community-ui";
+import { PostBody } from "@/components/post-body";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { POST_SELECT, readingTime, timeAgo, useMyCommunityProfile, type PostRow } from "@/lib/community";
@@ -81,7 +82,7 @@ function PostPage() {
           </div>
         </Link>
       )}
-      <div className="mt-8 grid gap-5 text-lg leading-8">{post.body.split(/\n{2,}/).map((para, i) => <p key={i} className="whitespace-pre-line">{para}</p>)}</div>
+      <PostBody body={post.body} />
 
       <div className="mt-10 flex flex-wrap items-center gap-3 border-y border-border py-4">
         <Button variant={data.liked ? "default" : "outline"} className="rounded-full" onClick={() => void toggle("post_likes", data.liked)}><Heart className={data.liked ? "fill-current" : ""} /> {data.likes}</Button>

@@ -11,11 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BusinessesRouteImport } from './routes/businesses'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
+import { Route as CorporateTrainingRouteImport } from './routes/corporate-training'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FundingRouteImport } from './routes/funding'
+import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as TrainerListRouteImport } from './routes/trainer.list'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,9 +34,29 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutUsRoute = AboutUsRouteImport.update({
+  id: '/about-us',
+  path: '/about-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessesRoute = BusinessesRouteImport.update({
   id: '/businesses',
   path: '/businesses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateTrainingRoute = CorporateTrainingRouteImport.update({
+  id: '/corporate-training',
+  path: '/corporate-training',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesRoute = CoursesRouteImport.update({
@@ -37,9 +64,19 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FundingRoute = FundingRouteImport.update({
   id: '/funding',
   path: '/funding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrainersRoute = TrainersRouteImport.update({
@@ -52,72 +89,126 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CoursesRoute,
 } as any)
+const TrainerListRoute = TrainerListRouteImport.update({
+  id: '/trainer/list',
+  path: '/trainer/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/resources': typeof ResourcesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/resources': typeof ResourcesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
   '/businesses': typeof BusinessesRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
+  '/resources': typeof ResourcesRoute
   '/trainers': typeof TrainersRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/about-us'
     | '/businesses'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
     | '/courses'
+    | '/faq'
     | '/funding'
+    | '/resources'
     | '/trainers'
     | '/courses/$slug'
+    | '/trainer/list'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/about-us'
     | '/businesses'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
     | '/courses'
+    | '/faq'
     | '/funding'
+    | '/resources'
     | '/trainers'
     | '/courses/$slug'
+    | '/trainer/list'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/about-us'
     | '/businesses'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
     | '/courses'
+    | '/faq'
     | '/funding'
+    | '/resources'
     | '/trainers'
     | '/courses/$slug'
+    | '/trainer/list'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AboutUsRoute: typeof AboutUsRoute
   BusinessesRoute: typeof BusinessesRoute
+  ContactRoute: typeof ContactRoute
+  ContactUsRoute: typeof ContactUsRoute
+  CorporateTrainingRoute: typeof CorporateTrainingRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  FaqRoute: typeof FaqRoute
   FundingRoute: typeof FundingRoute
+  ResourcesRoute: typeof ResourcesRoute
   TrainersRoute: typeof TrainersRoute
+  TrainerListRoute: typeof TrainerListRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -136,11 +227,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about-us': {
+      id: '/about-us'
+      path: '/about-us'
+      fullPath: '/about-us'
+      preLoaderRoute: typeof AboutUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/businesses': {
       id: '/businesses'
       path: '/businesses'
       fullPath: '/businesses'
       preLoaderRoute: typeof BusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate-training': {
+      id: '/corporate-training'
+      path: '/corporate-training'
+      fullPath: '/corporate-training'
+      preLoaderRoute: typeof CorporateTrainingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses': {
@@ -150,11 +269,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/funding': {
       id: '/funding'
       path: '/funding'
       fullPath: '/funding'
       preLoaderRoute: typeof FundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/trainers': {
@@ -170,6 +303,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses/$slug'
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof CoursesRoute
+    }
+    '/trainer/list': {
+      id: '/trainer/list'
+      path: '/trainer/list'
+      fullPath: '/trainer/list'
+      preLoaderRoute: typeof TrainerListRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -188,10 +328,17 @@ const CoursesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AboutUsRoute: AboutUsRoute,
   BusinessesRoute: BusinessesRoute,
+  ContactRoute: ContactRoute,
+  ContactUsRoute: ContactUsRoute,
+  CorporateTrainingRoute: CorporateTrainingRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  FaqRoute: FaqRoute,
   FundingRoute: FundingRoute,
+  ResourcesRoute: ResourcesRoute,
   TrainersRoute: TrainersRoute,
+  TrainerListRoute: TrainerListRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

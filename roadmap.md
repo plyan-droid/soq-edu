@@ -22,13 +22,13 @@
 
 ## Missing modules (user: build all; admin tools first, mock payments, enrolment moves to this site)
 ### Phase 1 — admin tools
-- [ ] Trainer application form + staff approval
-- [ ] Public certificate check + staff certificate issuing
-- [ ] Course reviews (students) + staff moderation
-- [ ] Support inbox (contact form tickets) for staff
-- [ ] Newsletter sign-up + subscriber list
-- [ ] Staff user list (roles, search)
-- [ ] Reports (applications, enrolments, reviews, tickets counts)
+- [x] Trainer application form + staff approval
+- [x] Public certificate check + staff certificate issuing
+- [x] Course reviews (students) + staff moderation
+- [x] Support inbox (contact form tickets) for staff
+- [x] Newsletter sign-up + subscriber list
+- [x] Staff user list (roles, search)
+- [x] Reports (applications, enrolments, reviews, tickets counts)
 ### Phase 2 — learning
 - [ ] Lesson pages (video/files) for enrolled students
 - [ ] Trainer dashboard, trainer course drafts, staff approval, live class schedule

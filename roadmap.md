@@ -12,5 +12,5 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
-- [ ] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
+- [x] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
 - [ ] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first

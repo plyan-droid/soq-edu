@@ -46,8 +46,75 @@ function levelFor(badge: string) {
   return "Beginner friendly";
 }
 
+function ModuleCard({ index, title, items, image, duration, skills, defaultOpen }: { index: number; title: string; items: string[]; image: string; duration: string; skills: string[]; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-lg border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-center gap-4">
+        <img src={image} alt="" className="h-14 w-24 shrink-0 rounded object-cover" loading="lazy" />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-lg font-semibold text-primary underline-offset-4 hover:underline">{title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">Section {index + 1} · {items.length} topic{items.length === 1 ? "" : "s"}{index === 0 ? ` · ${duration}` : ""}</p>
+        </div>
+        <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex shrink-0 items-center gap-1 rounded-md bg-secondary px-4 py-3 text-sm font-semibold text-primary underline underline-offset-4">
+          <span className="hidden sm:inline">Section details</span><ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+      {open && (
+        <div className="mt-5">
+          <p className="font-semibold text-primary">What you'll learn</p>
+          <ul className="mt-3 space-y-2">{items.map((it, i) => <li key={i} className="flex gap-3 text-sm leading-6"><Check className="mt-1 size-4 shrink-0 text-primary" />{it}</li>)}</ul>
+          {index === 0 && (<>
+            <p className="mt-6 font-semibold text-primary">Skills you'll gain</p>
+            <div className="mt-3 flex flex-wrap gap-2">{skills.map((s) => <span key={s} className="rounded-md bg-muted px-2.5 py-1 text-xs">{s}</span>)}</div>
+          </>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FaqBlock({ badge, onAsk }: { badge: string; onAsk: () => void }) {
+  const [all, setAll] = useState(false);
+  const faqs: [string, string][] = [
+    ["Can I use SkillsFuture Credit?", "Many SOQ courses are eligible for SkillsFuture Credit and WSQ funding of up to 70%. Our advisers will confirm your eligibility."],
+    ["When is the next intake?", "See the Course Calendar or message us on WhatsApp for the latest schedule."],
+    ["What certificate will I receive?", `You'll receive a ${badge} certificate on completion, subject to at least 75% attendance and passing the assessment.`],
+    ["Do I need prior experience?", "Most courses are beginner friendly. Entry requirements, if any, are listed in the syllabus above."],
+    ["Where are classes held?", "Classroom sessions are at 10 Anson Road, International Plaza, Singapore 079903."],
+    ["Can my company sponsor me?", "Yes. Employers may claim Absentee Payroll and use SFEC credits. See our Businesses page or ask an adviser."],
+  ];
+  const shown = all ? faqs : faqs.slice(0, 3);
+  return (
+    <section>
+      <h2 className="text-2xl font-semibold text-primary">Frequently asked questions</h2>
+      <div className="mt-5 grid gap-5 md:grid-cols-[1fr_280px]">
+        <div className="rounded-lg border border-border bg-card px-6 py-2">
+          <Accordion type="single" collapsible>
+            {shown.map(([q, a]) => (
+              <AccordionItem key={q} value={q}><AccordionTrigger className="text-left font-semibold text-primary">{q}</AccordionTrigger><AccordionContent className="text-muted-foreground">{a}</AccordionContent></AccordionItem>
+            ))}
+          </Accordion>
+          <button onClick={() => setAll((v) => !v)} className="mx-auto flex items-center gap-1 py-4 text-sm font-semibold text-primary">
+            {all ? "Show fewer questions" : `Show all ${faqs.length} frequently asked questions`}<ChevronDown className={`size-4 ${all ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+        <div className="self-start rounded-lg border border-border bg-card p-6">
+          <HelpCircle className="size-5 text-primary" />
+          <p className="mt-2 text-lg font-semibold text-primary">More questions</p>
+          <button onClick={onAsk} className="mt-2 block text-sm font-semibold text-primary hover:underline">Ask the SOQ Course Adviser</button>
+          <Link to="/faq" className="mt-1 block text-sm font-semibold text-primary hover:underline">Visit the help centre</Link>
+          <hr className="my-4 border-border" />
+          <p className="text-xs text-muted-foreground">Funding available, <Link to="/funding" className="text-primary underline">learn more</Link></p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CoursePage() {
   const course = Route.useLoaderData();
+  const [chatOpen, setChatOpen] = useState(true);
   const related = courses.filter((c) => c.category === course.category && c.slug !== course.slug).slice(0, 3);
   const wa = `${contact.whatsapp}?text=${encodeURIComponent(`Hi SOQ, I'd like to enquire about the "${course.title}" course (${course.duration}, ${course.mode}). Could you share the upcoming schedule and fees?`)}`;
   const learn = course.sections.find((s) => /outcome|learn/i.test(s.title))?.items ?? course.outcomes;
@@ -55,7 +122,8 @@ function CoursePage() {
   const skills = Array.from(new Set([course.category, course.badge, course.mode, ...modules.slice(0, 1).flatMap((m) => m.items.slice(0, 4).map((i) => (i.split(/[:,–-]/)[0] ?? "").trim()).filter((t) => t.length < 40))]));
 
   return (
-    <>
+    <div className="xl:flex">
+    <div className="min-w-0 flex-1">
       {/* Hero */}
       <section className="relative overflow-hidden bg-secondary">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 pb-24 pt-8 lg:grid-cols-[1.3fr_0.7fr] lg:px-8">
@@ -159,41 +227,18 @@ function CoursePage() {
           <section id="syllabus" className="scroll-mt-20">
             <h2 className="text-2xl font-semibold text-primary">Course syllabus</h2>
             <p className="mt-2 text-sm text-muted-foreground">{modules.length || 1} section{modules.length === 1 ? "" : "s"} · {course.duration}</p>
-            {modules.length === 0 ? (
-              <div className="mt-5 rounded-lg border border-border p-6"><ul className="space-y-3">{course.outcomes.map((o) => <li key={o} className="flex gap-3 text-sm leading-6"><BookOpen className="mt-0.5 size-4 shrink-0 text-brand-gold" />{o}</li>)}</ul></div>
-            ) : (
-              <Accordion type="multiple" defaultValue={["m0"]} className="mt-5 rounded-lg border border-border">
-                {modules.map((m, idx) => (
-                  <AccordionItem key={m.title} value={`m${idx}`} className="px-6 last:border-b-0">
-                    <AccordionTrigger className="py-5 hover:no-underline">
-                      <div className="text-left"><p className="text-lg font-semibold text-primary">{m.title}</p><p className="mt-1 text-xs font-normal text-muted-foreground">Section {idx + 1} · {m.items.length} topic{m.items.length === 1 ? "" : "s"}</p></div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="space-y-3 pb-2">{m.items.map((it, i) => <li key={i} className="flex gap-3 text-sm leading-6"><Check className="mt-0.5 size-4 shrink-0 text-brand-gold" />{it}</li>)}</ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            )}
+            <div className="mt-5 space-y-4">
+              {(modules.length ? modules : [{ title: "Course content", items: course.outcomes }]).map((m, idx) => (
+                <ModuleCard key={m.title} index={idx} title={m.title} items={m.items} image={course.image} duration={course.duration} skills={skills} defaultOpen={idx === 0} />
+              ))}
+            </div>
           </section>
 
           <section id="reviews" className="scroll-mt-20"><CourseReviews slug={course.slug} /></section>
 
           <section id="apply" className="scroll-mt-20"><CourseApplyForm slug={course.slug} title={course.title} /></section>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-primary">Frequently asked questions</h2>
-            <Accordion type="single" collapsible className="mt-5 border-t border-border">
-              {([
-                ["Can I use SkillsFuture Credit?", "Many SOQ courses are eligible for SkillsFuture Credit and WSQ funding of up to 70%. Our advisers will confirm your eligibility."],
-                ["When is the next intake?", "See the Course Calendar or message us on WhatsApp for the latest schedule."],
-                ["What certificate will I receive?", `You'll receive a ${course.badge} certificate on completion, subject to at least 75% attendance and passing the assessment.`],
-                ["Do I need prior experience?", "Most courses are beginner friendly. Entry requirements, if any, are listed in the syllabus above."],
-              ] as [string, string][]).map(([q, a]) => (
-                <AccordionItem key={q} value={q}><AccordionTrigger className="text-left font-semibold text-primary">{q}</AccordionTrigger><AccordionContent className="text-muted-foreground">{a}</AccordionContent></AccordionItem>
-              ))}
-            </Accordion>
-          </section>
+          <FaqBlock badge={course.badge} onAsk={() => setChatOpen(true)} />
         </div>
 
         <aside className="self-start rounded-lg border border-border bg-card p-6 shadow-sm lg:sticky lg:top-20">

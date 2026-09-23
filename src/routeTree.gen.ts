@@ -10,33 +10,293 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AboutUsRouteImport } from './routes/about-us'
+import { Route as BusinessesRouteImport } from './routes/businesses'
+import { Route as CareersRouteImport } from './routes/careers'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
+import { Route as CorporateTrainingRouteImport } from './routes/corporate-training'
+import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FundingRouteImport } from './routes/funding'
+import { Route as JobMatchingRouteImport } from './routes/job-matching'
+import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
+import { Route as JoinUsRouteImport } from './routes/join-us'
+import { Route as PeiProfileRouteImport } from './routes/pei-profile'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
+import { Route as TrainersRouteImport } from './routes/trainers'
+import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as TrainerListRouteImport } from './routes/trainer.list'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutUsRoute = AboutUsRouteImport.update({
+  id: '/about-us',
+  path: '/about-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessesRoute = BusinessesRouteImport.update({
+  id: '/businesses',
+  path: '/businesses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersRoute = CareersRouteImport.update({
+  id: '/careers',
+  path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorporateTrainingRoute = CorporateTrainingRouteImport.update({
+  id: '/corporate-training',
+  path: '/corporate-training',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FundingRoute = FundingRouteImport.update({
+  id: '/funding',
+  path: '/funding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobMatchingRoute = JobMatchingRouteImport.update({
+  id: '/job-matching',
+  path: '/job-matching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobMatchingProgramRoute = JobMatchingProgramRouteImport.update({
+  id: '/job-matching-program',
+  path: '/job-matching-program',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinUsRoute = JoinUsRouteImport.update({
+  id: '/join-us',
+  path: '/join-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PeiProfileRoute = PeiProfileRouteImport.update({
+  id: '/pei-profile',
+  path: '/pei-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentPoliciesRoute = StudentPoliciesRouteImport.update({
+  id: '/student-policies',
+  path: '/student-policies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainersRoute = TrainersRouteImport.update({
+  id: '/trainers',
+  path: '/trainers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesIndexRoute = CoursesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CoursesRoute,
+} as any)
+const CoursesSlugRoute = CoursesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => CoursesRoute,
+} as any)
+const TrainerListRoute = TrainerListRouteImport.update({
+  id: '/trainer/list',
+  path: '/trainer/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
+  '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
+  '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
+  '/trainers': typeof TrainersRoute
+  '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
+  '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
+  '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
+  '/faq': typeof FaqRoute
+  '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
+  '/trainers': typeof TrainersRoute
+  '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
+  '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/about-us': typeof AboutUsRoute
+  '/businesses': typeof BusinessesRoute
+  '/careers': typeof CareersRoute
+  '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
+  '/corporate-training': typeof CorporateTrainingRoute
+  '/courses': typeof CoursesRouteWithChildren
+  '/faq': typeof FaqRoute
+  '/funding': typeof FundingRoute
+  '/job-matching': typeof JobMatchingRoute
+  '/job-matching-program': typeof JobMatchingProgramRoute
+  '/join-us': typeof JoinUsRoute
+  '/pei-profile': typeof PeiProfileRoute
+  '/resources': typeof ResourcesRoute
+  '/student-policies': typeof StudentPoliciesRoute
+  '/trainers': typeof TrainersRoute
+  '/courses/$slug': typeof CoursesSlugRoute
+  '/trainer/list': typeof TrainerListRoute
+  '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/about-us'
+    | '/businesses'
+    | '/careers'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
+    | '/courses'
+    | '/faq'
+    | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
+    | '/resources'
+    | '/student-policies'
+    | '/trainers'
+    | '/courses/$slug'
+    | '/trainer/list'
+    | '/courses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/about-us'
+    | '/businesses'
+    | '/careers'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
+    | '/faq'
+    | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
+    | '/resources'
+    | '/student-policies'
+    | '/trainers'
+    | '/courses/$slug'
+    | '/trainer/list'
+    | '/courses'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/about-us'
+    | '/businesses'
+    | '/careers'
+    | '/contact'
+    | '/contact-us'
+    | '/corporate-training'
+    | '/courses'
+    | '/faq'
+    | '/funding'
+    | '/job-matching'
+    | '/job-matching-program'
+    | '/join-us'
+    | '/pei-profile'
+    | '/resources'
+    | '/student-policies'
+    | '/trainers'
+    | '/courses/$slug'
+    | '/trainer/list'
+    | '/courses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AboutUsRoute: typeof AboutUsRoute
+  BusinessesRoute: typeof BusinessesRoute
+  CareersRoute: typeof CareersRoute
+  ContactRoute: typeof ContactRoute
+  ContactUsRoute: typeof ContactUsRoute
+  CorporateTrainingRoute: typeof CorporateTrainingRoute
+  CoursesRoute: typeof CoursesRouteWithChildren
+  FaqRoute: typeof FaqRoute
+  FundingRoute: typeof FundingRoute
+  JobMatchingRoute: typeof JobMatchingRoute
+  JobMatchingProgramRoute: typeof JobMatchingProgramRoute
+  JoinUsRoute: typeof JoinUsRoute
+  PeiProfileRoute: typeof PeiProfileRoute
+  ResourcesRoute: typeof ResourcesRoute
+  StudentPoliciesRoute: typeof StudentPoliciesRoute
+  TrainersRoute: typeof TrainersRoute
+  TrainerListRoute: typeof TrainerListRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +308,182 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-us': {
+      id: '/about-us'
+      path: '/about-us'
+      fullPath: '/about-us'
+      preLoaderRoute: typeof AboutUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/businesses': {
+      id: '/businesses'
+      path: '/businesses'
+      fullPath: '/businesses'
+      preLoaderRoute: typeof BusinessesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers': {
+      id: '/careers'
+      path: '/careers'
+      fullPath: '/careers'
+      preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/corporate-training': {
+      id: '/corporate-training'
+      path: '/corporate-training'
+      fullPath: '/corporate-training'
+      preLoaderRoute: typeof CorporateTrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/funding': {
+      id: '/funding'
+      path: '/funding'
+      fullPath: '/funding'
+      preLoaderRoute: typeof FundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/job-matching': {
+      id: '/job-matching'
+      path: '/job-matching'
+      fullPath: '/job-matching'
+      preLoaderRoute: typeof JobMatchingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/job-matching-program': {
+      id: '/job-matching-program'
+      path: '/job-matching-program'
+      fullPath: '/job-matching-program'
+      preLoaderRoute: typeof JobMatchingProgramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join-us': {
+      id: '/join-us'
+      path: '/join-us'
+      fullPath: '/join-us'
+      preLoaderRoute: typeof JoinUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pei-profile': {
+      id: '/pei-profile'
+      path: '/pei-profile'
+      fullPath: '/pei-profile'
+      preLoaderRoute: typeof PeiProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student-policies': {
+      id: '/student-policies'
+      path: '/student-policies'
+      fullPath: '/student-policies'
+      preLoaderRoute: typeof StudentPoliciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainers': {
+      id: '/trainers'
+      path: '/trainers'
+      fullPath: '/trainers'
+      preLoaderRoute: typeof TrainersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/': {
+      id: '/courses/'
+      path: '/'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof CoursesIndexRouteImport
+      parentRoute: typeof CoursesRoute
+    }
+    '/courses/$slug': {
+      id: '/courses/$slug'
+      path: '/$slug'
+      fullPath: '/courses/$slug'
+      preLoaderRoute: typeof CoursesSlugRouteImport
+      parentRoute: typeof CoursesRoute
+    }
+    '/trainer/list': {
+      id: '/trainer/list'
+      path: '/trainer/list'
+      fullPath: '/trainer/list'
+      preLoaderRoute: typeof TrainerListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface CoursesRouteChildren {
+  CoursesSlugRoute: typeof CoursesSlugRoute
+  CoursesIndexRoute: typeof CoursesIndexRoute
+}
+
+const CoursesRouteChildren: CoursesRouteChildren = {
+  CoursesSlugRoute: CoursesSlugRoute,
+  CoursesIndexRoute: CoursesIndexRoute,
+}
+
+const CoursesRouteWithChildren =
+  CoursesRoute._addFileChildren(CoursesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AboutUsRoute: AboutUsRoute,
+  BusinessesRoute: BusinessesRoute,
+  CareersRoute: CareersRoute,
+  ContactRoute: ContactRoute,
+  ContactUsRoute: ContactUsRoute,
+  CorporateTrainingRoute: CorporateTrainingRoute,
+  CoursesRoute: CoursesRouteWithChildren,
+  FaqRoute: FaqRoute,
+  FundingRoute: FundingRoute,
+  JobMatchingRoute: JobMatchingRoute,
+  JobMatchingProgramRoute: JobMatchingProgramRoute,
+  JoinUsRoute: JoinUsRoute,
+  PeiProfileRoute: PeiProfileRoute,
+  ResourcesRoute: ResourcesRoute,
+  StudentPoliciesRoute: StudentPoliciesRoute,
+  TrainersRoute: TrainersRoute,
+  TrainerListRoute: TrainerListRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

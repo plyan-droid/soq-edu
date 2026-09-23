@@ -1,3 +1,4 @@
+import { NewsletterSignup } from "@/components/newsletter-signup";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";
@@ -72,7 +73,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/verify-certificate">Verify a Certificate</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">
@@ -88,6 +89,7 @@ export function SiteFooter() {
           <div className="mt-4 flex gap-4">
             {socials.map(({ label, href, icon: Icon }) => <a key={label} href={href} target="_blank" rel="noreferrer" aria-label={label} className="text-primary-foreground/85 hover:text-brand-gold"><Icon className="size-5" /></a>)}
           </div>
+          <NewsletterSignup />
           <p className="mt-8 -rotate-6 font-script text-3xl leading-tight text-primary-foreground/85">A More Capable You,<br />A Brighter Tomorrow</p>
         </div>
       </div>

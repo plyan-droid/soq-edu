@@ -33,7 +33,9 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
+import { Route as TeachRouteImport } from './routes/teach'
 import { Route as TrainersRouteImport } from './routes/trainers'
+import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community.guidelines'
 import { Route as CommunityMembersRouteImport } from './routes/community.members'
@@ -165,9 +167,19 @@ const StudentPortalRoute = StudentPortalRouteImport.update({
   path: '/student-portal',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeachRoute = TeachRouteImport.update({
+  id: '/teach',
+  path: '/teach',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainersRoute = TrainersRouteImport.update({
   id: '/trainers',
   path: '/trainers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyCertificateRoute = VerifyCertificateRouteImport.update({
+  id: '/verify-certificate',
+  path: '/verify-certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityIndexRoute = CommunityIndexRouteImport.update({
@@ -246,7 +258,9 @@ export interface FileRoutesByFullPath {
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
+  '/teach': typeof TeachRoute
   '/trainers': typeof TrainersRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -282,7 +296,9 @@ export interface FileRoutesByTo {
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
+  '/teach': typeof TeachRoute
   '/trainers': typeof TrainersRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -320,7 +336,9 @@ export interface FileRoutesById {
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
+  '/teach': typeof TeachRoute
   '/trainers': typeof TrainersRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -359,7 +377,9 @@ export interface FileRouteTypes {
     | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
+    | '/teach'
     | '/trainers'
+    | '/verify-certificate'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -395,7 +415,9 @@ export interface FileRouteTypes {
     | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
+    | '/teach'
     | '/trainers'
+    | '/verify-certificate'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -432,7 +454,9 @@ export interface FileRouteTypes {
     | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
+    | '/teach'
     | '/trainers'
+    | '/verify-certificate'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -470,7 +494,9 @@ export interface RootRouteChildren {
   StaffCoursesRoute: typeof StaffCoursesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
+  TeachRoute: typeof TeachRoute
   TrainersRoute: typeof TrainersRoute
+  VerifyCertificateRoute: typeof VerifyCertificateRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
@@ -651,11 +677,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentPortalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teach': {
+      id: '/teach'
+      path: '/teach'
+      fullPath: '/teach'
+      preLoaderRoute: typeof TeachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainers': {
       id: '/trainers'
       path: '/trainers'
       fullPath: '/trainers'
       preLoaderRoute: typeof TrainersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-certificate': {
+      id: '/verify-certificate'
+      path: '/verify-certificate'
+      fullPath: '/verify-certificate'
+      preLoaderRoute: typeof VerifyCertificateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community/': {
@@ -769,7 +809,9 @@ const rootRouteChildren: RootRouteChildren = {
   StaffCoursesRoute: StaffCoursesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
+  TeachRoute: TeachRoute,
   TrainersRoute: TrainersRoute,
+  VerifyCertificateRoute: VerifyCertificateRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,

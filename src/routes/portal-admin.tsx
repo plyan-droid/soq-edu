@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { courses } from "@/lib/site-content";
 import { courseTitle, type Enrollment, type Task } from "@/components/student-dashboard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, UsersAdmin } from "@/components/staff-tools";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -28,7 +30,7 @@ type Profile = { id: string; email: string; full_name: string | null };
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 function Admin() {
-  const { isAdmin, loading } = useAuth();
+  const { isAdmin, loading, user } = useAuth();
   const [studentId, setStudentId] = useState<string>("");
   const { data: students = [] } = useQuery({
     queryKey: ["admin-students"], enabled: isAdmin,
@@ -40,16 +42,30 @@ function Admin() {
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
-      <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
-      <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
-      <select className={`${sel} mt-6 w-full max-w-md`} value={studentId} onChange={e => setStudentId(e.target.value)}>
-        <option value="">Select a student…</option>
-        {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
-      </select>
-      {studentId && <StudentEditor studentId={studentId} />}
-      <Applications />
-      <IntakesEditor />
-      <CommunityMembers />
+      <Tabs defaultValue="reports" className="mt-6">
+        <TabsList className="h-auto flex-wrap justify-start">
+          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
+        </TabsList>
+        <TabsContent value="reports"><Reports /></TabsContent>
+        <TabsContent value="students">
+          <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
+          <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
+          <select className={`${sel} mt-6 w-full max-w-md`} value={studentId} onChange={e => setStudentId(e.target.value)}>
+            <option value="">Select a student…</option>
+            {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
+          </select>
+          {studentId && <StudentEditor studentId={studentId} />}
+        </TabsContent>
+        <TabsContent value="applications"><Applications /></TabsContent>
+        <TabsContent value="intakes"><IntakesEditor /></TabsContent>
+        <TabsContent value="certificates"><CertificatesAdmin /></TabsContent>
+        <TabsContent value="trainers"><TrainerApplications /></TabsContent>
+        <TabsContent value="inbox"><SupportInbox /></TabsContent>
+        <TabsContent value="reviews"><ReviewModeration /></TabsContent>
+        <TabsContent value="community"><CommunityMembers /></TabsContent>
+        <TabsContent value="newsletter"><Subscribers /></TabsContent>
+        <TabsContent value="users"><UsersAdmin selfId={user?.id} /></TabsContent>
+      </Tabs>
     </div>
   );
 }

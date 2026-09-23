@@ -56,7 +56,7 @@ function Community() {
         <aside className="grid content-start gap-1">
           <p className="eyebrow mb-2">From</p>
           <Link to="/community" search={{ tag, sort }} className={pill(!who)}>Everyone</Link>
-          {Object.entries(memberTypes).map(([k, v]) => <Link key={k} to="/community" search={{ tag, sort, who: k }} className={pill(who === k)}>{v}s</Link>)}
+          {Object.entries(memberTypes).map(([k, v]) => <Link key={k} to="/community" search={{ tag, sort, who: k }} className={pill(who === k)}>{v === "Alumni" ? v : v === "Business" ? "Businesses" : `${v}s`}</Link>)}
         </aside>
         <div>
           <div className="mb-5 flex items-center gap-2">

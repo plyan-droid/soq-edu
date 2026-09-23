@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 function youtubeId(line: string): string | null {
   const m = line.trim().match(/^https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{11})\S*$/);
-  return m ? m[1] : null;
+  return m?.[1] ?? null;
 }
 
 function inline(text: string): ReactNode[] {

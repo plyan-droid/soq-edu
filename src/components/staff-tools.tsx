@@ -323,9 +323,9 @@ export function SettingsHub() {
   const [c, setC] = useState<{ navy: string; gold: string } | null>(null);
   const [tz, setTz] = useState<string | null>(null);
   if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
-  const ann = a ?? { text: "", link: "", on: false, ...(data.announcement ?? {}) };
-  const col = c ?? { navy: "#1b2a4a", gold: "#d4a94a", ...(data.appearance ?? {}) };
-  const zone = tz ?? data.general?.timezone ?? "Asia/Singapore";
+  const ann = a ?? { text: "", link: "", on: false, ...(data['announcement'] ?? {}) };
+  const col = c ?? { navy: "#1b2a4a", gold: "#d4a94a", ...(data['appearance'] ?? {}) };
+  const zone = tz ?? data['general']?.timezone ?? "Asia/Singapore";
   const put = async (key: string, value: unknown) => { const { error } = await supabase.from("site_settings").upsert({ key, value: value as never, updated_at: new Date().toISOString() }); if (error) return void alert(error.message); void qc.invalidateQueries({ queryKey: ["site-settings"] }); alert("Saved"); };
   const box = "space-y-3 rounded-lg border border-border bg-card p-5";
   return (

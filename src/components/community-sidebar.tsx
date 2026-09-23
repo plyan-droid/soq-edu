@@ -27,7 +27,7 @@ const other = [
 const item = (active: boolean) =>
   `flex items-center gap-3 rounded-md px-3 py-2 text-sm ${active ? "bg-brand-gold-soft font-medium text-primary" : "text-foreground/80 hover:bg-brand-gold-soft hover:text-primary"}`;
 
-type Props = { active: "home" | "members" | "saved" | "guidelines" | string; who?: string };
+type Props = { active: string; who?: string | undefined };
 
 export function CommunitySidebar({ active, who }: Props) {
   const [open, setOpen] = useState(true);

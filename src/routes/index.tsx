@@ -87,7 +87,7 @@ function HomePage() {
             <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[4/3] flex-col overflow-hidden rounded-lg border border-border bg-brand-cream p-5 shadow-sm">
               <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute bottom-0 right-0 -z-10 h-[56%] w-[58%] rounded-tl-[3rem] object-cover transition-transform duration-500 group-hover:scale-105" />
               <CornerSwoosh />
-              <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Qualifications" : category.name}</h3>
+              <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Professional Qualifications" : category.name}</h3>
               <p className="mt-2 max-w-[10rem] text-sm leading-5 text-foreground/75">{category.copy}</p>
               <span className="relative mt-auto grid size-10 place-items-center rounded-full bg-background text-primary shadow"><ArrowRight className="size-4" /></span>
             </Link>

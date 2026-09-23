@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { StudentDashboard } from "@/components/student-dashboard";
 import { ArrowRight, BookOpenCheck, CalendarClock, ClipboardCheck, FileText, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
@@ -25,6 +27,9 @@ const features = [
 ];
 
 function StudentPortal() {
+  const { user, isAdmin, loading } = useAuth();
+  if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
+  if (user) return <StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} />;
   return (
     <>
       <section className="bg-brand-navy text-primary-foreground">
@@ -35,7 +40,7 @@ function StudentPortal() {
             <p className="mt-6 max-w-xl text-lg leading-8 text-primary-foreground/75">Track your course progress, class dates, deadlines and assessments. Sign in with the login details SOQ sent you when you enrolled.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild className="h-12 rounded-full bg-brand-gold px-7 text-brand-navy hover:bg-brand-gold/85">
-                <a href={contact.portal} target="_blank" rel="noreferrer">Sign in to portal <ArrowRight /></a>
+                <Link to="/login">Sign in to portal <ArrowRight /></Link>
               </Button>
               <Button asChild variant="outline" className="h-12 rounded-full border-primary-foreground/30 bg-transparent px-7 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                 <a href={contact.whatsapp}>Need help signing in?</a>

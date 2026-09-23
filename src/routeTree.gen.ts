@@ -24,6 +24,7 @@ import { Route as FundingRouteImport } from './routes/funding'
 import { Route as JobMatchingRouteImport } from './routes/job-matching'
 import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-program'
 import { Route as JoinUsRouteImport } from './routes/join-us'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
@@ -109,6 +110,11 @@ const JoinUsRoute = JoinUsRouteImport.update({
   path: '/join-us',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PeiProfileRoute = PeiProfileRouteImport.update({
   id: '/pei-profile',
   path: '/pei-profile',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/job-matching': typeof JobMatchingRoute
   '/job-matching-program': typeof JobMatchingProgramRoute
   '/join-us': typeof JoinUsRoute
+  '/login': typeof LoginRoute
   '/pei-profile': typeof PeiProfileRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
     | '/recommend'
     | '/resources'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
     | '/recommend'
     | '/resources'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/job-matching'
     | '/job-matching-program'
     | '/join-us'
+    | '/login'
     | '/pei-profile'
     | '/recommend'
     | '/resources'
@@ -329,6 +341,7 @@ export interface RootRouteChildren {
   JobMatchingRoute: typeof JobMatchingRoute
   JobMatchingProgramRoute: typeof JobMatchingProgramRoute
   JoinUsRoute: typeof JoinUsRoute
+  LoginRoute: typeof LoginRoute
   PeiProfileRoute: typeof PeiProfileRoute
   RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinUsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pei-profile': {
       id: '/pei-profile'
       path: '/pei-profile'
@@ -540,6 +560,7 @@ const rootRouteChildren: RootRouteChildren = {
   JobMatchingRoute: JobMatchingRoute,
   JobMatchingProgramRoute: JobMatchingProgramRoute,
   JoinUsRoute: JoinUsRoute,
+  LoginRoute: LoginRoute,
   PeiProfileRoute: PeiProfileRoute,
   RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,

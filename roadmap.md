@@ -37,3 +37,5 @@
 ### Later
 - [x] Notification templates, page editor, settings hub, appearance settings
 - [x] Course page colours: WSQ = blue & red (WSQ logo), Diploma/academic = gold/yellow-brown
+
+- [ ] Community livestreams (dev.to style): staff schedule streams with YouTube link, live embed + description, listed in Community sidebar

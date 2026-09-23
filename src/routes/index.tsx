@@ -29,9 +29,9 @@ const trustPoints = [
 /** Gold + navy diagonal swoosh used on the approved design's cards. */
 function CornerSwoosh() {
   return (
-    <svg aria-hidden viewBox="0 0 200 120" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 w-full">
-      <path d="M0 70 C60 110 120 60 200 20 L200 120 L0 120 Z" className="fill-brand-gold-soft" />
-      <path d="M0 95 C50 120 110 90 150 120 L0 120 Z" className="fill-brand-navy" />
+    <svg aria-hidden viewBox="0 0 200 60" preserveAspectRatio="none" className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] w-full">
+      <path d="M0 18 C50 40 110 40 200 10 L200 60 L0 60 Z" className="fill-brand-gold-soft" />
+      <path d="M0 42 C40 56 90 50 125 60 L0 60 Z" className="fill-brand-navy" />
     </svg>
   );
 }
@@ -84,11 +84,11 @@ function HomePage() {
         <div className="flex items-end justify-between gap-5"><div><p className="text-[11px] uppercase tracking-[0.35em] text-foreground/70">Explore your path</p><h2 className="mt-3 font-serif text-4xl text-primary md:text-5xl">What do you want to learn?</h2></div><Link to="/courses" className="hidden items-center gap-2 text-sm text-primary md:flex">View all courses <ArrowRight className="size-4" /></Link></div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
-            <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[5/4] flex-col overflow-hidden rounded-lg border border-border bg-brand-cream p-5 shadow-sm">
-              <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute bottom-0 right-0 -z-10 h-[52%] w-[62%] rounded-tl-[2.5rem] object-cover transition-transform duration-500 group-hover:scale-105" />
+            <Link key={category.name} to="/courses" search={{ category: category.name }} className="group relative isolate flex aspect-[4/3] flex-col overflow-hidden rounded-lg border border-border bg-brand-cream p-5 shadow-sm">
+              <img src={category.image} alt="" loading="lazy" width={1024} height={768} className="absolute bottom-0 right-0 -z-10 h-[56%] w-[58%] rounded-tl-[3rem] object-cover transition-transform duration-500 group-hover:scale-105" />
               <CornerSwoosh />
               <h3 className="font-serif text-2xl leading-tight text-primary">{category.name === "Diplomas" ? "Diplomas & Professional Qualifications" : category.name}</h3>
-              <p className="mt-2 max-w-[11rem] text-sm leading-5 text-foreground/75">{category.copy}</p>
+              <p className="mt-2 max-w-[10rem] text-sm leading-5 text-foreground/75">{category.copy}</p>
               <span className="relative mt-auto grid size-10 place-items-center rounded-full bg-background text-primary shadow"><ArrowRight className="size-4" /></span>
             </Link>
           ))}

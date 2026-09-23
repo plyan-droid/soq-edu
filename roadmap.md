@@ -18,4 +18,4 @@
 - [x] Community: dev.to-style mock posts, comments and members (seed data)
 - [x] Course calendar page (intakes, class hours, deadlines)
 - [x] Staff course editor: syllabi, fees, dates, outcomes (admin only)
-- [ ] Homepage study-path cards: match approved design (full photo right side, smaller cream text area, gold/navy curve, compact height)
+- [x] Homepage study-path cards: match approved design (full photo right side, smaller cream text area, gold/navy curve, compact height)

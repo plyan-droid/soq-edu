@@ -19,3 +19,20 @@
 - [x] Course calendar page (intakes, class hours, deadlines)
 - [x] Staff course editor: syllabi, fees, dates, outcomes (admin only)
 - [x] Homepage study-path cards: match approved design (full photo right side, smaller cream text area, gold/navy curve, compact height)
+
+## Missing modules (user: build all; admin tools first, mock payments, enrolment moves to this site)
+### Phase 1 — admin tools
+- [ ] Trainer application form + staff approval
+- [ ] Public certificate check + staff certificate issuing
+- [ ] Course reviews (students) + staff moderation
+- [ ] Support inbox (contact form tickets) for staff
+- [ ] Newsletter sign-up + subscriber list
+- [ ] Staff user list (roles, search)
+- [ ] Reports (applications, enrolments, reviews, tickets counts)
+### Phase 2 — learning
+- [ ] Lesson pages (video/files) for enrolled students
+- [ ] Trainer dashboard, trainer course drafts, staff approval, live class schedule
+### Phase 3 — mock payments
+- [ ] Cart, mock checkout, discount codes, sales list
+### Later
+- [ ] Notification templates, page editor, settings hub, appearance settings

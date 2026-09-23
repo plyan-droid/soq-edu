@@ -17,4 +17,4 @@
 - [x] Course application form on each course page with on-screen confirmation; staff can view applications
 - [x] Community: dev.to-style mock posts, comments and members (seed data)
 - [x] Course calendar page (intakes, class hours, deadlines)
-- [ ] Staff course editor: syllabi, fees, dates, outcomes (admin only)
+- [x] Staff course editor: syllabi, fees, dates, outcomes (admin only)

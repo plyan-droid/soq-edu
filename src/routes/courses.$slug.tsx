@@ -90,7 +90,7 @@ function CoursePage() {
       {/* Stat bar */}
       <div className="relative z-10 mx-auto -mt-14 max-w-7xl px-5 lg:px-8">
         <div className="grid divide-y divide-border rounded-lg border border-border bg-card shadow-lg sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
-          {([
+          {[
             { t: course.badge === "Diploma" ? "Diploma programme" : `${course.badge} certified`, s: "Recognised qualification", i: Award },
             { t: "Rated by learners", s: "See reviews below", i: Star },
             { t: levelFor(course.badge), s: "No prior experience needed", i: GraduationCap },
@@ -135,7 +135,7 @@ function CoursePage() {
           <section id="outcomes" className="scroll-mt-20">
             <h2 className="text-xl font-semibold text-primary">Details to know</h2>
             <div className="mt-5 grid gap-6 sm:grid-cols-3">
-              {([
+              {[
                 { i: Share2, t: "Shareable certificate", s: "Add to your LinkedIn profile" },
                 { i: Globe, t: "Taught in English", s: "Clear, practical instruction" },
                 { i: MapPin, t: course.mode, s: "10 Anson Road, Singapore" },

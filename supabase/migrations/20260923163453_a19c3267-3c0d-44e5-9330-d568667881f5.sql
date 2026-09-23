@@ -1,0 +1,1 @@
+UPDATE public.course_intakes SET end_date = start_date + 1 WHERE course_slug = 'certificate-in-eyelash-extension';

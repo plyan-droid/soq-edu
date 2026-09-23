@@ -209,3 +209,140 @@ export function CourseDraftsReview() {
         {d.status === "submitted" && <div className="mt-2 flex gap-2"><Button size="sm" onClick={() => void decide(d, "approved")}>Approve</Button><Button size="sm" variant="outline" onClick={() => void decide(d, "rejected")}>Send back</Button></div>}</td>
     </tr>))}</Table>;
 }
+
+/* ---------- Sales (mock payments) ---------- */
+type OrderRow = { id: string; full_name: string; email: string; items: { title: string; price: number }[]; subtotal: number; discount_code: string | null; discount_amount: number; total: number; status: string; payment_ref: string; created_at: string };
+export function Sales() {
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({ queryKey: ["admin-orders"], queryFn: async () => ((await supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(500)).data ?? []) as unknown as OrderRow[] });
+  const paid = data.filter(o => o.status === "paid");
+  const revenue = paid.reduce((s, o) => s + Number(o.total), 0);
+  const setStatus = async (id: string, status: string) => { await supabase.from("orders").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-orders"] }); };
+  return (
+    <div>
+      <p className="mt-4 rounded-md bg-brand-gold-soft px-4 py-2 text-sm">Test mode — these are pretend payments, no money is taken.</p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">{[["Paid orders", String(paid.length)], ["Revenue (test)", `$${revenue.toFixed(2)}`], ["Refunded", String(data.filter(o => o.status === "refunded").length)]].map(([l, v]) => <div key={l} className="rounded-lg border border-border bg-card p-4"><p className="text-sm text-muted-foreground">{l}</p><p className="font-serif text-3xl text-primary">{v}</p></div>)}</div>
+      {data.length === 0 ? <p className="mt-6 text-muted-foreground">No orders yet.</p> : <Table head={["Date", "Buyer", "Courses", "Total", "Status"]}>{data.map(o => (
+        <tr key={o.id} className="border-t border-border"><td className={td}>{date(o.created_at)}<div className="text-xs text-muted-foreground">{o.payment_ref}</div></td><td className={td}>{o.full_name}<div className="text-xs">{o.email}</div></td>
+          <td className={`${td} text-xs`}>{o.items.map(i => i.title).join(", ")}</td>
+          <td className={td}>${Number(o.total).toFixed(2)}{o.discount_code && <div className="text-xs text-muted-foreground">{o.discount_code} −${Number(o.discount_amount).toFixed(2)}</div>}</td>
+          <td className={td}><select className={sel} value={o.status} onChange={e => void setStatus(o.id, e.target.value)}>{["paid", "refunded", "cancelled"].map(s => <option key={s}>{s}</option>)}</select></td></tr>))}</Table>}
+    </div>
+  );
+}
+
+/* ---------- Discount codes ---------- */
+type Code = { code: string; percent_off: number; active: boolean; expires_on: string | null; max_uses: number | null; used_count: number };
+export function DiscountCodes() {
+  const qc = useQueryClient();
+  const [f, setF] = useState({ code: "", pct: "10", exp: "", max: "" });
+  const { data = [] } = useQuery({ queryKey: ["admin-codes"], queryFn: async () => ((await supabase.from("discount_codes").select("*").order("created_at", { ascending: false })).data ?? []) as Code[] });
+  const inv = () => void qc.invalidateQueries({ queryKey: ["admin-codes"] });
+  const add = async () => {
+    const code = f.code.trim().toUpperCase();
+    if (!/^[A-Z0-9-]{3,30}$/.test(code)) return void alert("Use 3–30 letters, numbers or dashes.");
+    const { error } = await supabase.from("discount_codes").insert({ code, percent_off: Math.min(100, Math.max(1, Number(f.pct) || 10)), expires_on: f.exp || null, max_uses: f.max ? Number(f.max) : null });
+    if (error) return void alert(error.message);
+    setF({ code: "", pct: "10", exp: "", max: "" }); inv();
+  };
+  return (
+    <div>
+      <div className="mt-5 flex flex-wrap items-end gap-3">
+        <Input className="w-40" placeholder="CODE" value={f.code} onChange={e => setF({ ...f, code: e.target.value })} />
+        <label className="text-xs">% off<Input className="w-24" type="number" value={f.pct} onChange={e => setF({ ...f, pct: e.target.value })} /></label>
+        <label className="text-xs">Expires<Input className="w-40" type="date" value={f.exp} onChange={e => setF({ ...f, exp: e.target.value })} /></label>
+        <label className="text-xs">Max uses<Input className="w-28" type="number" value={f.max} onChange={e => setF({ ...f, max: e.target.value })} /></label>
+        <Button onClick={() => void add()}>Create code</Button>
+      </div>
+      {data.length > 0 && <Table head={["Code", "% off", "Expires", "Used", "Status", ""]}>{data.map(c => (
+        <tr key={c.code} className="border-t border-border"><td className={`${td} font-mono`}>{c.code}</td><td className={td}>{c.percent_off}%</td><td className={td}>{c.expires_on ?? "Never"}</td><td className={td}>{c.used_count}{c.max_uses ? ` / ${c.max_uses}` : ""}</td>
+          <td className={td}><Button size="sm" variant="outline" onClick={async () => { await supabase.from("discount_codes").update({ active: !c.active }).eq("code", c.code); inv(); }}>{c.active ? "Active — turn off" : "Off — turn on"}</Button></td>
+          <td className={td}><button aria-label="Delete" onClick={async () => { if (confirm(`Delete ${c.code}?`)) { await supabase.from("discount_codes").delete().eq("code", c.code); inv(); } }}><Trash2 className="size-4 text-muted-foreground" /></button></td></tr>))}</Table>}
+    </div>
+  );
+}
+
+/* ---------- Page editor ---------- */
+type PageRow = { slug: string; title: string; body: string; published: boolean };
+export function PagesEditor() {
+  const qc = useQueryClient();
+  const blank: PageRow = { slug: "", title: "", body: "", published: false };
+  const [f, setF] = useState<PageRow>(blank);
+  const [editing, setEditing] = useState(false);
+  const { data = [] } = useQuery({ queryKey: ["admin-pages"], queryFn: async () => ((await supabase.from("site_pages").select("slug,title,body,published").order("slug")).data ?? []) as PageRow[] });
+  const save = async () => {
+    const slug = f.slug.trim().toLowerCase();
+    if (!/^[a-z0-9-]{2,60}$/.test(slug) || !f.title.trim()) return void alert("Add a title and a web address using lowercase letters, numbers and dashes.");
+    const { error } = await supabase.from("site_pages").upsert({ ...f, slug, updated_at: new Date().toISOString() });
+    if (error) return void alert(error.message);
+    setF(blank); setEditing(false); void qc.invalidateQueries({ queryKey: ["admin-pages"] });
+  };
+  return (
+    <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_280px]">
+      <div className="space-y-3 rounded-lg border border-border bg-card p-5">
+        <div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Address: /p/</span><Input disabled={editing} placeholder="open-day" value={f.slug} onChange={e => setF({ ...f, slug: e.target.value })} /></div>
+        <Input placeholder="Page title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+        <textarea className="min-h-72 w-full rounded-md border border-input bg-background p-3 font-mono text-sm" placeholder={"Write the page. Use ## for headings, - for bullet points, > for quotes. A YouTube link on its own line plays a video."} value={f.body} onChange={e => setF({ ...f, body: e.target.value })} />
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.published} onChange={e => setF({ ...f, published: e.target.checked })} /> Published (visible to everyone)</label>
+        <div className="flex gap-2"><Button onClick={() => void save()}>Save page</Button>{editing && <Button variant="ghost" onClick={() => { setF(blank); setEditing(false); }}>New page</Button>}</div>
+      </div>
+      <ul className="space-y-2">{data.length === 0 ? <p className="text-sm text-muted-foreground">No pages yet.</p> : data.map(p => (
+        <li key={p.slug} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{p.title}</p><p className="text-xs text-muted-foreground">/p/{p.slug} · {p.published ? "Published" : "Draft"}</p>
+          <div className="mt-1 flex gap-3 text-xs"><button className="underline" onClick={() => { setF(p); setEditing(true); }}>Edit</button><a className="underline" href={`/p/${p.slug}`} target="_blank" rel="noreferrer">View</a>
+            <button className="underline" onClick={async () => { if (confirm("Delete this page?")) { await supabase.from("site_pages").delete().eq("slug", p.slug); void qc.invalidateQueries({ queryKey: ["admin-pages"] }); } }}>Delete</button></div></li>))}</ul>
+    </div>
+  );
+}
+
+/* ---------- Notification templates ---------- */
+type Tpl = { key: string; label: string; subject: string; body: string };
+export function TemplatesEditor() {
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({ queryKey: ["admin-templates"], queryFn: async () => ((await supabase.from("notification_templates").select("key,label,subject,body").order("label")).data ?? []) as Tpl[] });
+  const [edits, setEdits] = useState<Record<string, Tpl>>({});
+  const save = async (t: Tpl) => { await supabase.from("notification_templates").update({ subject: t.subject, body: t.body, updated_at: new Date().toISOString() }).eq("key", t.key); void qc.invalidateQueries({ queryKey: ["admin-templates"] }); alert("Saved"); };
+  return (
+    <div className="mt-5 space-y-5">
+      <p className="text-sm text-muted-foreground">Wording for messages SOQ sends. Words in {"{{double braces}}"} are filled in automatically, e.g. {"{{name}}"}, {"{{course}}"}. Emails aren't sent automatically yet — these are ready for when email sending is switched on.</p>
+      {data.map(t0 => { const t = edits[t0.key] ?? t0; return (
+        <div key={t.key} className="space-y-2 rounded-lg border border-border bg-card p-5">
+          <p className="font-medium">{t.label}</p>
+          <Input value={t.subject} onChange={e => setEdits({ ...edits, [t.key]: { ...t, subject: e.target.value } })} />
+          <textarea className="min-h-32 w-full rounded-md border border-input bg-background p-3 text-sm" value={t.body} onChange={e => setEdits({ ...edits, [t.key]: { ...t, body: e.target.value } })} />
+          <Button size="sm" onClick={() => void save(t)}>Save</Button>
+        </div>); })}
+    </div>
+  );
+}
+
+/* ---------- Settings hub ---------- */
+export function SettingsHub() {
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["site-settings"], queryFn: async () => Object.fromEntries(((await supabase.from("site_settings").select("key,value")).data ?? []).map(r => [r.key, r.value])) as Record<string, any> });
+  const [a, setA] = useState<{ text: string; link: string; on: boolean } | null>(null);
+  const [c, setC] = useState<{ navy: string; gold: string } | null>(null);
+  const [tz, setTz] = useState<string | null>(null);
+  if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  const ann = a ?? { text: "", link: "", on: false, ...(data.announcement ?? {}) };
+  const col = c ?? { navy: "#1b2a4a", gold: "#d4a94a", ...(data.appearance ?? {}) };
+  const zone = tz ?? data.general?.timezone ?? "Asia/Singapore";
+  const put = async (key: string, value: unknown) => { const { error } = await supabase.from("site_settings").upsert({ key, value: value as never, updated_at: new Date().toISOString() }); if (error) return void alert(error.message); void qc.invalidateQueries({ queryKey: ["site-settings"] }); alert("Saved"); };
+  const box = "space-y-3 rounded-lg border border-border bg-card p-5";
+  return (
+    <div className="mt-5 grid gap-6 lg:grid-cols-2">
+      <div className={box}><p className="font-serif text-2xl text-primary">Announcement bar</p><p className="text-sm text-muted-foreground">A strip across the top of every page, e.g. "New intake opens 1 March".</p>
+        <Input placeholder="Message" value={ann.text} onChange={e => setA({ ...ann, text: e.target.value })} />
+        <Input placeholder="Link (optional), e.g. /calendar" value={ann.link} onChange={e => setA({ ...ann, link: e.target.value })} />
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={ann.on} onChange={e => setA({ ...ann, on: e.target.checked })} /> Show on site</label>
+        <Button onClick={() => void put("announcement", ann)}>Save</Button></div>
+      <div className={box}><p className="font-serif text-2xl text-primary">Brand colours</p><p className="text-sm text-muted-foreground">Changes the navy and gold used across the site.</p>
+        <label className="flex items-center gap-3 text-sm"><input type="color" value={col.navy} onChange={e => setC({ ...col, navy: e.target.value })} /> Navy</label>
+        <label className="flex items-center gap-3 text-sm"><input type="color" value={col.gold} onChange={e => setC({ ...col, gold: e.target.value })} /> Gold</label>
+        <div className="flex gap-2"><Button onClick={() => void put("appearance", col)}>Save colours</Button><Button variant="ghost" onClick={() => { setC(null); void put("appearance", {}); }}>Restore original</Button></div></div>
+      <div className={box}><p className="font-serif text-2xl text-primary">General</p>
+        <label className="text-sm">Timezone<select className={`${sel} mt-1 w-full`} value={zone} onChange={e => setTz(e.target.value)}>{["Asia/Singapore", "Asia/Kuala_Lumpur", "Asia/Jakarta", "Asia/Hong_Kong", "UTC"].map(z => <option key={z}>{z}</option>)}</select></label>
+        <Button onClick={() => void put("general", { timezone: zone })}>Save</Button></div>
+      <div className={box}><p className="font-serif text-2xl text-primary">Payments</p><p className="text-sm text-muted-foreground">Checkout is in test mode — no money is taken. Real card payments can be switched on later.</p></div>
+    </div>
+  );
+}

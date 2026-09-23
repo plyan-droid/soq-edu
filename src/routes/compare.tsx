@@ -59,7 +59,7 @@ function ComparePage() {
           </div>
         ) : (
           <div className="mt-10 overflow-x-auto rounded-lg border border-border bg-card">
-            <table className="w-full min-w-[640px] border-collapse text-sm">
+            <table className="w-full min-w-[640px] table-fixed border-collapse text-sm">
               <thead>
                 <tr>
                   <th className="w-40 p-4" />

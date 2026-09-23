@@ -1,3 +1,4 @@
+import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -6,6 +7,8 @@ import { contact } from "@/lib/site-content";
 
 const nav = [
   { label: "Courses", to: "/courses" as const },
+  { label: "Find My Course", to: "/recommend" as const },
+  { label: "Compare", to: "/compare" as const },
   { label: "For Businesses", to: "/businesses" as const },
   { label: "Funding", to: "/funding" as const },
   { label: "About SOQ", to: "/about" as const },
@@ -15,7 +18,7 @@ const nav = [
 export function Brand({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="group flex items-center gap-3" aria-label="SOQ International Academy home">
-      <span className={`grid size-11 place-items-center rounded-full border text-lg font-serif ${light ? "border-brand-gold text-brand-gold" : "border-brand-gold text-brand-navy"}`}>S</span>
+      <img src={logo.url} alt="" width={48} height={48} className="size-12 object-contain" />
       <span className="leading-none">
         <strong className={`block font-serif text-lg ${light ? "text-primary-foreground" : "text-brand-navy"}`}>SOQ</strong>
         <span className={`block text-[9px] uppercase tracking-[0.16em] ${light ? "text-primary-foreground/70" : "text-muted-foreground"}`}>International Academy</span>

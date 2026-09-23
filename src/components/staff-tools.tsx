@@ -40,7 +40,7 @@ export function Reports() {
     <div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{stats.map(([l, v]) => <div key={l} className="rounded-lg border border-border bg-card p-5"><p className="text-xs text-muted-foreground">{l}</p><p className="mt-1 font-serif text-3xl text-primary">{v}</p></div>)}</div>
       <h3 className="mt-10 font-serif text-2xl text-primary">Most-applied courses</h3>
-      {top.length === 0 ? <p className="mt-2 text-muted-foreground">No applications yet.</p> : <div className="mt-4 grid gap-2">{top.map(([slug, n]) => <div key={slug} className="flex items-center gap-3 text-sm"><span className="w-72 truncate">{courseTitle(slug)}</span><span className="h-3 rounded-full bg-brand-gold" style={{ width: `${(n / top[0][1]) * 50}%` }} /><span>{n}</span></div>)}</div>}
+      {top.length === 0 ? <p className="mt-2 text-muted-foreground">No applications yet.</p> : <div className="mt-4 grid gap-2">{top.map(([slug, n]) => <div key={slug} className="flex items-center gap-3 text-sm"><span className="w-72 truncate">{courseTitle(slug)}</span><span className="h-3 rounded-full bg-brand-gold" style={{ width: `${(n / (top[0]?.[1] ?? 1)) * 50}%` }} /><span>{n}</span></div>)}</div>}
     </div>
   );
 }
@@ -154,7 +154,7 @@ export function Subscribers() {
 
 /* ---------- Users & roles ---------- */
 type UserRow = { id: string; email: string; full_name: string | null; created_at: string };
-export function UsersAdmin({ selfId }: { selfId?: string }) {
+export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const { data } = useQuery({

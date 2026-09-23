@@ -44,7 +44,7 @@ function Admin() {
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
       <Tabs defaultValue="reports" className="mt-6">
         <TabsList className="h-auto flex-wrap justify-start">
-          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"]].map(([v, l]) => <TabsTrigger key={v} value={v}>{l}</TabsTrigger>)}
+          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
         </TabsList>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">

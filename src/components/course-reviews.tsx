@@ -26,7 +26,7 @@ export function CourseReviews({ slug }: { slug: string }) {
     e.preventDefault(); setErr("");
     const text = body.trim();
     if (text.length < 10 || text.length > 2000) { setErr("Please write 10–2000 characters."); return; }
-    const name = (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0] || "Learner";
+    const name = (user?.user_metadata?.['full_name'] as string | undefined) || user?.email?.split("@")[0] || "Learner";
     const { error } = await supabase.from("course_reviews").insert({ course_slug: slug, user_id: user!.id, reviewer_name: name.slice(0, 80), rating, body: text });
     if (error) { setErr("Couldn't post your review."); return; }
     setBody(""); void qc.invalidateQueries({ queryKey: key });

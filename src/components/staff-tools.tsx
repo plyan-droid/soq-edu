@@ -164,12 +164,14 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
         supabase.from("profiles").select("id,email,full_name,created_at").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("user_id,role"),
       ]);
-      return { users: (users ?? []) as UserRow[], admins: new Set((roles ?? []).filter(r => r.role === "admin").map(r => r.user_id)) };
+      const r = roles ?? [];
+      return { users: (users ?? []) as UserRow[], admins: new Set(r.filter(x => x.role === "admin").map(x => x.user_id)), trainers: new Set(r.filter(x => x.role === "trainer").map(x => x.user_id)) };
     },
   });
-  const toggle = async (u: UserRow, isAdmin: boolean) => {
-    if (isAdmin) { if (!confirm(`Remove staff access from ${u.email}?`)) return; await supabase.from("user_roles").delete().eq("user_id", u.id).eq("role", "admin"); }
-    else { if (!confirm(`Give ${u.email} full staff access?`)) return; await supabase.from("user_roles").insert({ user_id: u.id, role: "admin" }); }
+  const toggle = async (u: UserRow, role: "admin" | "trainer", has: boolean) => {
+    const label = role === "admin" ? "staff" : "trainer";
+    if (has) { if (!confirm(`Remove ${label} access from ${u.email}?`)) return; await supabase.from("user_roles").delete().eq("user_id", u.id).eq("role", role); }
+    else { if (!confirm(`Give ${u.email} ${label} access?`)) return; await supabase.from("user_roles").insert({ user_id: u.id, role }); }
     void qc.invalidateQueries({ queryKey: ["admin-users"] });
   };
   if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
@@ -177,9 +179,33 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
   return (
     <div>
       <Input className="mt-5 max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
-      <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); return (
-        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{admin ? "Staff" : "Student"}</td>
-          <td className={td}>{u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}</td></tr>); })}</Table>
+      <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const trainer = data.trainers.has(u.id); return (
+        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[admin && "Staff", trainer && "Trainer"].filter(Boolean).join(", ") || "Student"}</td>
+          <td className={`${td} flex flex-wrap gap-2`}>
+            <Button size="sm" variant="outline" onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</Button>
+            {u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, "admin", admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}
+          </td></tr>); })}</Table>
     </div>
   );
+}
+
+/* ---------- Trainer course drafts ---------- */
+type Draft = { id: string; trainer_id: string; title: string; category: string; summary: string; duration: string | null; mode: string | null; price: string | null; outcomes: string[]; status: string; staff_note: string | null; created_at: string };
+export function CourseDraftsReview() {
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({ queryKey: ["admin-drafts"], queryFn: async () => ((await supabase.from("course_drafts").select("*").neq("status", "draft").order("created_at", { ascending: false })).data ?? []) as Draft[] });
+  const decide = async (d: Draft, status: string) => {
+    const note = status === "rejected" ? prompt("Note for the trainer (what to change)?") ?? "" : null;
+    await supabase.from("course_drafts").update({ status, staff_note: note }).eq("id", d.id);
+    void qc.invalidateQueries({ queryKey: ["admin-drafts"] });
+  };
+  if (!data.length) return <p className="mt-6 text-muted-foreground">No courses submitted by trainers yet.</p>;
+  return <Table head={["Submitted", "Course", "Details", "Status"]}>{data.map(d => (
+    <tr key={d.id} className="border-t border-border">
+      <td className={td}>{date(d.created_at)}</td>
+      <td className={td}><p className="font-medium">{d.title}</p><p className="text-xs text-muted-foreground">{d.category}</p></td>
+      <td className={`${td} max-w-md text-xs`}><p className="whitespace-pre-line">{d.summary}</p><p className="mt-2">{[d.duration, d.mode, d.price].filter(Boolean).join(" · ")}</p>{d.outcomes.length > 0 && <ul className="mt-2 list-disc pl-4">{d.outcomes.map(o => <li key={o}>{o}</li>)}</ul>}</td>
+      <td className={td}><p className="capitalize">{d.status}</p>{d.staff_note && <p className="text-xs text-muted-foreground">{d.staff_note}</p>}
+        {d.status === "submitted" && <div className="mt-2 flex gap-2"><Button size="sm" onClick={() => void decide(d, "approved")}>Approve</Button><Button size="sm" variant="outline" onClick={() => void decide(d, "rejected")}>Send back</Button></div>}</td>
+    </tr>))}</Table>;
 }

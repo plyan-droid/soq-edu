@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { courses } from "@/lib/site-content";
 import { courseTitle, type Enrollment, type Task } from "@/components/student-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, UsersAdmin } from "@/components/staff-tools";
+import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin } from "@/components/staff-tools";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -44,7 +44,7 @@ function Admin() {
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
       <Tabs defaultValue="reports" className="mt-6">
         <TabsList className="h-auto flex-wrap justify-start">
-          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
+          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
         </TabsList>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
@@ -60,6 +60,7 @@ function Admin() {
         <TabsContent value="intakes"><IntakesEditor /></TabsContent>
         <TabsContent value="certificates"><CertificatesAdmin /></TabsContent>
         <TabsContent value="trainers"><TrainerApplications /></TabsContent>
+        <TabsContent value="drafts"><CourseDraftsReview /></TabsContent>
         <TabsContent value="inbox"><SupportInbox /></TabsContent>
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
         <TabsContent value="community"><CommunityMembers /></TabsContent>

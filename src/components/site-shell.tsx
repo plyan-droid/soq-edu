@@ -1,3 +1,4 @@
+import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { useState, type ReactNode } from "react";

@@ -168,3 +168,19 @@
   text-transform: uppercase;
   color: var(--brand-gold);
 }
+
+/* Course accreditation themes */
+.theme-wsq {
+  --primary: oklch(0.42 0.16 258);          /* WSQ blue */
+  --primary-foreground: oklch(0.99 0 0);
+  --brand-gold: oklch(0.55 0.21 27);        /* WSQ red */
+  --brand-gold-soft: oklch(0.94 0.035 258);
+  --secondary: oklch(0.97 0.015 258);
+}
+.theme-academic {
+  --primary: oklch(0.42 0.08 65);           /* deep yellow-brown */
+  --primary-foreground: oklch(0.99 0.01 85);
+  --brand-gold: oklch(0.72 0.14 80);        /* gold */
+  --brand-gold-soft: oklch(0.93 0.06 85);
+  --secondary: oklch(0.97 0.03 85);
+}

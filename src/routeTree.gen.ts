@@ -38,6 +38,7 @@ import { Route as TeachRouteImport } from './routes/teach'
 import { Route as TrainerRouteImport } from './routes/trainer'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
+import { Route as ApiCourseChatRouteImport } from './routes/api/course-chat'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community.guidelines'
 import { Route as CommunityMembersRouteImport } from './routes/community.members'
@@ -196,6 +197,11 @@ const VerifyCertificateRoute = VerifyCertificateRouteImport.update({
   path: '/verify-certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCourseChatRoute = ApiCourseChatRouteImport.update({
+  id: '/api/course-chat',
+  path: '/api/course-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityIndexRoute = CommunityIndexRouteImport.update({
   id: '/community/',
   path: '/community/',
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
+  '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
+  '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -373,6 +381,7 @@ export interface FileRoutesById {
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
   '/verify-certificate': typeof VerifyCertificateRoute
+  '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/trainers'
     | '/verify-certificate'
+    | '/api/course-chat'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/trainers'
     | '/verify-certificate'
+    | '/api/course-chat'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -503,6 +514,7 @@ export interface FileRouteTypes {
     | '/trainer'
     | '/trainers'
     | '/verify-certificate'
+    | '/api/course-chat'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -547,6 +559,7 @@ export interface RootRouteChildren {
   TrainerRoute: typeof TrainerRouteWithChildren
   TrainersRoute: typeof TrainersRoute
   VerifyCertificateRoute: typeof VerifyCertificateRoute
+  ApiCourseChatRoute: typeof ApiCourseChatRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
@@ -763,6 +776,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyCertificateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/course-chat': {
+      id: '/api/course-chat'
+      path: '/api/course-chat'
+      fullPath: '/api/course-chat'
+      preLoaderRoute: typeof ApiCourseChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community/': {
       id: '/community/'
       path: '/community'
@@ -904,6 +924,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrainerRoute: TrainerRouteWithChildren,
   TrainersRoute: TrainersRoute,
   VerifyCertificateRoute: VerifyCertificateRoute,
+  ApiCourseChatRoute: ApiCourseChatRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,

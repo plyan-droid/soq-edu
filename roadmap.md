@@ -14,3 +14,4 @@
 ## Current
 - [x] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
 - [ ] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first
+- [ ] Course application form on each course page with on-screen confirmation; staff can view applications

@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      certificates: {
+        Row: {
+          code: string
+          course_slug: string
+          created_at: string
+          id: string
+          issued_on: string
+          status: string
+          student_id: string | null
+          student_name: string
+        }
+        Insert: {
+          code?: string
+          course_slug: string
+          created_at?: string
+          id?: string
+          issued_on?: string
+          status?: string
+          student_id?: string | null
+          student_name: string
+        }
+        Update: {
+          code?: string
+          course_slug?: string
+          created_at?: string
+          id?: string
+          issued_on?: string
+          status?: string
+          student_id?: string | null
+          student_name?: string
+        }
+        Relationships: []
+      }
       community_profiles: {
         Row: {
           bio: string | null
@@ -170,6 +203,39 @@ export type Database = {
         }
         Relationships: []
       }
+      course_reviews: {
+        Row: {
+          body: string
+          course_slug: string
+          created_at: string
+          hidden: boolean
+          id: string
+          rating: number
+          reviewer_name: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          course_slug: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          rating: number
+          reviewer_name: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          course_slug?: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          rating?: number
+          reviewer_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       course_tasks: {
         Row: {
           created_at: string
@@ -251,6 +317,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+        }
+        Relationships: []
       }
       post_bookmarks: {
         Row: {
@@ -408,6 +495,87 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string
+          phone: string | null
+          staff_note: string | null
+          status: string
+          topic: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message: string
+          phone?: string | null
+          staff_note?: string | null
+          status?: string
+          topic?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string
+          phone?: string | null
+          staff_note?: string | null
+          status?: string
+          topic?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      trainer_applications: {
+        Row: {
+          created_at: string
+          email: string
+          experience: string
+          expertise: string
+          full_name: string
+          id: string
+          phone: string | null
+          portfolio_url: string | null
+          staff_note: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          experience: string
+          expertise: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          portfolio_url?: string | null
+          staff_note?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          experience?: string
+          expertise?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          portfolio_url?: string | null
+          staff_note?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -437,6 +605,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      verify_certificate: {
+        Args: { _code: string }
+        Returns: {
+          code: string
+          course_slug: string
+          issued_on: string
+          status: string
+          student_name: string
+        }[]
       }
     }
     Enums: {

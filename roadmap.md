@@ -36,3 +36,4 @@
 - [x] Cart, mock checkout, discount codes, sales list
 ### Later
 - [x] Notification templates, page editor, settings hub, appearance settings
+- [ ] Course page colours: WSQ = blue & red (WSQ logo), Diploma/academic = gold/yellow-brown

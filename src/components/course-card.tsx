@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Check, Clock3, MapPin, Plus } from "lucide-react";
+import { ArrowRight, Check, Clock3, MapPin, Plus } from "lucide-react";
 import type { Course } from "@/lib/site-content";
 import { useCompare } from "@/lib/compare-store";
 
@@ -22,21 +22,27 @@ export function CompareToggle({ slug }: { slug: string }) {
   );
 }
 
-export function CourseCard({ course }: { course: Course }) {
+export function CourseCard({ course, showCompare = true }: { course: Course; showCompare?: boolean }) {
+  const from = course.price.startsWith("From ");
   return (
-    <article className="group overflow-hidden rounded-lg border border-border bg-card transition-transform duration-300 hover:-translate-y-1">
-      <Link to="/courses/$slug" params={{ slug: course.slug }} className="block">
+    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-transform duration-300 hover:-translate-y-1">
+      <Link to="/courses/$slug" params={{ slug: course.slug }} className="flex flex-1 flex-col">
         <div className="aspect-[4/3] overflow-hidden bg-muted">
           <img src={course.image} alt="" loading="lazy" width={1024} height={768} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
         </div>
-        <div className="p-5 pb-0">
-          <span className="rounded-full bg-brand-gold-soft px-2.5 py-1 text-[11px] font-semibold text-brand-navy">{course.badge}</span>
-          <h3 className="mt-4 min-h-14 font-serif text-xl leading-tight text-card-foreground">{course.title}</h3>
-          <div className="mt-5 flex flex-wrap gap-4 text-xs text-muted-foreground"><span className="flex items-center gap-1.5"><Clock3 className="size-3.5" />{course.duration}</span><span className="flex items-center gap-1.5"><MapPin className="size-3.5" />{course.mode}</span></div>
-          <div className="mt-5 flex items-end justify-between border-t border-border pt-4"><div><span className="block text-[10px] text-muted-foreground">Course fee</span><strong className="text-sm text-primary">{course.price}</strong></div><span className="grid size-9 place-items-center rounded-full bg-brand-gold-soft text-primary"><ArrowUpRight className="size-4" /></span></div>
+        <div className="flex flex-1 flex-col p-4">
+          <span className="self-start rounded bg-brand-gold-soft px-2 py-0.5 text-[10px] font-bold text-brand-navy">{course.badge}</span>
+          <h3 className="mt-3 font-serif text-lg leading-snug text-card-foreground">{course.title}</h3>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground"><span className="flex items-center gap-1"><Clock3 className="size-3.5" />{course.duration}</span><span className="flex items-center gap-1"><MapPin className="size-3.5" />{course.mode}</span></div>
+          <div className="mt-auto flex items-end justify-between gap-2 pt-4">
+            <div className="text-xs text-muted-foreground">
+              {from ? <>From <strong className="font-serif text-lg text-primary">{course.price.slice(5)}</strong><span className="block text-[10px]">(after applicable funding*)</span></> : <span className="text-sm text-primary">{course.price}</span>}
+            </div>
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-gold text-brand-navy"><ArrowRight className="size-4" /></span>
+          </div>
         </div>
       </Link>
-      <div className="px-5 pb-5 pt-3"><CompareToggle slug={course.slug} /></div>
+      {showCompare && <div className="px-4 pb-4"><CompareToggle slug={course.slug} /></div>}
     </article>
   );
 }

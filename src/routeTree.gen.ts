@@ -35,7 +35,10 @@ import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
+import { Route as CommunityGuidelinesRouteImport } from './routes/community.guidelines'
+import { Route as CommunityMembersRouteImport } from './routes/community.members'
 import { Route as CommunityNewRouteImport } from './routes/community.new'
+import { Route as CommunitySavedRouteImport } from './routes/community.saved'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
@@ -172,9 +175,24 @@ const CommunityIndexRoute = CommunityIndexRouteImport.update({
   path: '/community/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunityGuidelinesRoute = CommunityGuidelinesRouteImport.update({
+  id: '/community/guidelines',
+  path: '/community/guidelines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityMembersRoute = CommunityMembersRouteImport.update({
+  id: '/community/members',
+  path: '/community/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityNewRoute = CommunityNewRouteImport.update({
   id: '/community/new',
   path: '/community/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunitySavedRoute = CommunitySavedRouteImport.update({
+  id: '/community/saved',
+  path: '/community/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
@@ -229,7 +247,10 @@ export interface FileRoutesByFullPath {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/guidelines': typeof CommunityGuidelinesRoute
+  '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
+  '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
@@ -262,7 +283,10 @@ export interface FileRoutesByTo {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/guidelines': typeof CommunityGuidelinesRoute
+  '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
+  '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community': typeof CommunityIndexRoute
@@ -297,7 +321,10 @@ export interface FileRoutesById {
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
+  '/community/guidelines': typeof CommunityGuidelinesRoute
+  '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
+  '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/trainer/list': typeof TrainerListRoute
   '/community/': typeof CommunityIndexRoute
@@ -333,7 +360,10 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/guidelines'
+    | '/community/members'
     | '/community/new'
+    | '/community/saved'
     | '/courses/$slug'
     | '/trainer/list'
     | '/community/'
@@ -366,7 +396,10 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/guidelines'
+    | '/community/members'
     | '/community/new'
+    | '/community/saved'
     | '/courses/$slug'
     | '/trainer/list'
     | '/community'
@@ -400,7 +433,10 @@ export interface FileRouteTypes {
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
+    | '/community/guidelines'
+    | '/community/members'
     | '/community/new'
+    | '/community/saved'
     | '/courses/$slug'
     | '/trainer/list'
     | '/community/'
@@ -435,7 +471,10 @@ export interface RootRouteChildren {
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
   TrainersRoute: typeof TrainersRoute
+  CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
+  CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
+  CommunitySavedRoute: typeof CommunitySavedRoute
   TrainerListRoute: typeof TrainerListRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
   CommunityPostIdRoute: typeof CommunityPostIdRoute
@@ -626,11 +665,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunityIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community/guidelines': {
+      id: '/community/guidelines'
+      path: '/community/guidelines'
+      fullPath: '/community/guidelines'
+      preLoaderRoute: typeof CommunityGuidelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/members': {
+      id: '/community/members'
+      path: '/community/members'
+      fullPath: '/community/members'
+      preLoaderRoute: typeof CommunityMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community/new': {
       id: '/community/new'
       path: '/community/new'
       fullPath: '/community/new'
       preLoaderRoute: typeof CommunityNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community/saved': {
+      id: '/community/saved'
+      path: '/community/saved'
+      fullPath: '/community/saved'
+      preLoaderRoute: typeof CommunitySavedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses/': {
@@ -710,7 +770,10 @@ const rootRouteChildren: RootRouteChildren = {
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
   TrainersRoute: TrainersRoute,
+  CommunityGuidelinesRoute: CommunityGuidelinesRoute,
+  CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,
+  CommunitySavedRoute: CommunitySavedRoute,
   TrainerListRoute: TrainerListRoute,
   CommunityIndexRoute: CommunityIndexRoute,
   CommunityPostIdRoute: CommunityPostIdRoute,

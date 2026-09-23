@@ -18,7 +18,10 @@ export type Course = {
   outcomes: string[];
 };
 
-export const courses: Course[] = [
+const courseImages = import.meta.glob<string>("../assets/courses/*.jpg", { eager: true, import: "default" });
+const imageFor = (slug: string, fallback: string) => courseImages[`../assets/courses/${slug}.jpg`] ?? fallback;
+
+const baseCourses: Course[] = [
   {
     slug: "ai-course-singapore",
     title: "Integrated Digital Marketing with Generative AI",
@@ -488,6 +491,9 @@ export const courses: Course[] = [
     outcomes: ["The VTCT Skills (ITEC) Level 3 Diploma in Fashion, Theatre and Media Make-up (Mandarin) equips learners with the practical skills, technical knowledge and professional competencies required to deliver fashion, theatrical and media make-up services, including an understanding of skin structure, common skin conditions, client consultation and safety, while developing essential workplace skills such as communication, teamwork, problem-solving and professional practice to pursue a successful career as a make-up artist"],
   },
 ];
+
+export const courses: Course[] = baseCourses.map(c => ({ ...c, image: imageFor(c.slug, c.image) }));
+
 
 export const categories = [
   { name: "AI & Business", copy: "Work smarter and grow with technology.", image: aiImage },

@@ -30,6 +30,7 @@ import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
 import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TrainersRouteImport } from './routes/trainers'
@@ -146,6 +147,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffCoursesRoute = StaffCoursesRouteImport.update({
+  id: '/staff-courses',
+  path: '/staff-courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudentPoliciesRoute = StudentPoliciesRouteImport.update({
   id: '/student-policies',
   path: '/student-policies',
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/resources': typeof ResourcesRoute
+  '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
   '/student-portal': typeof StudentPortalRoute
   '/trainers': typeof TrainersRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -385,6 +396,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/resources'
+    | '/staff-courses'
     | '/student-policies'
     | '/student-portal'
     | '/trainers'
@@ -419,6 +431,7 @@ export interface RootRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
   ResourcesRoute: typeof ResourcesRoute
+  StaffCoursesRoute: typeof StaffCoursesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
   StudentPortalRoute: typeof StudentPortalRoute
   TrainersRoute: typeof TrainersRoute
@@ -578,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff-courses': {
+      id: '/staff-courses'
+      path: '/staff-courses'
+      fullPath: '/staff-courses'
+      preLoaderRoute: typeof StaffCoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/student-policies': {
       id: '/student-policies'
       path: '/student-policies'
@@ -686,6 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
   ResourcesRoute: ResourcesRoute,
+  StaffCoursesRoute: StaffCoursesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
   StudentPortalRoute: StudentPortalRoute,
   TrainersRoute: TrainersRoute,

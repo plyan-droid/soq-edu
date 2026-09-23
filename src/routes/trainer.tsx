@@ -61,9 +61,9 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const [f, setF] = useState({ title: "", body: "", video_url: "", file_url: "" });
   const { data = [] } = useQuery({ queryKey: ["t-lessons", slug], queryFn: async () => ((await supabase.from("lessons").select("*").eq("course_slug", slug).order("position").order("created_at")).data ?? []) as Lesson[] });
   const add = async () => {
-    if (f.title.trim().length < 3) return toast.error("Give the lesson a title.");
+    if (f.title.trim().length < 3) return void toast.error("Give the lesson a title.");
     const { error } = await supabase.from("lessons").insert({ course_slug: slug, position: data.length + 1, title: f.title.trim(), body: f.body || null, video_url: f.video_url || null, file_url: f.file_url || null, created_by: userId });
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     setF({ title: "", body: "", video_url: "", file_url: "" }); toast.success("Lesson added");
     void qc.invalidateQueries({ queryKey: ["t-lessons", slug] });
   };
@@ -96,9 +96,9 @@ function Live({ userId }: { userId: string }) {
   const [f, setF] = useState({ slug: courses[0]!.slug, title: "", starts_at: "", duration_min: "60", meeting_url: "" });
   const { data = [] } = useQuery({ queryKey: ["t-live", userId], queryFn: async () => ((await supabase.from("live_sessions").select("*").eq("trainer_id", userId).order("starts_at")).data ?? []) as LiveSession[] });
   const add = async () => {
-    if (!f.title.trim() || !f.starts_at) return toast.error("Add a title and start time.");
+    if (!f.title.trim() || !f.starts_at) return void toast.error("Add a title and start time.");
     const { error } = await supabase.from("live_sessions").insert({ course_slug: f.slug, trainer_id: userId, title: f.title.trim(), starts_at: new Date(f.starts_at).toISOString(), duration_min: Number(f.duration_min) || 60, meeting_url: f.meeting_url || null });
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success("Live class scheduled"); setF({ ...f, title: "", starts_at: "", meeting_url: "" });
     void qc.invalidateQueries({ queryKey: ["t-live", userId] });
   };
@@ -126,9 +126,9 @@ function Drafts({ userId }: { userId: string }) {
   const [f, setF] = useState(empty);
   const { data = [] } = useQuery({ queryKey: ["t-drafts", userId], queryFn: async () => ((await supabase.from("course_drafts").select("*").eq("trainer_id", userId).order("created_at", { ascending: false })).data ?? []) as Draft[] });
   const save = async (status: "draft" | "submitted") => {
-    if (f.title.trim().length < 5 || f.summary.trim().length < 20) return toast.error("Add a title (5+ characters) and a summary (20+ characters).");
+    if (f.title.trim().length < 5 || f.summary.trim().length < 20) return void toast.error("Add a title (5+ characters) and a summary (20+ characters).");
     const { error } = await supabase.from("course_drafts").insert({ trainer_id: userId, title: f.title.trim(), category: f.category, summary: f.summary.trim(), duration: f.duration || null, mode: f.mode || null, price: f.price || null, outcomes: f.outcomes.split("\n").map(s => s.trim()).filter(Boolean), status });
-    if (error) return toast.error(error.message);
+    if (error) return void toast.error(error.message);
     toast.success(status === "submitted" ? "Sent to SOQ staff for approval" : "Draft saved"); setF(empty);
     void qc.invalidateQueries({ queryKey: ["t-drafts", userId] });
   };

@@ -5,6 +5,7 @@ import { CourseCard } from "@/components/course-card";
 import { courses, contact } from "@/lib/site-content";
 import { courseOverridesQuery, mergeCourse, sectionsFor } from "@/lib/course-overrides";
 import { CourseApplyForm } from "@/components/course-apply-form";
+import { CourseReviews } from "@/components/course-reviews";
 
 export const Route = createFileRoute("/courses/$slug")({
   loader: async ({ params, context }) => { const base = courses.find(c => c.slug === params.slug); if (!base) throw notFound(); const overrides = await context.queryClient.ensureQueryData(courseOverridesQuery).catch(() => []); const o = overrides.find(x => x.slug === base.slug); return { ...mergeCourse(base, o), sections: sectionsFor(base.slug, o) }; },

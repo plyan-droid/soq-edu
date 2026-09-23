@@ -6,6 +6,8 @@ import { contact } from "@/lib/site-content";
 
 const nav = [
   { label: "Courses", to: "/courses" as const },
+  { label: "Find My Course", to: "/recommend" as const },
+  { label: "Compare", to: "/compare" as const },
   { label: "For Businesses", to: "/businesses" as const },
   { label: "Funding", to: "/funding" as const },
   { label: "About SOQ", to: "/about" as const },

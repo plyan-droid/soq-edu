@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { categories, courses } from "@/lib/site-content";
 import { fmtDateTime, type Lesson, type LiveSession } from "@/lib/learning";
+import { TrainerOverview, TrainerStudents, TrainerLessonHistory, TrainerCalendar } from "@/components/trainer-overview";
 
 export const Route = createFileRoute("/trainer")({
   head: () => ({
@@ -37,8 +38,12 @@ function TrainerPage() {
   if (!isTrainer && !isAdmin) return <Wrap><p className="max-w-xl text-muted-foreground">This page is for SOQ trainers. Want to teach with us? <Link to="/teach" className="underline">Apply here</Link>. Once staff approve you, this dashboard opens.</p></Wrap>;
   return (
     <Wrap>
-      <Tabs defaultValue="lessons">
-        <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="lessons">Lessons</TabsTrigger><TabsTrigger value="live">Live classes</TabsTrigger><TabsTrigger value="drafts">My course proposals</TabsTrigger></TabsList>
+      <Tabs defaultValue="overview">
+        <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="students">Students</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger><TabsTrigger value="lessons">Lessons</TabsTrigger><TabsTrigger value="history">Lesson history</TabsTrigger><TabsTrigger value="live">Live classes</TabsTrigger><TabsTrigger value="drafts">My course proposals</TabsTrigger></TabsList>
+        <TabsContent value="overview"><TrainerOverview userId={user.id} /></TabsContent>
+        <TabsContent value="students"><TrainerStudents userId={user.id} /></TabsContent>
+        <TabsContent value="calendar"><TrainerCalendar userId={user.id} /></TabsContent>
+        <TabsContent value="history"><TrainerLessonHistory userId={user.id} /></TabsContent>
         <TabsContent value="lessons"><Lessons userId={user.id} isAdmin={isAdmin} /></TabsContent>
         <TabsContent value="live"><Live userId={user.id} /></TabsContent>
         <TabsContent value="drafts">{isTrainer ? <Drafts userId={user.id} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p>}</TabsContent>

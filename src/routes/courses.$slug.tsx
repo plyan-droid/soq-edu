@@ -52,7 +52,7 @@ function CoursePage() {
   const wa = `${contact.whatsapp}?text=${encodeURIComponent(`Hi SOQ, I'd like to enquire about the "${course.title}" course (${course.duration}, ${course.mode}). Could you share the upcoming schedule and fees?`)}`;
   const learn = course.sections.find((s) => /outcome|learn/i.test(s.title))?.items ?? course.outcomes;
   const modules = course.sections.filter((s) => !/outcome|learn/i.test(s.title));
-  const skills = Array.from(new Set([course.category, course.badge, course.mode, ...modules.slice(0, 1).flatMap((m) => m.items.slice(0, 4).map((i) => i.split(/[:,–-]/)[0].trim()).filter((t) => t.length < 40))]));
+  const skills = Array.from(new Set([course.category, course.badge, course.mode, ...modules.slice(0, 1).flatMap((m) => m.items.slice(0, 4).map((i) => (i.split(/[:,–-]/)[0] ?? "").trim()).filter((t) => t.length < 40))]));
 
   return (
     <>
@@ -90,7 +90,7 @@ function CoursePage() {
       {/* Stat bar */}
       <div className="relative z-10 mx-auto -mt-14 max-w-7xl px-5 lg:px-8">
         <div className="grid divide-y divide-border rounded-lg border border-border bg-card shadow-lg sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-5 lg:divide-x">
-          {[
+          {([
             { t: course.badge === "Diploma" ? "Diploma programme" : `${course.badge} certified`, s: "Recognised qualification", i: Award },
             { t: "Rated by learners", s: "See reviews below", i: Star },
             { t: levelFor(course.badge), s: "No prior experience needed", i: GraduationCap },
@@ -135,7 +135,7 @@ function CoursePage() {
           <section id="outcomes" className="scroll-mt-20">
             <h2 className="text-xl font-semibold text-primary">Details to know</h2>
             <div className="mt-5 grid gap-6 sm:grid-cols-3">
-              {[
+              {([
                 { i: Share2, t: "Shareable certificate", s: "Add to your LinkedIn profile" },
                 { i: Globe, t: "Taught in English", s: "Clear, practical instruction" },
                 { i: MapPin, t: course.mode, s: "10 Anson Road, Singapore" },
@@ -184,12 +184,12 @@ function CoursePage() {
           <section>
             <h2 className="text-2xl font-semibold text-primary">Frequently asked questions</h2>
             <Accordion type="single" collapsible className="mt-5 border-t border-border">
-              {[
+              {([
                 ["Can I use SkillsFuture Credit?", "Many SOQ courses are eligible for SkillsFuture Credit and WSQ funding of up to 70%. Our advisers will confirm your eligibility."],
                 ["When is the next intake?", "See the Course Calendar or message us on WhatsApp for the latest schedule."],
                 ["What certificate will I receive?", `You'll receive a ${course.badge} certificate on completion, subject to at least 75% attendance and passing the assessment.`],
                 ["Do I need prior experience?", "Most courses are beginner friendly. Entry requirements, if any, are listed in the syllabus above."],
-              ].map(([q, a]) => (
+              ] as [string, string][]).map(([q, a]) => (
                 <AccordionItem key={q} value={q}><AccordionTrigger className="text-left font-semibold text-primary">{q}</AccordionTrigger><AccordionContent className="text-muted-foreground">{a}</AccordionContent></AccordionItem>
               ))}
             </Accordion>

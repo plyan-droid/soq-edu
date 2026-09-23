@@ -899,6 +899,24 @@ export type Database = {
         }
         Relationships: []
       }
+      trainer_courses: {
+        Row: {
+          course_slug: string
+          created_at: string
+          trainer_id: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          trainer_id: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          trainer_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -938,6 +956,27 @@ export type Database = {
           _items: Json
         }
         Returns: string
+      }
+      trainer_lesson_stats: {
+        Args: never
+        Returns: {
+          completions: number
+          lesson_id: string
+        }[]
+      }
+      trainer_roster: {
+        Args: never
+        Returns: {
+          course_slug: string
+          end_date: string
+          enrollment_id: string
+          lessons_done: number
+          progress: number
+          start_date: string
+          status: string
+          student_email: string
+          student_name: string
+        }[]
       }
       verify_certificate: {
         Args: { _code: string }

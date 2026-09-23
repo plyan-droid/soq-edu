@@ -1,4 +1,6 @@
 import { NewsletterSignup } from "@/components/newsletter-signup";
+import { CartLink } from "@/components/add-to-cart";
+import { SiteSettingsLayer } from "@/components/site-settings";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";
@@ -41,7 +43,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-4 lg:flex">
-          <Link to="/recommend" aria-label="Find my course" className="grid size-10 place-items-center text-primary"><Search className="size-5" /></Link>
+          <Link to="/recommend" aria-label="Find my course" className="grid size-10 place-items-center text-primary"><Search className="size-5" /></Link><CartLink />
           <Link to="/community" className="text-sm font-medium text-primary hover:text-brand-gold">Community</Link>
           <Link to="/student-portal" className="text-sm font-medium text-primary hover:text-brand-gold">Log in</Link>
           <Button asChild className="h-11 rounded-full bg-brand-gold px-6 text-brand-navy shadow-none hover:bg-brand-gold/85">
@@ -73,7 +75,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/trainer">Trainer Dashboard</Link><Link to="/verify-certificate">Verify a Certificate</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/trainer">Trainer Dashboard</Link><Link to="/cart">Cart</Link><Link to="/verify-certificate">Verify a Certificate</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">
@@ -99,5 +101,5 @@ export function SiteFooter() {
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
-  return <><SiteHeader /><main>{children}</main><SiteFooter /></>;
+  return <><SiteSettingsLayer /><SiteHeader /><main>{children}</main><SiteFooter /></>;
 }

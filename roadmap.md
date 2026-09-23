@@ -33,6 +33,6 @@
 - [x] Lesson pages (video/files) for enrolled students
 - [x] Trainer dashboard, trainer course drafts, staff approval, live class schedule
 ### Phase 3 — mock payments
-- [ ] Cart, mock checkout, discount codes, sales list
+- [x] Cart, mock checkout, discount codes, sales list
 ### Later
-- [ ] Notification templates, page editor, settings hub, appearance settings
+- [x] Notification templates, page editor, settings hub, appearance settings

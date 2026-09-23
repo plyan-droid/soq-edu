@@ -101,9 +101,9 @@ export const categories = [
 ] as const;
 
 export const contact = {
-  address: "300 Tanjong Pagar Road, #08-01, Singapore 088540",
-  phone: "+65 6222 1234",
-  email: "enquiry@soq.edu.sg",
-  whatsapp: "https://wa.me/6562221234",
-  portal: "https://soq.trainingsystemsg.com",
+  address: "10 Anson Road, International Plaza, #23-08 & #35-16, Singapore 079903",
+  phone: "+65 6996 3383",
+  email: "academy@soq.edu.sg",
+  whatsapp: "https://wa.me/6587182308",
+  portal: "https://soq.trainingsystemsg.com/TMS/login",
 };

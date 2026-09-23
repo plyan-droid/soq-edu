@@ -125,7 +125,7 @@ function CoursePage() {
   const skills = Array.from(new Set([course.category, course.badge, course.mode, ...modules.slice(0, 1).flatMap((m) => m.items.slice(0, 4).map((i) => (i.split(/[:,–-]/)[0] ?? "").trim()).filter((t) => t.length < 40))]));
 
   return (
-    <div className="xl:flex">
+    <div className={`xl:flex ${course.badge === "WSQ" ? "theme-wsq" : "theme-academic"}`}>
     <div className="min-w-0 flex-1">
       {/* Hero */}
       <section className="relative overflow-hidden bg-secondary">

@@ -1559,6 +1559,14 @@ export type Database = {
         }
         Returns: string
       }
+      session_roster: {
+        Args: { _session: string }
+        Returns: {
+          student_email: string
+          student_id: string
+          student_name: string
+        }[]
+      }
       submit_quiz: { Args: { _answers: Json; _quiz: string }; Returns: Json }
       teaches: { Args: { _slug: string; _user: string }; Returns: boolean }
       trainer_lesson_stats: {

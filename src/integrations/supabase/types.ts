@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admissions: {
+        Row: {
+          application_id: string | null
+          course_slug: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string | null
+          stage: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          course_slug: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          course_slug?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       assignment_submissions: {
         Row: {
           assignment_id: string
@@ -911,6 +950,42 @@ export type Database = {
         }
         Relationships: []
       }
+      exemptions: {
+        Row: {
+          course_slug: string
+          created_at: string
+          evidence: string | null
+          fee_reduction: number
+          id: string
+          kind: string
+          module: string
+          status: string
+          student_email: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          evidence?: string | null
+          fee_reduction?: number
+          id?: string
+          kind?: string
+          module: string
+          status?: string
+          student_email: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          evidence?: string | null
+          fee_reduction?: number
+          id?: string
+          kind?: string
+          module?: string
+          status?: string
+          student_email?: string
+        }
+        Relationships: []
+      }
       form_responses: {
         Row: {
           created_at: string
@@ -1016,6 +1091,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          interest: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          source: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          interest?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+        }
+        Relationships: []
       }
       lesson_notes: {
         Row: {
@@ -1630,6 +1741,39 @@ export type Database = {
           referred_id?: string
           referrer_id?: string
           status?: string
+        }
+        Relationships: []
+      }
+      sfc_claims: {
+        Row: {
+          claim_ref: string | null
+          course_fee: number
+          course_slug: string
+          created_at: string
+          id: string
+          sfc_amount: number
+          status: string
+          student_email: string
+        }
+        Insert: {
+          claim_ref?: string | null
+          course_fee?: number
+          course_slug: string
+          created_at?: string
+          id?: string
+          sfc_amount?: number
+          status?: string
+          student_email: string
+        }
+        Update: {
+          claim_ref?: string | null
+          course_fee?: number
+          course_slug?: string
+          created_at?: string
+          id?: string
+          sfc_amount?: number
+          status?: string
+          student_email?: string
         }
         Relationships: []
       }

@@ -1431,19 +1431,49 @@ export type Database = {
           created_at: string
           id: string
           member_email: string
+          member_role: string
           org_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           member_email: string
+          member_role?: string
           org_id: string
         }
         Update: {
           created_at?: string
           id?: string
           member_email?: string
+          member_role?: string
           org_id?: string
+        }
+        Relationships: []
+      }
+      org_packages: {
+        Row: {
+          expires_on: string | null
+          instructor_seats: number
+          name: string
+          org_id: string
+          student_seats: number
+          updated_at: string
+        }
+        Insert: {
+          expires_on?: string | null
+          instructor_seats?: number
+          name?: string
+          org_id: string
+          student_seats?: number
+          updated_at?: string
+        }
+        Update: {
+          expires_on?: string | null
+          instructor_seats?: number
+          name?: string
+          org_id?: string
+          student_seats?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2110,6 +2140,10 @@ export type Database = {
       }
       in_course: { Args: { _slug: string; _user: string }; Returns: boolean }
       is_top_admin: { Args: { _user_id: string }; Returns: boolean }
+      org_add_member: {
+        Args: { _email: string; _role: string }
+        Returns: string
+      }
       org_roster: {
         Args: never
         Returns: {

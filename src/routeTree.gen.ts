@@ -36,6 +36,7 @@ import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ReferRouteImport } from './routes/refer'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
@@ -197,6 +198,11 @@ const ReferRoute = ReferRouteImport.update({
   path: '/refer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -404,6 +411,7 @@ export interface FileRoutesByTo {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -459,6 +467,7 @@ export interface FileRoutesById {
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -515,6 +524,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/refer'
+    | '/reset-password'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -568,6 +578,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/refer'
+    | '/reset-password'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -622,6 +633,7 @@ export interface FileRouteTypes {
     | '/portal-admin'
     | '/recommend'
     | '/refer'
+    | '/reset-password'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -677,6 +689,7 @@ export interface RootRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
   ReferRoute: typeof ReferRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   StaffCoursesRoute: typeof StaffCoursesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
@@ -890,6 +903,13 @@ declare module '@tanstack/react-router' {
       path: '/refer'
       fullPath: '/refer'
       preLoaderRoute: typeof ReferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
@@ -1122,6 +1142,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
   ReferRoute: ReferRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   StaffCoursesRoute: StaffCoursesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,

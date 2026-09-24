@@ -111,7 +111,7 @@ export function SfcClaims() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["sfc"] });
   const save = async () => {
     const fee = Number(f.course_fee) || 0, amt = Number(f.sfc_amount) || 0;
-    if (amt > fee) return toast.error("Credit used can't be more than the course fee");
+    if (amt > fee) { toast.error("Credit used can't be more than the course fee"); return; }
     const { error } = await supabase.from("sfc_claims").insert({ ...f, course_fee: fee, sfc_amount: amt });
     if (error) toast.error(error.message); else { setF({ ...f, student_email: "", sfc_amount: "", claim_ref: "" }); void refresh(); }
   };
@@ -181,7 +181,7 @@ export function LeadsAdmin() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["leads"] });
   const run = async () => {
     const rows = parseCsv(csv).map(r => ({ ...r, source }));
-    if (!rows.length) return toast.error("No rows found. The first line must be headings like Name, Email, Phone.");
+    if (!rows.length) { toast.error("No rows found. The first line must be headings like Name, Email, Phone."); return; }
     const { error } = await supabase.from("leads").insert(rows);
     if (error) toast.error(error.message); else { toast.success(`${rows.length} leads imported`); setCsv(""); void refresh(); }
   };

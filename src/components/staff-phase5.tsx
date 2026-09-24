@@ -95,15 +95,76 @@ export function StudentOverview({ studentId }: { studentId: string }) {
   );
 }
 
-/* ---------- Organization: sponsored employees ---------- */
+/* ---------- Organization: manage instructors & students within package ---------- */
 export function OrgRoster() {
-  const { data = [] } = useQuery({ queryKey: ["org-roster"], queryFn: async () => ((await supabase.rpc("org_roster" as never)).data ?? []) as { member_email: string; full_name: string | null; course_slug: string | null; progress: number | null; status: string | null }[] });
+  const qc = useQueryClient();
+  const [email, setEmail] = useState(""); const [role, setRole] = useState<"student" | "instructor">("student");
+  const { data: roster = [] } = useQuery({ queryKey: ["org-roster"], queryFn: async () => ((await supabase.rpc("org_roster" as never)).data ?? []) as { member_email: string; full_name: string | null; course_slug: string | null; progress: number | null; status: string | null }[] });
+  const { data: members = [] } = useQuery({ queryKey: ["org-members-own"], queryFn: async () => ((await supabase.from("org_members" as never).select("id, member_email, member_role")).data ?? []) as unknown as { id: string; member_email: string; member_role: string }[] });
+  const { data: pkg } = useQuery({ queryKey: ["org-package"], queryFn: async () => ((await supabase.from("org_packages" as never).select("*").maybeSingle()).data ?? null) as { name: string; student_seats: number; instructor_seats: number; expires_on: string | null } | null });
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ["org-roster"] }); void qc.invalidateQueries({ queryKey: ["org-members-own"] }); };
+  const used = (r: string) => members.filter(m => m.member_role === r).length;
+  const expired = !!pkg?.expires_on && new Date(pkg.expires_on) < new Date(new Date().toDateString());
+  const add = async () => {
+    const { error } = await supabase.rpc("org_add_member" as never, { _email: email, _role: role } as never);
+    if (error) toast.error(error.message); else { toast.success("Member added"); setEmail(""); refresh(); }
+  };
+  const remove = async (id: string) => { const { error } = await supabase.from("org_members" as never).delete().eq("id", id); if (error) toast.error(error.message); else refresh(); };
+  const list = (r: "student" | "instructor") => members.filter(m => m.member_role === r);
+  const course = (e: string) => roster.filter(x => x.member_email === e && x.course_slug).map(x => `${title(x.course_slug!)} · ${x.progress ?? 0}%`).join(", ");
   return (
-    <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8"><Box><H>Your sponsored employees</H>
-      {data.length === 0 ? <p className="text-sm text-muted-foreground">No employees linked yet. Ask SOQ staff to add your employees' emails.</p> :
-        <ul className="divide-y divide-border text-sm">{data.map((r, i) => (
-          <li key={i} className="flex justify-between py-2"><span><b>{r.full_name || r.member_email}</b> · {r.member_email}</span><span>{r.course_slug ? `${title(r.course_slug)} · ${r.progress ?? 0}%` : "Not enrolled yet"}</span></li>))}</ul>}
-    </Box></div>
+    <div className="mx-auto max-w-7xl space-y-6 px-5 py-10 lg:px-8">
+      <Box><H>Organization package</H>
+        {!pkg ? <p className="text-sm text-muted-foreground">No package yet. Ask SOQ staff to set up your seats.</p> :
+          <div className="grid gap-3 text-sm sm:grid-cols-3">
+            <p><b>{pkg.name}</b><span className="block text-muted-foreground">{pkg.expires_on ? `${expired ? "Expired" : "Valid until"} ${d(pkg.expires_on)}` : "No expiry"}</span></p>
+            <p>Students: <b>{used("student")} / {pkg.student_seats}</b></p>
+            <p>Instructors: <b>{used("instructor")} / {pkg.instructor_seats}</b></p>
+          </div>}
+      </Box>
+      <Box><H>Add a member</H>
+        <p className="text-sm text-muted-foreground">Add by email. They sign up (or sign in) with the same email to appear with their progress.</p>
+        <div className="flex flex-wrap gap-2">
+          <input className="h-10 flex-1 rounded-md border border-input bg-background px-3 text-sm" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+          <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={role} onChange={e => setRole(e.target.value as "student")}><option value="student">Student</option><option value="instructor">Instructor</option></select>
+          <Button className="rounded-full" disabled={!email.includes("@") || !pkg || expired} onClick={() => void add()}>Add</Button>
+        </div>
+      </Box>
+      {(["student", "instructor"] as const).map(r => (
+        <Box key={r}><H>{r === "student" ? "Students" : "Instructors"} ({list(r).length})</H>
+          {list(r).length === 0 ? <p className="text-sm text-muted-foreground">None yet.</p> :
+            <ul className="divide-y divide-border text-sm">{list(r).map(m => (
+              <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span><b>{roster.find(x => x.member_email === m.member_email)?.full_name || m.member_email}</b> · {m.member_email}{r === "student" && <span className="block text-xs text-muted-foreground">{course(m.member_email) || "Not enrolled yet"}</span>}</span>
+                <Button size="sm" variant="outline" className="rounded-full" onClick={() => void remove(m.id)}>Remove</Button>
+              </li>))}</ul>}
+        </Box>))}
+    </div>
+  );
+}
+
+function OrgPackageAdmin() {
+  const [org, setOrg] = useState(""); const [name, setName] = useState("Standard");
+  const [s, setS] = useState(10); const [i, setI] = useState(2); const [exp, setExp] = useState("");
+  const save = async () => {
+    const { data: p } = await supabase.from("profiles").select("id").ilike("email", org.trim()).maybeSingle();
+    if (!p) { toast.error("No account with that organization email"); return; }
+    const { error } = await supabase.from("org_packages" as never).upsert({ org_id: p.id, name, student_seats: s, instructor_seats: i, expires_on: exp || null, updated_at: new Date().toISOString() } as never);
+    if (error) toast.error(error.message); else toast.success("Package saved");
+  };
+  const inp = "h-10 rounded-md border border-input bg-background px-3 text-sm";
+  return (
+    <Box><H>Organization packages</H>
+      <p className="text-sm text-muted-foreground">Set how many students and instructors a company can add itself, and until when.</p>
+      <input className={`${inp} w-full`} placeholder="Organization account email" value={org} onChange={e => setOrg(e.target.value)} />
+      <div className="grid gap-2 sm:grid-cols-4">
+        <label className="text-xs">Package name<input className={`${inp} w-full`} value={name} onChange={e => setName(e.target.value)} /></label>
+        <label className="text-xs">Student seats<input type="number" className={`${inp} w-full`} value={s} onChange={e => setS(+e.target.value)} /></label>
+        <label className="text-xs">Instructor seats<input type="number" className={`${inp} w-full`} value={i} onChange={e => setI(+e.target.value)} /></label>
+        <label className="text-xs">Expires on<input type="date" className={`${inp} w-full`} value={exp} onChange={e => setExp(e.target.value)} /></label>
+      </div>
+      <Button className="rounded-full" onClick={() => void save()}>Save package</Button>
+    </Box>
   );
 }
 
@@ -118,11 +179,12 @@ export function OrgMembersAdmin() {
     if (error) toast.error(error.message); else { toast.success(`${rows.length} linked`); setEmails(""); void qc.invalidateQueries(); }
   };
   return (
+    <div className="space-y-6"><OrgPackageAdmin />
     <Box><H>Organization employees</H>
       <p className="text-sm text-muted-foreground">Link a company account to the employees it sponsors. The company then sees their course progress in its portal. The account must have the Organization role (Users & roles).</p>
       <input className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" placeholder="Organization account email" value={org} onChange={e => setOrg(e.target.value)} />
       <Textarea placeholder="Employee emails, one per line" value={emails} onChange={e => setEmails(e.target.value)} />
       <Button className="rounded-full" onClick={() => void add()}>Link employees</Button>
-    </Box>
+    </Box></div>
   );
 }

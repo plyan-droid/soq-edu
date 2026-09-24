@@ -69,9 +69,9 @@
 - [x] AI writer
 - [x] Simple referral scheme
 ### Phase 4 — Singapore
-- [ ] Diploma admissions pipeline
-- [ ] Module exemptions
-- [ ] SkillsFuture Credit tracking
-- [ ] WhatsApp reminders
-- [ ] CRM leads import
-- [ ] Placeholders: TPGateway, grant checks, Singpass, Xero
+- [x] Diploma admissions pipeline
+- [x] Module exemptions
+- [x] SkillsFuture Credit tracking
+- [x] WhatsApp reminders
+- [x] CRM leads import
+- [x] Placeholders: TPGateway, grant checks, Singpass, Xero

@@ -11,6 +11,7 @@ import { courseTitle, type Enrollment, type Task } from "@/components/student-da
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
+import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -45,7 +46,7 @@ function Admin() {
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
       <Tabs defaultValue="reports" className="mt-6">
         <TabsList className="h-auto flex-wrap justify-start">
-          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"], ["sales", "Sales"], ["codes", "Discount codes"], ["pages", "Pages"], ["templates", "Message templates"], ["enrol", "Enrol students"], ["payments", "PayNow & instalments"], ["waitlist", "Waitlists"], ["notices", "Noticeboard"], ["bundles", "Bundles"], ["forms", "Forms"], ["certdesign", "Certificate design"], ["logins", "Login history"], ["ai", "AI writer"], ["referrals", "Referrals"], ["settings", "Settings"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
+          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"], ["sales", "Sales"], ["codes", "Discount codes"], ["pages", "Pages"], ["templates", "Message templates"], ["enrol", "Enrol students"], ["payments", "PayNow & instalments"], ["waitlist", "Waitlists"], ["notices", "Noticeboard"], ["bundles", "Bundles"], ["forms", "Forms"], ["certdesign", "Certificate design"], ["logins", "Login history"], ["ai", "AI writer"], ["referrals", "Referrals"], ["admissions", "Diploma admissions"], ["exemptions", "Exemptions"], ["sfc", "SkillsFuture Credit"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"], ["gov", "Gov & Xero links"], ["settings", "Settings"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
         </TabsList>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
@@ -82,6 +83,12 @@ function Admin() {
         <TabsContent value="logins"><LoginHistory /></TabsContent>
         <TabsContent value="ai"><AIWriter /></TabsContent>
         <TabsContent value="referrals"><ReferralsAdmin /></TabsContent>
+        <TabsContent value="admissions"><AdmissionsPipeline /></TabsContent>
+        <TabsContent value="exemptions"><ExemptionsAdmin /></TabsContent>
+        <TabsContent value="sfc"><SfcClaims /></TabsContent>
+        <TabsContent value="whatsapp"><WhatsAppReminders /></TabsContent>
+        <TabsContent value="leads"><LeadsAdmin /></TabsContent>
+        <TabsContent value="gov"><IntegrationsStatus /></TabsContent>
       </Tabs>
     </div>
   );

@@ -1,6 +1,7 @@
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { CartLink } from "@/components/add-to-cart";
 import { SiteSettingsLayer } from "@/components/site-settings";
+import { RefCapture } from "@/components/learner-tools";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";
@@ -101,5 +102,5 @@ export function SiteFooter() {
 }
 
 export function SiteLayout({ children }: { children: ReactNode }) {
-  return <><SiteSettingsLayer /><SiteHeader /><main>{children}</main><SiteFooter /></>;
+  return <><SiteSettingsLayer /><RefCapture /><SiteHeader /><main>{children}</main><SiteFooter /></>;
 }

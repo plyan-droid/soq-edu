@@ -4,10 +4,11 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import { DemoLoginButtons } from "@/components/demo-login";
 import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
+  validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional(), next: z.string().regex(/^\/[a-z0-9\-\/]*$/).optional() }),
   head: () => ({
     meta: [
       { title: "Student Sign In | SOQ International Academy" },
@@ -25,7 +26,7 @@ type Step = "email" | "code" | "password" | "signup";
 const emailSchema = z.string().trim().email().max(200);
 
 function Login() {
-  const { mode: initial } = Route.useSearch();
+  const { mode: initial, next } = Route.useSearch();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(initial === "signup" ? "signup" : "email");
   const [name, setName] = useState("");
@@ -36,7 +37,7 @@ function Login() {
   const [busy, setBusy] = useState(false);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
 
-  const done = () => void navigate({ to: "/student-portal" });
+  const done = () => void navigate({ to: (next ?? "/student-portal") as "/student-portal" });
 
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault(); setMsg(null);
@@ -166,6 +167,7 @@ function Login() {
               ? <>Already have an account? <button type="button" className="font-semibold text-brand-gold" onClick={() => { setMsg(null); setStep("email"); }}>Sign in</button></>
               : <>First time here? <button type="button" className="font-semibold text-brand-gold" onClick={() => { setMsg(null); setStep("signup"); }}>Create an account</button></>}
           </p>
+          <DemoLoginButtons />
         </div>
       </div>
     </section>

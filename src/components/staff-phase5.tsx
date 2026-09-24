@@ -19,7 +19,7 @@ export function StaffRequests() {
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["staff-requests"] }); void qc.invalidateQueries({ queryKey: ["admin-users"] }); };
   const decide = async (r: (typeof data)[number], ok: boolean) => {
     if (ok) {
-      const { error } = await supabase.from("user_roles").insert({ user_id: r.user_id, role: "admin" });
+      const { error } = await supabase.from("user_roles").insert({ user_id: r.user_id, role: "staff" as never });
       if (error && !/duplicate/i.test(error.message)) { toast.error(error.message); return; }
     }
     await supabase.from("staff_requests").update({ status: ok ? "approved" : "rejected" }).eq("id", r.id);
@@ -92,5 +92,37 @@ export function StudentOverview({ studentId }: { studentId: string }) {
         {data.orders.length + data.bank.length === 0 && <p className="text-sm text-muted-foreground">No payments yet.</p>}
       </Box>
     </div>
+  );
+}
+
+/* ---------- Organization: sponsored employees ---------- */
+export function OrgRoster() {
+  const { data = [] } = useQuery({ queryKey: ["org-roster"], queryFn: async () => ((await supabase.rpc("org_roster" as never)).data ?? []) as { member_email: string; full_name: string | null; course_slug: string | null; progress: number | null; status: string | null }[] });
+  return (
+    <div className="mx-auto max-w-7xl px-5 py-10 lg:px-8"><Box><H>Your sponsored employees</H>
+      {data.length === 0 ? <p className="text-sm text-muted-foreground">No employees linked yet. Ask SOQ staff to add your employees' emails.</p> :
+        <ul className="divide-y divide-border text-sm">{data.map((r, i) => (
+          <li key={i} className="flex justify-between py-2"><span><b>{r.full_name || r.member_email}</b> · {r.member_email}</span><span>{r.course_slug ? `${title(r.course_slug)} · ${r.progress ?? 0}%` : "Not enrolled yet"}</span></li>))}</ul>}
+    </Box></div>
+  );
+}
+
+export function OrgMembersAdmin() {
+  const qc = useQueryClient();
+  const [org, setOrg] = useState(""); const [emails, setEmails] = useState("");
+  const add = async () => {
+    const { data: p } = await supabase.from("profiles").select("id").ilike("email", org.trim()).maybeSingle();
+    if (!p) { toast.error("No account with that organization email"); return; }
+    const rows = emails.split(/[\s,]+/).filter(e => e.includes("@")).map(member_email => ({ org_id: p.id, member_email: member_email.toLowerCase() }));
+    const { error } = await supabase.from("org_members" as never).upsert(rows as never, { ignoreDuplicates: true } as never);
+    if (error) toast.error(error.message); else { toast.success(`${rows.length} linked`); setEmails(""); void qc.invalidateQueries(); }
+  };
+  return (
+    <Box><H>Organization employees</H>
+      <p className="text-sm text-muted-foreground">Link a company account to the employees it sponsors. The company then sees their course progress in its portal. The account must have the Organization role (Users & roles).</p>
+      <input className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" placeholder="Organization account email" value={org} onChange={e => setOrg(e.target.value)} />
+      <Textarea placeholder="Employee emails, one per line" value={emails} onChange={e => setEmails(e.target.value)} />
+      <Button className="rounded-full" onClick={() => void add()}>Link employees</Button>
+    </Box>
   );
 }

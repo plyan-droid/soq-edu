@@ -6,6 +6,8 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isTrainer, setIsTrainer] = useState(false);
+  const [isTopAdmin, setIsTopAdmin] = useState(false);
+  const [isOrg, setIsOrg] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,9 +16,11 @@ export function useAuth() {
       if (s) {
         const { data } = await supabase.from("user_roles").select("role").eq("user_id", s.user.id);
         const roles = (data ?? []).map(r => r.role as string);
-        setIsAdmin(roles.includes("admin"));
+        setIsAdmin(roles.includes("admin") || roles.includes("staff"));
+        setIsTopAdmin(roles.includes("admin"));
+        setIsOrg(roles.includes("organization"));
         setIsTrainer(roles.includes("trainer"));
-      } else { setIsAdmin(false); setIsTrainer(false); }
+      } else { setIsAdmin(false); setIsTrainer(false); setIsTopAdmin(false); setIsOrg(false); }
       setLoading(false);
     };
     const { data: sub } = supabase.auth.onAuthStateChange((e, s) => {
@@ -37,5 +41,5 @@ export function useAuth() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  return { session, user: session?.user ?? null, isAdmin, isTrainer, loading };
+  return { session, user: session?.user ?? null, isAdmin, isTrainer, isTopAdmin, isOrg, loading };
 }

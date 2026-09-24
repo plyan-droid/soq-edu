@@ -1,4 +1,4 @@
-import { RequestStaffAccess } from "@/components/staff-phase5";
+import { RequestStaffAccess, OrgRoster } from "@/components/staff-phase5";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { StudentDashboard } from "@/components/student-dashboard";
@@ -29,9 +29,9 @@ const features = [
 ];
 
 function StudentPortal() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, isOrg, loading } = useAuth();
   if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
-  if (user) return <><NoticesStrip /><StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} /><MyInstalments userId={user.id} />{!isAdmin && <div className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><RequestStaffAccess userId={user.id} email={user.email ?? ""} /></div>}</>;
+  if (user) return <><NoticesStrip />{isOrg && <OrgRoster />}<StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} /><MyInstalments userId={user.id} />{!isAdmin && <div className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><RequestStaffAccess userId={user.id} email={user.email ?? ""} /></div>}</>;
   return (
     <>
       <section className="bg-brand-navy text-primary-foreground">

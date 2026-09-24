@@ -211,13 +211,13 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
         supabase.from("user_roles").select("user_id,role"),
       ]);
       const r = roles ?? [];
-      return { users: (users ?? []) as UserRow[], admins: new Set(r.filter(x => x.role === "admin").map(x => x.user_id)), trainers: new Set(r.filter(x => x.role === "trainer").map(x => x.user_id)) };
+      return { users: (users ?? []) as UserRow[], admins: new Set(r.filter(x => x.role === "admin" || (x.role as string) === "staff").map(x => x.user_id)), tops: new Set(r.filter(x => x.role === "admin").map(x => x.user_id)), orgs: new Set(r.filter(x => (x.role as string) === "organization").map(x => x.user_id)), trainers: new Set(r.filter(x => x.role === "trainer").map(x => x.user_id)) };
     },
   });
-  const toggle = async (u: UserRow, role: "admin" | "trainer", has: boolean) => {
-    const label = role === "admin" ? "staff" : "trainer";
-    if (has) { if (!confirm(`Remove ${label} access from ${u.email}?`)) return; await supabase.from("user_roles").delete().eq("user_id", u.id).eq("role", role); }
-    else { if (!confirm(`Give ${u.email} ${label} access?`)) return; await supabase.from("user_roles").insert({ user_id: u.id, role }); }
+  const toggle = async (u: UserRow, role: "admin" | "trainer" | "staff" | "organization", has: boolean) => {
+    const label = role === "admin" ? "Admin (full)" : role;
+    if (has) { if (!confirm(`Remove ${label} access from ${u.email}?`)) return; const { error } = await supabase.from("user_roles").delete().eq("user_id", u.id).eq("role", role as never); if (error) alert(error.message); }
+    else { if (!confirm(`Give ${u.email} ${label} access?`)) return; const { error } = await supabase.from("user_roles").insert({ user_id: u.id, role: role as never }); if (error) alert(error.message.includes("security") ? "Only Admin can change roles." : error.message); }
     void qc.invalidateQueries({ queryKey: ["admin-users"] });
   };
   const reset = async (u: UserRow) => {
@@ -235,11 +235,13 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
         {([["all", "Everyone"], ["staff", "Staff"], ["trainer", "Trainers"], ["student", "Students"]] as const).map(([k, l]) => <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} className="rounded-full" onClick={() => setFilter(k)}>{l} ({counts[k]})</Button>)}
         <Input className="ml-auto max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
       </div>
-      <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const trainer = data.trainers.has(u.id); return (
-        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[admin && "Staff", trainer && "Trainer"].filter(Boolean).join(", ") || "Student"}</td>
+      <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const top = data.tops.has(u.id); const trainer = data.trainers.has(u.id); const org = data.orgs.has(u.id); return (
+        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[top ? "Admin" : admin && "Staff", trainer && "Trainer", org && "Organization"].filter(Boolean).join(", ") || "Student"}</td>
           <td className={`${td} flex flex-wrap gap-2`}>
             <Button size="sm" variant="outline" onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</Button>
-            {u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, "admin", admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}
+            {u.id !== selfId && !top && <Button size="sm" variant="outline" onClick={() => void toggle(u, "staff", admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}
+            {u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, "admin", top)}>{top ? "Remove Admin" : "Make Admin"}</Button>}
+            <Button size="sm" variant="outline" onClick={() => void toggle(u, "organization", org)}>{org ? "Remove organization" : "Make organization"}</Button>
             <Button size="sm" variant="ghost" onClick={() => void reset(u)}>Send password reset</Button>
           </td></tr>); })}</Table>
     </div>
@@ -400,6 +402,32 @@ export function SettingsHub() {
         <label className="text-sm">Timezone<select className={`${sel} mt-1 w-full`} value={zone} onChange={e => setTz(e.target.value)}>{["Asia/Singapore", "Asia/Kuala_Lumpur", "Asia/Jakarta", "Asia/Hong_Kong", "UTC"].map(z => <option key={z}>{z}</option>)}</select></label>
         <Button onClick={() => void put("general", { timezone: zone })}>Save</Button></div>
       <div className={box}><p className="font-serif text-2xl text-primary">Payments</p><p className="text-sm text-muted-foreground">Checkout is in test mode — no money is taken. Real card payments can be switched on later.</p></div>
+      <SecuritySettings data={data} put={put} box={box} />
     </div>
   );
+}
+
+function SecuritySettings({ data, put, box }: { data: Record<string, any>; put: (k: string, v: unknown) => Promise<void>; box: string }) {
+  const [path, setPath] = useState<string>(data["admin_path"] ?? "admin");
+  const [m, setM] = useState<{ enabled: boolean; title: string; message: string; ends_on: string }>({ enabled: false, title: "", message: "", ends_on: "", ...(data["maintenance"] ?? {}) });
+  const [key, setKey] = useState<string>(typeof data["maintenance_key"] === "string" ? data["maintenance_key"] : "");
+  const demo = data["demo_login"] === true;
+  return (<>
+    <div className={box}><p className="font-serif text-2xl text-primary">Demo login</p>
+      <p className="text-sm text-muted-foreground">Shows "Demo login (1 click)" buttons on the Log in page. <b>Switch off before the site goes live</b> — otherwise anyone can sign in as staff.</p>
+      <p className="text-sm">Status: <b>{demo ? "On" : "Off"}</b></p>
+      <Button variant={demo ? "destructive" : "default"} onClick={() => void put("demo_login", !demo)}>{demo ? "Switch off" : "Switch on"}</Button></div>
+    <div className={box}><p className="font-serif text-2xl text-primary">Admin path</p>
+      <p className="text-sm text-muted-foreground">Staff can also reach the admin sign-in at soq.edu.sg/<b>{path || "…"}</b>. Lowercase letters and numbers only. /admin always works too.</p>
+      <Input value={path} onChange={e => setPath(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ""))} />
+      <Button disabled={path.length < 3} onClick={() => void put("admin_path", path)}>Save path</Button></div>
+    <div className={`${box} lg:col-span-2`}><p className="font-serif text-2xl text-primary">Maintenance mode</p>
+      <p className="text-sm text-muted-foreground">Visitors see a "back soon" page. Signed-in staff still see the site. Others can get in with <code>?key=YOURKEY</code> on any link. Set the key <b>before</b> switching on.</p>
+      <Input placeholder="Title" value={m.title} onChange={e => setM({ ...m, title: e.target.value })} />
+      <Input placeholder="Message" value={m.message} onChange={e => setM({ ...m, message: e.target.value })} />
+      <label className="text-sm">Expected back by (optional)<Input type="datetime-local" value={m.ends_on} onChange={e => setM({ ...m, ends_on: e.target.value })} /></label>
+      <div className="flex gap-2"><Input placeholder="Access key (8+ characters)" value={key} onChange={e => setKey(e.target.value)} /><Button variant="outline" disabled={key.length < 8} onClick={() => void put("maintenance_key", key)}>Save key</Button></div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={m.enabled} onChange={e => setM({ ...m, enabled: e.target.checked })} /> Maintenance mode on</label>
+      <Button onClick={() => void put("maintenance", m)}>Save maintenance settings</Button></div>
+  </>);
 }

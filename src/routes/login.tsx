@@ -137,7 +137,14 @@ function Login() {
               <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required autoFocus />
               <Button disabled={busy} className={gold}>Sign in</Button>
             </form>
-            <button type="button" className={`mt-4 text-sm ${link}`} onClick={() => { setMsg(null); setStep("email"); }}>Email me a code instead</button>
+            <div className="mt-4 flex flex-wrap justify-between gap-2 text-sm">
+              <button type="button" className={link} onClick={() => { setMsg(null); setStep("email"); }}>Email me a code instead</button>
+              <button type="button" className={link} onClick={async () => {
+                if (!email.trim()) { alert("Type your email above first."); return; }
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+                alert(error ? error.message : "If an account exists for this email, we've sent a link to set a new password.");
+              }}>Forgot password?</button>
+            </div>
           </>)}
 
           {step === "signup" && (<>

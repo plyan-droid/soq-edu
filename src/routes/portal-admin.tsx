@@ -10,6 +10,7 @@ import { courses } from "@/lib/site-content";
 import { courseTitle, type Enrollment, type Task } from "@/components/student-dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
+import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -44,7 +45,7 @@ function Admin() {
       <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
       <Tabs defaultValue="reports" className="mt-6">
         <TabsList className="h-auto flex-wrap justify-start">
-          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"], ["sales", "Sales"], ["codes", "Discount codes"], ["pages", "Pages"], ["templates", "Message templates"], ["settings", "Settings"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
+          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"], ["sales", "Sales"], ["codes", "Discount codes"], ["pages", "Pages"], ["templates", "Message templates"], ["enrol", "Enrol students"], ["payments", "PayNow & instalments"], ["waitlist", "Waitlists"], ["notices", "Noticeboard"], ["bundles", "Bundles"], ["forms", "Forms"], ["certdesign", "Certificate design"], ["logins", "Login history"], ["ai", "AI writer"], ["referrals", "Referrals"], ["settings", "Settings"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
         </TabsList>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
@@ -71,6 +72,16 @@ function Admin() {
         <TabsContent value="pages"><PagesEditor /></TabsContent>
         <TabsContent value="templates"><TemplatesEditor /></TabsContent>
         <TabsContent value="settings"><SettingsHub /></TabsContent>
+        <TabsContent value="enrol"><ManualEnrol /></TabsContent>
+        <TabsContent value="payments"><BankPayments /></TabsContent>
+        <TabsContent value="waitlist"><WaitlistAdmin /></TabsContent>
+        <TabsContent value="notices"><NoticeboardAdmin /></TabsContent>
+        <TabsContent value="bundles"><BundlesAdmin /></TabsContent>
+        <TabsContent value="forms"><FormBuilder /></TabsContent>
+        <TabsContent value="certdesign"><CertificateDesigner /></TabsContent>
+        <TabsContent value="logins"><LoginHistory /></TabsContent>
+        <TabsContent value="ai"><AIWriter /></TabsContent>
+        <TabsContent value="referrals"><ReferralsAdmin /></TabsContent>
       </Tabs>
     </div>
   );

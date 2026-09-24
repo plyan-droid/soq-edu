@@ -34,6 +34,10 @@ function CartPage() {
   const [f, setF] = useState({ name: "", card: "4242 4242 4242 4242", exp: "12/30", cvc: "123" });
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [method, setMethod] = useState<"card" | "paynow" | "bank">("card");
+  const [plan, setPlan] = useState<"full" | "3" | "6">("full");
+  const [ref, setRef] = useState("");
+  const [bankDone, setBankDone] = useState(false);
 
   const { data: orders = [], refetch } = useQuery({
     enabled: !!user,
@@ -65,12 +69,29 @@ function CartPage() {
     setDone(o?.payment_ref ?? "done"); void refetch();
   };
 
+  const payBank = async () => {
+    if (!user) return;
+    if (f.name.trim().length < 2 || ref.trim().length < 3) return void toast.error("Enter your full name and the transfer reference.");
+    const items = cart.items.flatMap(i => i.includes ? i.includes.map(s => ({ slug: s, title: `${s} (${i.title})`, price: 0 })).map((x, n) => n === 0 ? { ...x, price: i.price } : x) : [{ slug: i.slug, title: i.title, price: i.price }]);
+    setBusy(true);
+    const { error } = await supabase.from("bank_payments").insert({ user_id: user.id, full_name: f.name.trim(), email: user.email ?? "", items, total, method: method as "paynow" | "bank", plan, reference: ref.trim().slice(0, 60) });
+    setBusy(false);
+    if (error) return void toast.error(error.message);
+    cart.clear(); setBankDone(true);
+  };
+
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8">
       <h1 className="font-serif text-5xl text-primary">Your cart</h1>
       <p className="mt-3 rounded-md bg-brand-gold-soft px-4 py-3 text-sm text-primary">Test mode: checkout is pretend and no money is taken. Monthly-fee courses charge the first month.</p>
 
-      {done ? (
+      {bankDone ? (
+        <div className="mt-8 rounded-lg border border-border bg-card p-8 text-center">
+          <CheckCircle2 className="mx-auto size-12 text-brand-gold" />
+          <h2 className="mt-4 font-serif text-3xl text-primary">Transfer details sent</h2>
+          <p className="mt-2 text-muted-foreground">SOQ will check the transfer and confirm your place, usually within 1–2 working days. You can follow it under "My payments" in the <Link to="/student-portal" className="underline">Student Portal</Link>.</p>
+        </div>
+      ) : done ? (
         <div className="mt-8 rounded-lg border border-border bg-card p-8 text-center">
           <CheckCircle2 className="mx-auto size-12 text-brand-gold" />
           <h2 className="mt-4 font-serif text-3xl text-primary">Payment received</h2>
@@ -100,11 +121,18 @@ function CartPage() {
               <Button asChild className="h-12 w-full rounded-full"><Link to="/login">Log in to check out</Link></Button>
             ) : (
               <div className="space-y-3 border-t border-border pt-4">
-                <p className="flex items-center gap-2 text-sm font-medium"><CreditCard className="size-4" /> Card details (test)</p>
+                <div className="grid grid-cols-3 gap-1 rounded-full bg-muted p-1 text-xs">{([["card", "Card"], ["paynow", "PayNow"], ["bank", "Bank transfer"]] as const).map(([k, l]) => <button key={k} onClick={() => setMethod(k)} className={`rounded-full py-2 ${method === k ? "bg-card font-medium text-primary shadow-sm" : ""}`}>{l}</button>)}</div>
+                {method === "card" ? <><p className="flex items-center gap-2 text-sm font-medium"><CreditCard className="size-4" /> Card details (test)</p>
                 <Input placeholder="Name on card" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
                 <Input value={f.card} onChange={e => setF({ ...f, card: e.target.value })} />
                 <div className="grid grid-cols-2 gap-3"><Input value={f.exp} onChange={e => setF({ ...f, exp: e.target.value })} /><Input value={f.cvc} onChange={e => setF({ ...f, cvc: e.target.value })} /></div>
-                <Button disabled={busy} className="h-12 w-full rounded-full bg-brand-gold text-brand-navy hover:bg-brand-gold/85" onClick={() => void pay()}>{busy ? "Processing…" : `Pay ${money(total)}`}</Button>
+                <Button disabled={busy} className="h-12 w-full rounded-full bg-brand-gold text-brand-navy hover:bg-brand-gold/85" onClick={() => void pay()}>{busy ? "Processing…" : `Pay ${money(total)}`}</Button></> : <>
+                  <div className="rounded-md bg-muted/50 p-3 text-sm">{method === "paynow" ? <>PayNow to SOQ's UEN <strong>[UEN to confirm]</strong></> : <>Transfer to <strong>[SOQ bank account to confirm]</strong></>}. Put your name in the transfer comment.</div>
+                  <label className="block text-sm">Pay by<select className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3" value={plan} onChange={e => setPlan(e.target.value as typeof plan)}><option value="full">Full amount — {money(total)}</option><option value="3">3 monthly instalments — {money(total / 3)}/month</option><option value="6">6 monthly instalments — {money(total / 6)}/month</option></select></label>
+                  <Input placeholder="Your full name" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
+                  <Input placeholder="Transfer reference number" value={ref} onChange={e => setRef(e.target.value)} />
+                  <Button disabled={busy} className="h-12 w-full rounded-full bg-brand-gold text-brand-navy hover:bg-brand-gold/85" onClick={() => void payBank()}>{busy ? "Sending…" : `I've paid ${money(plan === "full" ? total : total / Number(plan))}`}</Button>
+                </>}
               </div>
             )}
           </aside>

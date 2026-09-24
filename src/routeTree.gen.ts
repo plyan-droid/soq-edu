@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as BookRouteImport } from './routes/book'
+import { Route as BundlesRouteImport } from './routes/bundles'
 import { Route as BusinessesRouteImport } from './routes/businesses'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
@@ -30,9 +31,11 @@ import { Route as JobMatchingProgramRouteImport } from './routes/job-matching-pr
 import { Route as JoinUsRouteImport } from './routes/join-us'
 import { Route as LiveClassesRouteImport } from './routes/live-classes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as NoticeboardRouteImport } from './routes/noticeboard'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
+import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as StaffCoursesRouteImport } from './routes/staff-courses'
 import { Route as StudentPoliciesRouteImport } from './routes/student-policies'
@@ -50,6 +53,7 @@ import { Route as CommunityNewRouteImport } from './routes/community.new'
 import { Route as CommunitySavedRouteImport } from './routes/community.saved'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as TrainerListRouteImport } from './routes/trainer.list'
@@ -76,6 +80,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
 const BookRoute = BookRouteImport.update({
   id: '/book',
   path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BundlesRoute = BundlesRouteImport.update({
+  id: '/bundles',
+  path: '/bundles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessesRoute = BusinessesRouteImport.update({
@@ -163,6 +172,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NoticeboardRoute = NoticeboardRouteImport.update({
+  id: '/noticeboard',
+  path: '/noticeboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PeiProfileRoute = PeiProfileRouteImport.update({
   id: '/pei-profile',
   path: '/pei-profile',
@@ -176,6 +190,11 @@ const PortalAdminRoute = PortalAdminRouteImport.update({
 const RecommendRoute = RecommendRouteImport.update({
   id: '/recommend',
   path: '/recommend',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferRoute = ReferRouteImport.update({
+  id: '/refer',
+  path: '/refer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResourcesRoute = ResourcesRouteImport.update({
@@ -263,6 +282,11 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CoursesRoute,
 } as any)
+const FSlugRoute = FSlugRouteImport.update({
+  id: '/f/$slug',
+  path: '/f/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LearnSlugRoute = LearnSlugRouteImport.update({
   id: '/learn/$slug',
   path: '/learn/$slug',
@@ -304,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/book': typeof BookRoute
+  '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -321,9 +346,11 @@ export interface FileRoutesByFullPath {
   '/join-us': typeof JoinUsRoute
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
+  '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
+  '/refer': typeof ReferRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -339,6 +366,7 @@ export interface FileRoutesByFullPath {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -354,6 +382,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/book': typeof BookRoute
+  '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -370,9 +399,11 @@ export interface FileRoutesByTo {
   '/join-us': typeof JoinUsRoute
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
+  '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
+  '/refer': typeof ReferRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -388,6 +419,7 @@ export interface FileRoutesByTo {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -404,6 +436,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
   '/book': typeof BookRoute
+  '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -421,9 +454,11 @@ export interface FileRoutesById {
   '/join-us': typeof JoinUsRoute
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
+  '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
+  '/refer': typeof ReferRoute
   '/resources': typeof ResourcesRoute
   '/staff-courses': typeof StaffCoursesRoute
   '/student-policies': typeof StudentPoliciesRoute
@@ -439,6 +474,7 @@ export interface FileRoutesById {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
   '/trainer/list': typeof TrainerListRoute
@@ -456,6 +492,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/book'
+    | '/bundles'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -473,9 +510,11 @@ export interface FileRouteTypes {
     | '/join-us'
     | '/live-classes'
     | '/login'
+    | '/noticeboard'
     | '/pei-profile'
     | '/portal-admin'
     | '/recommend'
+    | '/refer'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -491,6 +530,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
     | '/trainer/list'
@@ -506,6 +546,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/book'
+    | '/bundles'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -522,9 +563,11 @@ export interface FileRouteTypes {
     | '/join-us'
     | '/live-classes'
     | '/login'
+    | '/noticeboard'
     | '/pei-profile'
     | '/portal-admin'
     | '/recommend'
+    | '/refer'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -540,6 +583,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
     | '/trainer/list'
@@ -555,6 +599,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/about-us'
     | '/book'
+    | '/bundles'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -572,9 +617,11 @@ export interface FileRouteTypes {
     | '/join-us'
     | '/live-classes'
     | '/login'
+    | '/noticeboard'
     | '/pei-profile'
     | '/portal-admin'
     | '/recommend'
+    | '/refer'
     | '/resources'
     | '/staff-courses'
     | '/student-policies'
@@ -590,6 +637,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
     | '/trainer/list'
@@ -606,6 +654,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
   BookRoute: typeof BookRoute
+  BundlesRoute: typeof BundlesRoute
   BusinessesRoute: typeof BusinessesRoute
   CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
@@ -623,9 +672,11 @@ export interface RootRouteChildren {
   JoinUsRoute: typeof JoinUsRoute
   LiveClassesRoute: typeof LiveClassesRoute
   LoginRoute: typeof LoginRoute
+  NoticeboardRoute: typeof NoticeboardRoute
   PeiProfileRoute: typeof PeiProfileRoute
   PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
+  ReferRoute: typeof ReferRoute
   ResourcesRoute: typeof ResourcesRoute
   StaffCoursesRoute: typeof StaffCoursesRoute
   StudentPoliciesRoute: typeof StudentPoliciesRoute
@@ -640,6 +691,7 @@ export interface RootRouteChildren {
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
   CommunitySavedRoute: typeof CommunitySavedRoute
+  FSlugRoute: typeof FSlugRoute
   LearnSlugRoute: typeof LearnSlugRoute
   PSlugRoute: typeof PSlugRoute
   CommunityIndexRoute: typeof CommunityIndexRoute
@@ -677,6 +729,13 @@ declare module '@tanstack/react-router' {
       path: '/book'
       fullPath: '/book'
       preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bundles': {
+      id: '/bundles'
+      path: '/bundles'
+      fullPath: '/bundles'
+      preLoaderRoute: typeof BundlesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/businesses': {
@@ -798,6 +857,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/noticeboard': {
+      id: '/noticeboard'
+      path: '/noticeboard'
+      fullPath: '/noticeboard'
+      preLoaderRoute: typeof NoticeboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pei-profile': {
       id: '/pei-profile'
       path: '/pei-profile'
@@ -817,6 +883,13 @@ declare module '@tanstack/react-router' {
       path: '/recommend'
       fullPath: '/recommend'
       preLoaderRoute: typeof RecommendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refer': {
+      id: '/refer'
+      path: '/refer'
+      fullPath: '/refer'
+      preLoaderRoute: typeof ReferRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/resources': {
@@ -938,6 +1011,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/f/$slug': {
+      id: '/f/$slug'
+      path: '/f/$slug'
+      fullPath: '/f/$slug'
+      preLoaderRoute: typeof FSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/learn/$slug': {
       id: '/learn/$slug'
       path: '/learn/$slug'
@@ -1019,6 +1099,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
   BookRoute: BookRoute,
+  BundlesRoute: BundlesRoute,
   BusinessesRoute: BusinessesRoute,
   CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,
@@ -1036,9 +1117,11 @@ const rootRouteChildren: RootRouteChildren = {
   JoinUsRoute: JoinUsRoute,
   LiveClassesRoute: LiveClassesRoute,
   LoginRoute: LoginRoute,
+  NoticeboardRoute: NoticeboardRoute,
   PeiProfileRoute: PeiProfileRoute,
   PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
+  ReferRoute: ReferRoute,
   ResourcesRoute: ResourcesRoute,
   StaffCoursesRoute: StaffCoursesRoute,
   StudentPoliciesRoute: StudentPoliciesRoute,
@@ -1053,6 +1136,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,
   CommunitySavedRoute: CommunitySavedRoute,
+  FSlugRoute: FSlugRoute,
   LearnSlugRoute: LearnSlugRoute,
   PSlugRoute: PSlugRoute,
   CommunityIndexRoute: CommunityIndexRoute,

@@ -12,7 +12,7 @@ import { courseOverridesQuery, mergeCourse, sectionsFor } from "@/lib/course-ove
 import { CourseApplyForm } from "@/components/course-apply-form";
 import { CourseReviews } from "@/components/course-reviews";
 import { CourseQA, GiftCourse } from "@/components/student-extras";
-import { NotifyMe } from "@/components/learner-tools";
+import { NotifyMe, JoinWaitlist } from "@/components/learner-tools";
 
 export const Route = createFileRoute("/courses/$slug")({
   loader: async ({ params, context }) => {
@@ -263,6 +263,7 @@ function CoursePage() {
           <AddToCart slug={course.slug} title={course.title} price={course.price} />
           <GiftCourse slug={course.slug} title={course.title} />
           <NotifyMe slug={course.slug} />
+          <JoinWaitlist slug={course.slug} />
           <Link to="/compare" className="mt-3 block text-center text-sm text-primary underline underline-offset-4">Compare with other courses</Link>
           </div>
         </aside>

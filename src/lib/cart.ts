@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export type CartItem = { slug: string; title: string; price: number; label: string };
+export type CartItem = { slug: string; title: string; price: number; label: string; includes?: string[] };
 const KEY = "soq-cart";
 const EVT = "soq-cart-change";
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellRing, ClipboardList, Megaphone, Trophy } from "lucide-react";
@@ -115,4 +115,55 @@ export function NotifyMe({ slug }: { slug: string }) {
   };
   if (!user) return <p className="mt-3 text-center text-sm"><Link to="/login" className="inline-flex items-center gap-1 text-primary underline"><Bell className="size-4" /> Log in to get intake updates</Link></p>;
   return <button onClick={() => void toggle()} className="mt-3 flex w-full items-center justify-center gap-2 text-sm text-primary underline underline-offset-4">{on ? <><BellRing className="size-4" /> Following new intakes</> : <><Bell className="size-4" /> Notify me about new intakes</>}</button>;
+}
+
+/** Stores ?ref=CODE so the referral is claimed when the visitor signs in. */
+export function RefCapture() {
+  useEffect(() => { const r = new URLSearchParams(window.location.search).get("ref"); if (r && /^[A-Z0-9]{4,12}$/i.test(r)) localStorage.setItem("soq-ref", r.toUpperCase()); }, []);
+  return null;
+}
+
+export function JoinWaitlist({ slug }: { slug: string }) {
+  const [open, setOpen] = useState(false); const [done, setDone] = useState(false);
+  const [f, setF] = useState({ name: "", email: "", phone: "" });
+  const join = async () => {
+    if (f.name.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(f.email)) return void toast.error("Enter your name and a valid email.");
+    const { error } = await supabase.from("course_waitlist").insert({ course_slug: slug, name: f.name.trim().slice(0, 120), email: f.email.trim().slice(0, 200), phone: f.phone.trim().slice(0, 30) || null });
+    if (error) return void toast.error("Couldn't join the waitlist. Please try again.");
+    setDone(true);
+  };
+  if (done) return <p className="mt-2 text-center text-sm text-primary">You're on the waitlist. SOQ will contact you when a seat opens.</p>;
+  if (!open) return <button onClick={() => setOpen(true)} className="mt-2 flex w-full items-center justify-center gap-2 text-sm text-primary underline underline-offset-4"><ClipboardList className="size-4" /> Class full? Join the waitlist</button>;
+  return <div className="mt-3 space-y-2 rounded-md border border-border p-3">
+    <Input placeholder="Your name" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
+    <Input placeholder="Email" type="email" value={f.email} onChange={e => setF({ ...f, email: e.target.value })} />
+    <Input placeholder="Mobile (optional)" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
+    <Button className="w-full rounded-full" onClick={() => void join()}>Join waitlist</Button></div>;
+}
+
+export function useNotices() {
+  return useQuery({ queryKey: ["site-notices-public"], queryFn: async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const d = (await supabase.from("site_notices").select("*").order("pinned", { ascending: false }).order("created_at", { ascending: false })).data ?? [];
+    return d.filter(n => !n.ends_on || n.ends_on >= today);
+  } });
+}
+
+export function NoticesStrip() {
+  const { data = [] } = useNotices();
+  if (!data.length) return null;
+  return <div className="mx-auto mt-6 max-w-7xl space-y-2 px-5 lg:px-8">{data.slice(0, 3).map(n => <div key={n.id} className="flex gap-3 rounded-md border-l-4 border-brand-gold bg-brand-gold-soft px-4 py-3 text-sm text-primary"><Megaphone className="mt-0.5 size-4 shrink-0" /><div><strong>{n.title}</strong>{n.body && <> — {n.body}</>}</div></div>)}
+    <Link to="/noticeboard" className="text-sm underline">All notices</Link></div>;
+}
+
+export function MyInstalments({ userId }: { userId: string }) {
+  const { data: pays = [] } = useQuery({ queryKey: ["my-bank", userId], queryFn: async () => (await supabase.from("bank_payments").select("*").order("created_at", { ascending: false })).data ?? [] });
+  const { data: inst = [] } = useQuery({ queryKey: ["my-inst", userId], queryFn: async () => (await supabase.from("instalments").select("*").order("due_date")).data ?? [] });
+  if (!pays.length) return null;
+  return <section className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><h2 className="font-serif text-3xl text-primary">My payments</h2>
+    <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-card text-sm">{pays.map(p => <li key={p.id} className="p-4">
+      <div className="flex flex-wrap justify-between gap-2"><span>{(p.items as { title: string }[]).map(i => i.title).join(", ")} · {p.method === "paynow" ? "PayNow" : "Bank transfer"} ref {p.reference}</span>
+        <span className="font-medium">${Number(p.total).toFixed(2)} · {p.status === "pending" ? "Waiting for SOQ to confirm" : p.status}</span></div>
+      {inst.filter(i => i.payment_id === p.id).length > 0 && <ul className="mt-2 grid gap-1 sm:grid-cols-3">{inst.filter(i => i.payment_id === p.id).map(i => <li key={i.id} className={i.paid ? "text-muted-foreground line-through" : ""}>#{i.seq} · {i.due_date} · ${Number(i.amount).toFixed(2)}{i.paid ? " paid" : ""}</li>)}</ul>}
+    </li>)}</ul></section>;
 }

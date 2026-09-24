@@ -123,6 +123,81 @@ export type Database = {
           },
         ]
       }
+      bank_payments: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          items: Json
+          method: string
+          plan: string
+          reference: string
+          staff_note: string | null
+          status: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          items: Json
+          method: string
+          plan?: string
+          reference: string
+          staff_note?: string | null
+          status?: string
+          total: number
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          items?: Json
+          method?: string
+          plan?: string
+          reference?: string
+          staff_note?: string | null
+          status?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      certificate_design: {
+        Row: {
+          accent: string
+          body: string
+          heading: string
+          id: number
+          signatory: string
+          signatory_title: string
+          updated_at: string
+        }
+        Insert: {
+          accent?: string
+          body?: string
+          heading?: string
+          id?: number
+          signatory?: string
+          signatory_title?: string
+          updated_at?: string
+        }
+        Update: {
+          accent?: string
+          body?: string
+          heading?: string
+          id?: number
+          signatory?: string
+          signatory_title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           code: string
@@ -305,6 +380,36 @@ export type Database = {
           phone?: string
           preferred_intake?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      course_bundles: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          name: string
+          price: number
+          slugs: string[]
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          price: number
+          slugs: string[]
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          price?: number
+          slugs?: string[]
         }
         Relationships: []
       }
@@ -610,6 +715,66 @@ export type Database = {
           },
         ]
       }
+      course_waitlist: {
+        Row: {
+          course_slug: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      custom_forms: {
+        Row: {
+          active: boolean
+          created_at: string
+          fields: Json
+          id: string
+          intro: string
+          slug: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          fields?: Json
+          id?: string
+          intro?: string
+          slug: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          fields?: Json
+          id?: string
+          intro?: string
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
       discount_codes: {
         Row: {
           active: boolean
@@ -746,6 +911,35 @@ export type Database = {
         }
         Relationships: []
       }
+      form_responses: {
+        Row: {
+          created_at: string
+          data: Json
+          form_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          form_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          form_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_responses_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "custom_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gifts: {
         Row: {
           buyer_id: string
@@ -781,6 +975,47 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      instalments: {
+        Row: {
+          amount: number
+          due_date: string
+          id: string
+          paid: boolean
+          paid_at: string | null
+          payment_id: string
+          seq: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          due_date: string
+          id?: string
+          paid?: boolean
+          paid_at?: string | null
+          payment_id: string
+          seq: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          due_date?: string
+          id?: string
+          paid?: boolean
+          paid_at?: string | null
+          payment_id?: string
+          seq?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instalments_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "bank_payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lesson_notes: {
         Row: {
@@ -912,6 +1147,30 @@ export type Database = {
           status?: string
           title?: string
           trainer_id?: string
+        }
+        Relationships: []
+      }
+      login_events: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1329,6 +1588,78 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          user_id?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_email: string | null
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_email?: string | null
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_email?: string | null
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      site_notices: {
+        Row: {
+          body: string
+          created_at: string
+          ends_on: string | null
+          id: string
+          pinned: boolean
+          title: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          pinned?: boolean
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          pinned?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
       site_pages: {
         Row: {
           body: string
@@ -1532,9 +1863,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_bank_payment: { Args: { _id: string }; Returns: undefined }
       book_slot: { Args: { _note: string; _slot: string }; Returns: undefined }
       cancel_booking: { Args: { _slot: string }; Returns: undefined }
       check_discount: { Args: { _code: string }; Returns: number }
+      claim_referral: { Args: { _code: string }; Returns: boolean }
       event_counts: {
         Args: never
         Returns: {

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 function nameOf(user: { email?: string; user_metadata?: Record<string, unknown> } | null) {
-  const n = user?.user_metadata?.full_name;
+  const n = user?.user_metadata?.["full_name"];
   return (typeof n === "string" && n) || user?.email?.split("@")[0] || "Student";
 }
 const ago = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
@@ -34,13 +34,13 @@ export function CourseQA({ slug }: { slug: string }) {
   const ask = async () => {
     if (!user || q.trim().length < 3) return;
     const { error } = await supabase.from("course_questions").insert({ course_slug: slug, user_id: user.id, author_name: nameOf(user), body: q.trim() });
-    if (error) return toast.error("Couldn't post your question");
+    if (error) { toast.error("Couldn't post your question"); return; }
     setQ(""); refresh();
   };
   const answer = async (id: string) => {
     const body = reply[id]?.trim(); if (!user || !body) return;
     const { error } = await supabase.from("course_answers").insert({ question_id: id, user_id: user.id, author_name: nameOf(user), body, is_staff: isAdmin || isTrainer });
-    if (error) return toast.error("Couldn't post your answer");
+    if (error) { toast.error("Couldn't post your answer"); return; }
     setReply(r => ({ ...r, [id]: "" })); refresh();
   };
   const del = async (table: "course_questions" | "course_answers", id: string) => { await supabase.from(table).delete().eq("id", id); refresh(); };
@@ -94,7 +94,7 @@ export function LessonNotes({ lessonId }: { lessonId: string }) {
   const save = async () => {
     const now = new Date().toISOString();
     const { error } = await supabase.from("lesson_notes").upsert({ user_id: user.id, lesson_id: lessonId, body, updated_at: now }, { onConflict: "user_id,lesson_id" });
-    if (error) return toast.error("Couldn't save your note");
+    if (error) { toast.error("Couldn't save your note"); return; }
     setSaved(now); toast.success("Note saved");
   };
   return (
@@ -128,7 +128,7 @@ export function CourseChatroom({ slug }: { slug: string }) {
   const send = async () => {
     const body = text.trim(); if (!body) return;
     const { data, error } = await supabase.from("course_chat_messages").insert({ course_slug: slug, user_id: user.id, author_name: nameOf(user), body }).select().single();
-    if (error) return toast.error("Only students enrolled in this course can chat here");
+    if (error) { toast.error("Only students enrolled in this course can chat here"); return; }
     setText(""); setMsgs(m => m.some(x => x.id === data.id) ? m : [...m, data as Msg]);
   };
   return (
@@ -159,9 +159,9 @@ export function GiftCourse({ slug, title }: { slug: string; title: string }) {
   const [f, setF] = useState({ name: "", email: "", message: "", date: new Date().toISOString().slice(0, 10) });
   const submit = async () => {
     if (!user) return;
-    if (!f.name.trim() || !/^\S+@\S+\.\S+$/.test(f.email)) return toast.error("Add the person's name and a valid email");
+    if (!f.name.trim() || !/^\S+@\S+\.\S+$/.test(f.email)) { toast.error("Add the person's name and a valid email"); return; }
     const { error } = await supabase.from("gifts").insert({ buyer_id: user.id, course_slug: slug, recipient_name: f.name.trim(), recipient_email: f.email.trim(), message: f.message.trim(), send_on: f.date });
-    if (error) return toast.error("Couldn't save the gift");
+    if (error) { toast.error("Couldn't save the gift"); return; }
     toast.success(`Gift of ${title} saved for ${f.name}. SOQ will contact you to arrange payment.`);
     setOpen(false); setF({ ...f, name: "", email: "", message: "" });
   };

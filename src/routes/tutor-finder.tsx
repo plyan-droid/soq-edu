@@ -65,8 +65,8 @@ function TutorFinder() {
         {step < steps.length ? (
           <div className="rounded-lg border border-border bg-card p-8">
             <p className="text-xs font-semibold text-brand-gold">STEP {step + 1} OF {steps.length}</p>
-            <h2 className="mt-2 font-serif text-3xl text-primary">{steps[step].q}</h2>
-            <div className="mt-6">{steps[step].el}</div>
+            <h2 className="mt-2 font-serif text-3xl text-primary">{steps[step]!.q}</h2>
+            <div className="mt-6">{steps[step]!.el}</div>
             <div className="mt-8 flex justify-between">
               <Button variant="ghost" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>
               <Button className="rounded-full" onClick={() => setStep(s => s + 1)}>{step === steps.length - 1 ? "Show my matches" : "Next"}</Button>
@@ -103,9 +103,9 @@ function TutorProfileEditor() {
   const v: Tutor = f ?? data ?? { user_id: user!.id, display_name: "", bio: "", subjects: [], days: [], times: [], location: "Anson Road campus", online: true, visible: true };
   const set = (p: Partial<Tutor>) => setF({ ...v, ...p });
   const save = async () => {
-    if (!v.display_name.trim()) return toast.error("Add your display name");
+    if (!v.display_name.trim()) { toast.error("Add your display name"); return; }
     const { error } = await supabase.from("tutor_profiles").upsert({ ...v, user_id: user!.id, updated_at: new Date().toISOString() });
-    if (error) return toast.error("Couldn't save");
+    if (error) { toast.error("Couldn't save"); return; }
     toast.success("Your trainer listing is saved"); void qc.invalidateQueries({ queryKey: ["tutors"] });
   };
   return (

@@ -11,6 +11,7 @@ import { courseTitle, type Enrollment, type Task } from "@/components/student-da
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
+import { StaffRequests, StudentOverview } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 
 export const Route = createFileRoute("/portal-admin")({
@@ -56,6 +57,7 @@ function Admin() {
             <option value="">Select a student…</option>
             {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
           </select>
+          {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}
         </TabsContent>
         <TabsContent value="applications"><Applications /></TabsContent>
@@ -67,7 +69,7 @@ function Admin() {
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
         <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>
-        <TabsContent value="users"><UsersAdmin selfId={user?.id} /></TabsContent>
+        <TabsContent value="users"><div className="mt-4"><StaffRequests /></div><UsersAdmin selfId={user?.id} /></TabsContent>
         <TabsContent value="sales"><Sales /></TabsContent>
         <TabsContent value="codes"><DiscountCodes /></TabsContent>
         <TabsContent value="pages"><PagesEditor /></TabsContent>
@@ -185,14 +187,32 @@ function Applications() {
     queryKey: ["admin-applications"],
     queryFn: async () => ((await supabase.from("course_applications").select("*").order("created_at", { ascending: false }).limit(200)).data ?? []) as Application[],
   });
+  const { data: prog = {} } = useQuery({
+    queryKey: ["admin-app-progress", data.map(a => a.id).join()], enabled: data.length > 0,
+    queryFn: async () => {
+      const { data: ps } = await supabase.from("profiles").select("id,email");
+      const { data: en } = await supabase.from("enrollments").select("student_id,course_slug,progress");
+      const byEmail = new Map((ps ?? []).map(p => [p.email.toLowerCase(), p.id]));
+      const out: Record<string, number | undefined> = {};
+      for (const a of data) { const id = byEmail.get(a.email.toLowerCase()); out[a.id] = en?.find(e => e.student_id === id && e.course_slug === a.course_slug)?.progress; }
+      return out;
+    },
+  });
   const setStatus = async (id: string, status: string) => { await supabase.from("course_applications").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-applications"] }); };
+  const approveEnrol = async (a: Application) => {
+    const { data: p } = await supabase.from("profiles").select("id").ilike("email", a.email.trim()).maybeSingle();
+    if (!p) { await setStatus(a.id, "approved"); alert(`Approved. ${a.email} has no account yet — ask them to sign up with this email, then click "Approve & enrol" again to give them their place.`); return; }
+    const { data: ex } = await supabase.from("enrollments").select("id").eq("student_id", p.id).eq("course_slug", a.course_slug).maybeSingle();
+    if (!ex) { const { error } = await supabase.from("enrollments").insert({ student_id: p.id, course_slug: a.course_slug, status: "active", start_date: new Date().toISOString().slice(0, 10) }); if (error) { alert(error.message); return; } }
+    await setStatus(a.id, "enrolled"); void qc.invalidateQueries({ queryKey: ["admin-app-progress"] });
+  };
   return (
     <div className="mt-14">
       <h2 className="font-serif text-4xl text-primary">Course applications ({data.filter(a => a.status === "new").length} new)</h2>
       {data.length === 0 ? <p className="mt-3 text-muted-foreground">No applications yet.</p> : (
         <div className="mt-5 overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted"><tr>{["Date", "Name", "Contact", "Course", "Intake / notes", "Status"].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
+            <thead className="bg-muted"><tr>{["Date", "Name", "Contact", "Course", "Intake / notes", "Status", "Progress"].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
             <tbody>{data.map(a => (
               <tr key={a.id} className="border-t border-border align-top">
                 <td className="p-3 whitespace-nowrap">{new Date(a.created_at).toLocaleDateString("en-SG")}</td>
@@ -200,7 +220,8 @@ function Applications() {
                 <td className="p-3"><a className="underline" href={`mailto:${a.email}`}>{a.email}</a><div>{a.phone}</div></td>
                 <td className="p-3">{courseTitle(a.course_slug)}</td>
                 <td className="p-3 max-w-64">{a.preferred_intake}<div className="text-xs text-muted-foreground">{a.message}</div></td>
-                <td className="p-3"><select className={sel} value={a.status} onChange={e => void setStatus(a.id, e.target.value)}>{["new", "contacted", "enrolled", "closed"].map(s => <option key={s}>{s}</option>)}</select></td>
+                <td className="p-3"><select className={sel} value={a.status} onChange={e => void setStatus(a.id, e.target.value)}>{["new", "contacted", "approved", "enrolled", "closed"].map(s => <option key={s}>{s}</option>)}</select>{a.status !== "enrolled" && <Button size="sm" className="mt-2 block rounded-full" onClick={() => void approveEnrol(a)}>Approve &amp; enrol</Button>}</td>
+                <td className="p-3">{prog[a.id] !== undefined ? `${prog[a.id]}%` : "—"}</td>
               </tr>
             ))}</tbody>
           </table>

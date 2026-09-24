@@ -57,17 +57,17 @@
 - [x] Meeting booking
 - [x] Upcoming courses "notify me" + events
 ### Phase 3 — Staff/admin
-- [ ] Manual enrol + CSV import
-- [ ] PayNow/bank transfer approval
-- [ ] Instalments
-- [ ] Waitlist
-- [ ] Site noticeboard
-- [ ] Course bundles
-- [ ] Form builder
-- [ ] Certificate designer
-- [ ] Login history
-- [ ] AI writer
-- [ ] Simple referral scheme
+- [x] Manual enrol + CSV import
+- [x] PayNow/bank transfer approval
+- [x] Instalments
+- [x] Waitlist
+- [x] Site noticeboard
+- [x] Course bundles
+- [x] Form builder
+- [x] Certificate designer
+- [x] Login history
+- [x] AI writer
+- [x] Simple referral scheme
 ### Phase 4 — Singapore
 - [ ] Diploma admissions pipeline
 - [ ] Module exemptions

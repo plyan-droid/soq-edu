@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { PageHero } from "@/components/page-hero";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { courses, imageFor } from "@/lib/site-content";
+import { courses } from "@/lib/site-content";
 import { money, priceNumber, useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/bundles")({
@@ -29,7 +29,7 @@ function Page() {
           const full = list.reduce((s, c) => s + (priceNumber(c.price) ?? 0), 0);
           const key = `bundle-${b.id}`;
           return <article key={b.id} className="overflow-hidden rounded-lg border border-border bg-card">
-            <div className="flex h-32">{list.slice(0, 4).map(c => <img key={c.slug} src={imageFor(c.slug)} alt="" className="h-full min-w-0 flex-1 object-cover" loading="lazy" />)}</div>
+            <div className="flex h-32">{list.slice(0, 4).map(c => <img key={c.slug} src={c.image} alt="" className="h-full min-w-0 flex-1 object-cover" loading="lazy" />)}</div>
             <div className="space-y-3 p-6"><h2 className="font-serif text-3xl text-primary">{b.name}</h2>{b.description && <p className="text-muted-foreground">{b.description}</p>}
               <ul className="list-disc pl-5 text-sm">{list.map(c => <li key={c.slug}><Link to="/courses/$slug" params={{ slug: c.slug }} className="hover:underline">{c.title}</Link></li>)}</ul>
               <p><span className="font-serif text-3xl text-primary">{money(Number(b.price))}</span>{full > Number(b.price) && <span className="ml-2 text-sm text-muted-foreground line-through">{money(full)}</span>}</p>

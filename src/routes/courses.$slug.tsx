@@ -11,6 +11,7 @@ import { courses, contact } from "@/lib/site-content";
 import { courseOverridesQuery, mergeCourse, sectionsFor } from "@/lib/course-overrides";
 import { CourseApplyForm } from "@/components/course-apply-form";
 import { CourseReviews } from "@/components/course-reviews";
+import { CourseQA, GiftCourse } from "@/components/student-extras";
 
 export const Route = createFileRoute("/courses/$slug")({
   loader: async ({ params, context }) => {
@@ -240,6 +241,8 @@ function CoursePage() {
 
           <section id="reviews" className="scroll-mt-20"><CourseReviews slug={course.slug} /></section>
 
+          <section id="questions" className="scroll-mt-20"><CourseQA slug={course.slug} /></section>
+
           <section id="apply" className="scroll-mt-20"><CourseApplyForm slug={course.slug} title={course.title} /></section>
 
           <FaqBlock badge={course.badge} onAsk={() => setChatOpen(true)} />
@@ -256,6 +259,7 @@ function CoursePage() {
           <Button asChild className="mt-6 h-12 w-full rounded-md"><a href="#apply">Apply now</a></Button>
           <Button asChild variant="outline" className="mt-3 h-12 w-full rounded-md"><a href={wa}>Enquire on WhatsApp</a></Button>
           <AddToCart slug={course.slug} title={course.title} price={course.price} />
+          <GiftCourse slug={course.slug} title={course.title} />
           <Link to="/compare" className="mt-3 block text-center text-sm text-primary underline underline-offset-4">Compare with other courses</Link>
           </div>
         </aside>

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/tutor-finder")({
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
-const subjects = categories.map(c => (typeof c === "string" ? c : c.name ?? String(c))) as string[];
+const subjects: string[] = categories.map(c => c.name);
 
 type Tutor = { user_id: string; display_name: string; bio: string; subjects: string[]; days: string[]; times: string[]; location: string; online: boolean; visible: boolean };
 
@@ -76,7 +76,7 @@ function TutorFinder() {
           <div>
             <div className="flex items-center justify-between"><h2 className="font-serif text-3xl text-primary">Your matches</h2><Button variant="outline" onClick={() => setStep(0)}>Start again</Button></div>
             {scored.length === 0 ? (
-              <p className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">No trainers match yet. <a className="underline" href={`https://wa.me/${contact.whatsappDigits ?? "6587182308"}?text=${encodeURIComponent(`Hi SOQ, I'm looking for a trainer for ${subj.join(", ") || "a course"}.`)}`}>Ask us on WhatsApp</a> and we'll find one for you.</p>
+              <p className="mt-6 rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">No trainers match yet. <a className="underline" href={`${contact.whatsapp}?text=${encodeURIComponent(`Hi SOQ, I'm looking for a trainer for ${subj.join(", ") || "a course"}.`)}`}>Ask us on WhatsApp</a> and we'll find one for you.</p>
             ) : <ul className="mt-6 grid gap-4 sm:grid-cols-2">{scored.map(({ t }) => (
               <li key={t.user_id} className="rounded-lg border border-border bg-card p-6">
                 <h3 className="font-serif text-2xl text-primary">{t.display_name}</h3>

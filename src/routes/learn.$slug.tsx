@@ -1,3 +1,4 @@
+import { LessonNotes, CourseChatroom } from "@/components/student-extras";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -78,8 +79,10 @@ function LearnPage() {
                 </div>
               </article>
             )}
+            {active && <LessonNotes lessonId={active.id} />}
           </div>
           <aside className="space-y-6">
+            <CourseChatroom slug={slug} />
             <div className="rounded-lg border border-border bg-card p-5">
               <p className="text-sm text-muted-foreground">{doneCount} of {lessons.length} lessons done</p>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${lessons.length ? (doneCount / lessons.length) * 100 : 0}%` }} /></div>

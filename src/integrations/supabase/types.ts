@@ -122,6 +122,44 @@ export type Database = {
         }
         Relationships: []
       }
+      course_answers: {
+        Row: {
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          is_staff: boolean
+          question_id: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          body: string
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          question_id: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          created_at?: string
+          id?: string
+          is_staff?: boolean
+          question_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "course_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_applications: {
         Row: {
           citizenship: string | null
@@ -158,6 +196,33 @@ export type Database = {
           phone?: string
           preferred_intake?: string | null
           status?: string
+        }
+        Relationships: []
+      }
+      course_chat_messages: {
+        Row: {
+          author_name: string
+          body: string
+          course_slug: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          body: string
+          course_slug: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          course_slug?: string
+          created_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -284,6 +349,33 @@ export type Database = {
           title?: string | null
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      course_questions: {
+        Row: {
+          author_name: string
+          body: string
+          course_slug: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          body: string
+          course_slug: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          course_slug?: string
+          created_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -428,6 +520,74 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gifts: {
+        Row: {
+          buyer_id: string
+          course_slug: string
+          created_at: string
+          id: string
+          message: string
+          recipient_email: string
+          recipient_name: string
+          send_on: string
+          status: string
+        }
+        Insert: {
+          buyer_id: string
+          course_slug: string
+          created_at?: string
+          id?: string
+          message?: string
+          recipient_email: string
+          recipient_name: string
+          send_on?: string
+          status?: string
+        }
+        Update: {
+          buyer_id?: string
+          course_slug?: string
+          created_at?: string
+          id?: string
+          message?: string
+          recipient_email?: string
+          recipient_name?: string
+          send_on?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      lesson_notes: {
+        Row: {
+          body: string
+          id: string
+          lesson_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          id?: string
+          lesson_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          lesson_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_notes_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -917,6 +1077,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tutor_profiles: {
+        Row: {
+          bio: string
+          days: string[]
+          display_name: string
+          location: string
+          online: boolean
+          subjects: string[]
+          times: string[]
+          updated_at: string
+          user_id: string
+          visible: boolean
+        }
+        Insert: {
+          bio?: string
+          days?: string[]
+          display_name: string
+          location?: string
+          online?: boolean
+          subjects?: string[]
+          times?: string[]
+          updated_at?: string
+          user_id: string
+          visible?: boolean
+        }
+        Update: {
+          bio?: string
+          days?: string[]
+          display_name?: string
+          location?: string
+          online?: boolean
+          subjects?: string[]
+          times?: string[]
+          updated_at?: string
+          user_id?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -948,6 +1147,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      in_course: { Args: { _slug: string; _user: string }; Returns: boolean }
       place_mock_order: {
         Args: {
           _code: string

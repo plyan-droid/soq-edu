@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
+import { Route as BookRouteImport } from './routes/book'
 import { Route as BusinessesRouteImport } from './routes/businesses'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
@@ -21,6 +22,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CorporateTrainingRouteImport } from './routes/corporate-training'
 import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FundingRouteImport } from './routes/funding'
 import { Route as JobMatchingRouteImport } from './routes/job-matching'
@@ -71,6 +73,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
   path: '/about-us',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BusinessesRoute = BusinessesRouteImport.update({
   id: '/businesses',
   path: '/businesses',
@@ -114,6 +121,11 @@ const CorporateTrainingRoute = CorporateTrainingRouteImport.update({
 const CoursesRoute = CoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -291,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/book': typeof BookRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -300,6 +313,7 @@ export interface FileRoutesByFullPath {
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
   '/job-matching': typeof JobMatchingRoute
@@ -339,6 +353,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/book': typeof BookRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -347,6 +362,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
+  '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
   '/job-matching': typeof JobMatchingRoute
@@ -387,6 +403,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/book': typeof BookRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -396,6 +413,7 @@ export interface FileRoutesById {
   '/contact-us': typeof ContactUsRoute
   '/corporate-training': typeof CorporateTrainingRoute
   '/courses': typeof CoursesRouteWithChildren
+  '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/funding': typeof FundingRoute
   '/job-matching': typeof JobMatchingRoute
@@ -437,6 +455,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/book'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -446,6 +465,7 @@ export interface FileRouteTypes {
     | '/contact-us'
     | '/corporate-training'
     | '/courses'
+    | '/events'
     | '/faq'
     | '/funding'
     | '/job-matching'
@@ -485,6 +505,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/book'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -493,6 +514,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/contact-us'
     | '/corporate-training'
+    | '/events'
     | '/faq'
     | '/funding'
     | '/job-matching'
@@ -532,6 +554,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/book'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -541,6 +564,7 @@ export interface FileRouteTypes {
     | '/contact-us'
     | '/corporate-training'
     | '/courses'
+    | '/events'
     | '/faq'
     | '/funding'
     | '/job-matching'
@@ -581,6 +605,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
+  BookRoute: typeof BookRoute
   BusinessesRoute: typeof BusinessesRoute
   CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
@@ -590,6 +615,7 @@ export interface RootRouteChildren {
   ContactUsRoute: typeof ContactUsRoute
   CorporateTrainingRoute: typeof CorporateTrainingRoute
   CoursesRoute: typeof CoursesRouteWithChildren
+  EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   FundingRoute: typeof FundingRoute
   JobMatchingRoute: typeof JobMatchingRoute
@@ -644,6 +670,13 @@ declare module '@tanstack/react-router' {
       path: '/about-us'
       fullPath: '/about-us'
       preLoaderRoute: typeof AboutUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/businesses': {
@@ -707,6 +740,13 @@ declare module '@tanstack/react-router' {
       path: '/courses'
       fullPath: '/courses'
       preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -978,6 +1018,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
+  BookRoute: BookRoute,
   BusinessesRoute: BusinessesRoute,
   CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,
@@ -987,6 +1028,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactUsRoute: ContactUsRoute,
   CorporateTrainingRoute: CorporateTrainingRoute,
   CoursesRoute: CoursesRouteWithChildren,
+  EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   FundingRoute: FundingRoute,
   JobMatchingRoute: JobMatchingRoute,

@@ -14,6 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignment_submissions: {
+        Row: {
+          assignment_id: string
+          body: string
+          created_at: string
+          feedback: string | null
+          id: string
+          link: string | null
+          score: number | null
+          status: string
+          student_id: string
+          student_name: string
+        }
+        Insert: {
+          assignment_id: string
+          body?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          link?: string | null
+          score?: number | null
+          status?: string
+          student_id: string
+          student_name?: string
+        }
+        Update: {
+          assignment_id?: string
+          body?: string
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          link?: string | null
+          score?: number | null
+          status?: string
+          student_id?: string
+          student_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assignments: {
+        Row: {
+          course_slug: string
+          created_at: string
+          created_by: string
+          due_at: string | null
+          id: string
+          instructions: string
+          max_score: number
+          title: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          created_by: string
+          due_at?: string | null
+          id?: string
+          instructions?: string
+          max_score?: number
+          title: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          created_by?: string
+          due_at?: string | null
+          id?: string
+          instructions?: string
+          max_score?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      attendance: {
+        Row: {
+          marked_at: string
+          session_id: string
+          status: string
+          student_id: string
+        }
+        Insert: {
+          marked_at?: string
+          session_id: string
+          status: string
+          student_id: string
+        }
+        Update: {
+          marked_at?: string
+          session_id?: string
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       certificates: {
         Row: {
           code: string
@@ -274,6 +383,24 @@ export type Database = {
         }
         Relationships: []
       }
+      course_follows: {
+        Row: {
+          course_slug: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       course_intakes: {
         Row: {
           apply_by: string | null
@@ -307,6 +434,36 @@ export type Database = {
           session_time?: string | null
           start_date?: string
           status?: string
+        }
+        Relationships: []
+      }
+      course_notices: {
+        Row: {
+          body: string
+          color: string
+          course_slug: string
+          created_at: string
+          created_by: string
+          id: string
+          title: string
+        }
+        Insert: {
+          body?: string
+          color?: string
+          course_slug: string
+          created_at?: string
+          created_by: string
+          id?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          color?: string
+          course_slug?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          title?: string
         }
         Relationships: []
       }
@@ -524,6 +681,71 @@ export type Database = {
           },
         ]
       }
+      event_signups: {
+        Row: {
+          created_at: string
+          event_id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          name?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_signups_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          capacity: number
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          location: string
+          online_url: string | null
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          created_by: string
+          description?: string
+          id?: string
+          location?: string
+          online_url?: string | null
+          starts_at: string
+          title: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          location?: string
+          online_url?: string | null
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       gifts: {
         Row: {
           buyer_id: string
@@ -628,6 +850,7 @@ export type Database = {
           id: string
           position: number
           title: string
+          unlock_at: string | null
           video_url: string | null
         }
         Insert: {
@@ -639,6 +862,7 @@ export type Database = {
           id?: string
           position?: number
           title: string
+          unlock_at?: string | null
           video_url?: string | null
         }
         Update: {
@@ -650,6 +874,7 @@ export type Database = {
           id?: string
           position?: number
           title?: string
+          unlock_at?: string | null
           video_url?: string | null
         }
         Relationships: []
@@ -687,6 +912,51 @@ export type Database = {
           status?: string
           title?: string
           trainer_id?: string
+        }
+        Relationships: []
+      }
+      meeting_slots: {
+        Row: {
+          booked_by: string | null
+          booked_name: string | null
+          booked_note: string | null
+          created_at: string
+          duration_min: number
+          id: string
+          meeting_url: string | null
+          price: number
+          starts_at: string
+          topic: string
+          trainer_id: string
+          trainer_name: string
+        }
+        Insert: {
+          booked_by?: string | null
+          booked_name?: string | null
+          booked_note?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meeting_url?: string | null
+          price?: number
+          starts_at: string
+          topic?: string
+          trainer_id: string
+          trainer_name?: string
+        }
+        Update: {
+          booked_by?: string | null
+          booked_name?: string | null
+          booked_note?: string | null
+          created_at?: string
+          duration_min?: number
+          id?: string
+          meeting_url?: string | null
+          price?: number
+          starts_at?: string
+          topic?: string
+          trainer_id?: string
+          trainer_name?: string
         }
         Relationships: []
       }
@@ -936,6 +1206,129 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_answer_keys: {
+        Row: {
+          correct: number
+          question_id: string
+        }
+        Insert: {
+          correct: number
+          question_id: string
+        }
+        Update: {
+          correct?: number
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answer_keys_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: true
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_attempts: {
+        Row: {
+          certificate_code: string | null
+          created_at: string
+          id: string
+          passed: boolean
+          quiz_id: string
+          score: number
+          student_id: string
+        }
+        Insert: {
+          certificate_code?: string | null
+          created_at?: string
+          id?: string
+          passed: boolean
+          quiz_id: string
+          score: number
+          student_id: string
+        }
+        Update: {
+          certificate_code?: string | null
+          created_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id?: string
+          score?: number
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions: {
+        Row: {
+          id: string
+          options: string[]
+          position: number
+          prompt: string
+          quiz_id: string
+        }
+        Insert: {
+          id?: string
+          options: string[]
+          position?: number
+          prompt: string
+          quiz_id: string
+        }
+        Update: {
+          id?: string
+          options?: string[]
+          position?: number
+          prompt?: string
+          quiz_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          course_slug: string
+          created_at: string
+          created_by: string
+          gives_certificate: boolean
+          id: string
+          pass_mark: number
+          title: string
+        }
+        Insert: {
+          course_slug: string
+          created_at?: string
+          created_by: string
+          gives_certificate?: boolean
+          id?: string
+          pass_mark?: number
+          title: string
+        }
+        Update: {
+          course_slug?: string
+          created_at?: string
+          created_by?: string
+          gives_certificate?: boolean
+          id?: string
+          pass_mark?: number
+          title?: string
+        }
+        Relationships: []
+      }
       site_pages: {
         Row: {
           body: string
@@ -1139,7 +1532,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      book_slot: { Args: { _note: string; _slot: string }; Returns: undefined }
+      cancel_booking: { Args: { _slot: string }; Returns: undefined }
       check_discount: { Args: { _code: string }; Returns: number }
+      event_counts: {
+        Args: never
+        Returns: {
+          event_id: string
+          n: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1157,6 +1559,16 @@ export type Database = {
         }
         Returns: string
       }
+      session_roster: {
+        Args: { _session: string }
+        Returns: {
+          student_email: string
+          student_id: string
+          student_name: string
+        }[]
+      }
+      submit_quiz: { Args: { _answers: Json; _quiz: string }; Returns: Json }
+      teaches: { Args: { _slug: string; _user: string }; Returns: boolean }
       trainer_lesson_stats: {
         Args: never
         Returns: {

@@ -48,14 +48,14 @@
 - [x] Tutor finder
 - [x] Gift a course
 ### Phase 2 — Trainers
-- [ ] Quizzes + question bank + certificate on pass
-- [ ] Assignments (upload, grade)
-- [ ] Attendance
-- [ ] Drip content
-- [ ] Course notices
-- [ ] Course stats
-- [ ] Meeting booking
-- [ ] Upcoming courses "notify me" + events
+- [x] Quizzes + question bank + certificate on pass
+- [x] Assignments (upload, grade)
+- [x] Attendance
+- [x] Drip content
+- [x] Course notices
+- [x] Course stats
+- [x] Meeting booking
+- [x] Upcoming courses "notify me" + events
 ### Phase 3 — Staff/admin
 - [ ] Manual enrol + CSV import
 - [ ] PayNow/bank transfer approval

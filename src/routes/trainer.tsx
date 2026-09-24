@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TrainerQuizzes, TrainerAssignments, TrainerAttendance, TrainerNotices, TrainerStats, TrainerSlots } from "@/components/trainer-tools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { categories, courses } from "@/lib/site-content";
@@ -39,13 +40,19 @@ function TrainerPage() {
   return (
     <Wrap>
       <Tabs defaultValue="overview">
-        <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="students">Students</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger><TabsTrigger value="lessons">Lessons</TabsTrigger><TabsTrigger value="history">Lesson history</TabsTrigger><TabsTrigger value="live">Live classes</TabsTrigger><TabsTrigger value="drafts">My course proposals</TabsTrigger></TabsList>
+        <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="students">Students</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger><TabsTrigger value="lessons">Lessons</TabsTrigger><TabsTrigger value="history">Lesson history</TabsTrigger><TabsTrigger value="live">Live classes</TabsTrigger><TabsTrigger value="quizzes">Quizzes</TabsTrigger><TabsTrigger value="assignments">Assignments</TabsTrigger><TabsTrigger value="attendance">Attendance</TabsTrigger><TabsTrigger value="notices">Notices</TabsTrigger><TabsTrigger value="stats">Stats</TabsTrigger><TabsTrigger value="slots">1-to-1 slots</TabsTrigger><TabsTrigger value="drafts">My course proposals</TabsTrigger></TabsList>
         <TabsContent value="overview"><TrainerOverview userId={user.id} /></TabsContent>
         <TabsContent value="students"><TrainerStudents userId={user.id} /></TabsContent>
         <TabsContent value="calendar"><TrainerCalendar userId={user.id} /></TabsContent>
         <TabsContent value="history"><TrainerLessonHistory userId={user.id} /></TabsContent>
         <TabsContent value="lessons"><Lessons userId={user.id} isAdmin={isAdmin} /></TabsContent>
         <TabsContent value="live"><Live userId={user.id} /></TabsContent>
+        <TabsContent value="quizzes"><TrainerQuizzes userId={user.id} isAdmin={isAdmin} /></TabsContent>
+        <TabsContent value="assignments"><TrainerAssignments userId={user.id} isAdmin={isAdmin} /></TabsContent>
+        <TabsContent value="attendance"><TrainerAttendance userId={user.id} /></TabsContent>
+        <TabsContent value="notices"><TrainerNotices userId={user.id} isAdmin={isAdmin} /></TabsContent>
+        <TabsContent value="stats"><TrainerStats userId={user.id} /></TabsContent>
+        <TabsContent value="slots"><TrainerSlots userId={user.id} /></TabsContent>
         <TabsContent value="drafts">{isTrainer ? <Drafts userId={user.id} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p>}</TabsContent>
       </Tabs>
     </Wrap>
@@ -63,13 +70,13 @@ function CoursePicker({ value, onChange }: { value: string; onChange: (v: string
 function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const qc = useQueryClient();
   const [slug, setSlug] = useState(courses[0]!.slug);
-  const [f, setF] = useState({ title: "", body: "", video_url: "", file_url: "" });
+  const [f, setF] = useState({ title: "", body: "", video_url: "", file_url: "", unlock_at: "" });
   const { data = [] } = useQuery({ queryKey: ["t-lessons", slug], queryFn: async () => ((await supabase.from("lessons").select("*").eq("course_slug", slug).order("position").order("created_at")).data ?? []) as Lesson[] });
   const add = async () => {
     if (f.title.trim().length < 3) return void toast.error("Give the lesson a title.");
-    const { error } = await supabase.from("lessons").insert({ course_slug: slug, position: data.length + 1, title: f.title.trim(), body: f.body || null, video_url: f.video_url || null, file_url: f.file_url || null, created_by: userId });
+    const { error } = await supabase.from("lessons").insert({ course_slug: slug, position: data.length + 1, title: f.title.trim(), body: f.body || null, video_url: f.video_url || null, file_url: f.file_url || null, unlock_at: f.unlock_at ? new Date(f.unlock_at).toISOString() : null, created_by: userId });
     if (error) return void toast.error(error.message);
-    setF({ title: "", body: "", video_url: "", file_url: "" }); toast.success("Lesson added");
+    setF({ title: "", body: "", video_url: "", file_url: "", unlock_at: "" }); toast.success("Lesson added");
     void qc.invalidateQueries({ queryKey: ["t-lessons", slug] });
   };
   const del = async (id: string) => { if (!confirm("Delete this lesson?")) return; await supabase.from("lessons").delete().eq("id", id); void qc.invalidateQueries({ queryKey: ["t-lessons", slug] }); };
@@ -81,6 +88,7 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
         <Textarea placeholder="Lesson notes" rows={5} value={f.body} onChange={e => setF({ ...f, body: e.target.value })} />
         <Input placeholder="Video link (YouTube or Vimeo)" value={f.video_url} onChange={e => setF({ ...f, video_url: e.target.value })} />
         <Input placeholder="Materials link (Google Drive, PDF…)" value={f.file_url} onChange={e => setF({ ...f, file_url: e.target.value })} />
+        <label className="block text-sm">Unlock on (optional — leave empty to open straight away)<Input type="datetime-local" value={f.unlock_at} onChange={e => setF({ ...f, unlock_at: e.target.value })} /></label>
         <Button className="rounded-full" onClick={() => void add()}>Add lesson</Button>
         <p className="text-xs text-muted-foreground">Only students enrolled in this course can open its lessons.</p>
       </div>
@@ -88,7 +96,7 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
         <h2 className="font-serif text-2xl text-primary">{courseName(slug)}</h2>
         {data.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No lessons yet.</p> : (
           <ol className="mt-3 space-y-2">{data.map((l, i) => (
-            <li key={l.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.file_url && " · file"}</span>
+            <li key={l.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</span>
               {(l.created_by === userId || isAdmin) && <button onClick={() => void del(l.id)} aria-label="Delete lesson"><Trash2 className="size-4 text-muted-foreground" /></button>}</li>))}</ol>
         )}
       </div>

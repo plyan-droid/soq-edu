@@ -185,7 +185,25 @@ function Applications() {
     queryKey: ["admin-applications"],
     queryFn: async () => ((await supabase.from("course_applications").select("*").order("created_at", { ascending: false }).limit(200)).data ?? []) as Application[],
   });
+  const { data: prog = {} } = useQuery({
+    queryKey: ["admin-app-progress", data.map(a => a.id).join()], enabled: data.length > 0,
+    queryFn: async () => {
+      const { data: ps } = await supabase.from("profiles").select("id,email");
+      const { data: en } = await supabase.from("enrollments").select("student_id,course_slug,progress");
+      const byEmail = new Map((ps ?? []).map(p => [p.email.toLowerCase(), p.id]));
+      const out: Record<string, number | undefined> = {};
+      for (const a of data) { const id = byEmail.get(a.email.toLowerCase()); out[a.id] = en?.find(e => e.student_id === id && e.course_slug === a.course_slug)?.progress; }
+      return out;
+    },
+  });
   const setStatus = async (id: string, status: string) => { await supabase.from("course_applications").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-applications"] }); };
+  const approveEnrol = async (a: Application) => {
+    const { data: p } = await supabase.from("profiles").select("id").ilike("email", a.email.trim()).maybeSingle();
+    if (!p) { await setStatus(a.id, "approved"); alert(`Approved. ${a.email} has no account yet — ask them to sign up with this email, then click "Approve & enrol" again to give them their place.`); return; }
+    const { data: ex } = await supabase.from("enrollments").select("id").eq("student_id", p.id).eq("course_slug", a.course_slug).maybeSingle();
+    if (!ex) { const { error } = await supabase.from("enrollments").insert({ student_id: p.id, course_slug: a.course_slug, status: "active", start_date: new Date().toISOString().slice(0, 10) }); if (error) { alert(error.message); return; } }
+    await setStatus(a.id, "enrolled"); void qc.invalidateQueries({ queryKey: ["admin-app-progress"] });
+  };
   return (
     <div className="mt-14">
       <h2 className="font-serif text-4xl text-primary">Course applications ({data.filter(a => a.status === "new").length} new)</h2>

@@ -26,7 +26,7 @@ export function useAuth() {
           const k = `soq-login-${s.access_token.slice(-12)}`;
           if (!sessionStorage.getItem(k)) {
             sessionStorage.setItem(k, "1");
-            void supabase.from("login_events").insert({ user_id: s.user.id, email: s.user.email, user_agent: navigator.userAgent.slice(0, 300) });
+            void supabase.from("login_events").insert({ user_id: s.user.id, email: s.user.email ?? null, user_agent: navigator.userAgent.slice(0, 300) });
           }
           const ref = localStorage.getItem("soq-ref");
           if (ref) void supabase.rpc("claim_referral", { _code: ref }).then(() => localStorage.removeItem("soq-ref"));

@@ -161,14 +161,15 @@ export function FormBuilder() {
     </Box></div>;
 }
 
+type D = { heading: string; body: string; signatory: string; signatory_title: string; accent: string };
 /* ---------- Certificate designer ---------- */
 export function CertificateDesigner() {
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["cert-design"], queryFn: async () => (await supabase.from("certificate_design").select("*").eq("id", 1).maybeSingle()).data });
-  const [f, setF] = useState<Record<string, string> | null>(null);
-  const d = f ?? (data as unknown as Record<string, string> | null);
+  const [f, setF] = useState<D | null>(null);
+  const d = f ?? (data as unknown as D | null);
   if (!d) return null;
-  const set = (k: string, v: string) => setF({ ...d, [k]: v });
+  const set = (k: keyof D, v: string) => setF({ ...d, [k]: v });
   const save = async () => { await supabase.from("certificate_design").update({ heading: d.heading, body: d.body, signatory: d.signatory, signatory_title: d.signatory_title, accent: d.accent, updated_at: new Date().toISOString() }).eq("id", 1); void qc.invalidateQueries({ queryKey: ["cert-design"] }); toast.success("Certificate design saved"); };
   return <div className="grid gap-6 lg:grid-cols-2"><Box><H>Certificate designer</H>
     <Input value={d.heading} onChange={e => set("heading", e.target.value)} />
@@ -178,7 +179,7 @@ export function CertificateDesigner() {
     <Button className="rounded-full" onClick={() => void save()}>Save design</Button></Box>
     <CertificatePreview design={d} name="Jane Tan" course={courses[0]!.title} code="SOQ-SAMPLE" /></div>;
 }
-export function CertificatePreview({ design: d, name, course, code }: { design: Record<string, string>; name: string; course: string; code: string }) {
+export function CertificatePreview({ design: d, name, course, code }: { design: D; name: string; course: string; code: string }) {
   return <div className="flex aspect-[1.414] flex-col items-center justify-center rounded-md bg-card p-8 text-center shadow-md" style={{ border: `10px double ${d.accent}` }}>
     <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">SOQ International Academy</p>
     <h2 className="mt-3 font-serif text-3xl text-primary">{d.heading}</h2>

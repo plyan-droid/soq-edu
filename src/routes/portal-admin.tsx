@@ -11,7 +11,7 @@ import { courseTitle, type Enrollment, type Task } from "@/components/student-da
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
-import { StaffRequests, StudentOverview } from "@/components/staff-phase5";
+import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 
 export const Route = createFileRoute("/portal-admin")({
@@ -69,7 +69,7 @@ function Admin() {
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
         <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>
-        <TabsContent value="users"><div className="mt-4"><StaffRequests /></div><UsersAdmin selfId={user?.id} /></TabsContent>
+        <TabsContent value="users"><div className="mt-4 grid gap-6 lg:grid-cols-2"><StaffRequests /><OrgMembersAdmin /></div><UsersAdmin selfId={user?.id} /></TabsContent>
         <TabsContent value="sales"><Sales /></TabsContent>
         <TabsContent value="codes"><DiscountCodes /></TabsContent>
         <TabsContent value="pages"><PagesEditor /></TabsContent>

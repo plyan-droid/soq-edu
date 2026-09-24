@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AboutUsRouteImport } from './routes/about-us'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as BundlesRouteImport } from './routes/bundles'
 import { Route as BusinessesRouteImport } from './routes/businesses'
@@ -54,6 +55,7 @@ import { Route as CommunityNewRouteImport } from './routes/community.new'
 import { Route as CommunitySavedRouteImport } from './routes/community.saved'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as DemoLoginRoleRouteImport } from './routes/demo-login.$role'
 import { Route as FSlugRouteImport } from './routes/f.$slug'
 import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
@@ -76,6 +78,11 @@ const AboutRoute = AboutRouteImport.update({
 const AboutUsRoute = AboutUsRouteImport.update({
   id: '/about-us',
   path: '/about-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookRoute = BookRouteImport.update({
@@ -288,6 +295,11 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => CoursesRoute,
 } as any)
+const DemoLoginRoleRoute = DemoLoginRoleRouteImport.update({
+  id: '/demo-login/$role',
+  path: '/demo-login/$role',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FSlugRoute = FSlugRouteImport.update({
   id: '/f/$slug',
   path: '/f/$slug',
@@ -333,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
@@ -373,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/demo-login/$role': typeof DemoLoginRoleRoute
   '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -388,6 +402,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
@@ -427,6 +442,7 @@ export interface FileRoutesByTo {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/demo-login/$role': typeof DemoLoginRoleRoute
   '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -443,6 +459,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/about-us': typeof AboutUsRoute
+  '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
   '/businesses': typeof BusinessesRoute
@@ -483,6 +500,7 @@ export interface FileRoutesById {
   '/community/new': typeof CommunityNewRoute
   '/community/saved': typeof CommunitySavedRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/demo-login/$role': typeof DemoLoginRoleRoute
   '/f/$slug': typeof FSlugRoute
   '/learn/$slug': typeof LearnSlugRoute
   '/p/$slug': typeof PSlugRoute
@@ -500,6 +518,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/admin'
     | '/book'
     | '/bundles'
     | '/businesses'
@@ -540,6 +559,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/demo-login/$role'
     | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
@@ -555,6 +575,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/admin'
     | '/book'
     | '/bundles'
     | '/businesses'
@@ -594,6 +615,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/demo-login/$role'
     | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
@@ -609,6 +631,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/about-us'
+    | '/admin'
     | '/book'
     | '/bundles'
     | '/businesses'
@@ -649,6 +672,7 @@ export interface FileRouteTypes {
     | '/community/new'
     | '/community/saved'
     | '/courses/$slug'
+    | '/demo-login/$role'
     | '/f/$slug'
     | '/learn/$slug'
     | '/p/$slug'
@@ -665,6 +689,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AboutUsRoute: typeof AboutUsRoute
+  AdminRoute: typeof AdminRoute
   BookRoute: typeof BookRoute
   BundlesRoute: typeof BundlesRoute
   BusinessesRoute: typeof BusinessesRoute
@@ -704,6 +729,7 @@ export interface RootRouteChildren {
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
   CommunitySavedRoute: typeof CommunitySavedRoute
+  DemoLoginRoleRoute: typeof DemoLoginRoleRoute
   FSlugRoute: typeof FSlugRoute
   LearnSlugRoute: typeof LearnSlugRoute
   PSlugRoute: typeof PSlugRoute
@@ -735,6 +761,13 @@ declare module '@tanstack/react-router' {
       path: '/about-us'
       fullPath: '/about-us'
       preLoaderRoute: typeof AboutUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book': {
@@ -1031,6 +1064,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof CoursesRoute
     }
+    '/demo-login/$role': {
+      id: '/demo-login/$role'
+      path: '/demo-login/$role'
+      fullPath: '/demo-login/$role'
+      preLoaderRoute: typeof DemoLoginRoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/f/$slug': {
       id: '/f/$slug'
       path: '/f/$slug'
@@ -1118,6 +1158,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AboutUsRoute: AboutUsRoute,
+  AdminRoute: AdminRoute,
   BookRoute: BookRoute,
   BundlesRoute: BundlesRoute,
   BusinessesRoute: BusinessesRoute,
@@ -1157,6 +1198,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,
   CommunitySavedRoute: CommunitySavedRoute,
+  DemoLoginRoleRoute: DemoLoginRoleRoute,
   FSlugRoute: FSlugRoute,
   LearnSlugRoute: LearnSlugRoute,
   PSlugRoute: PSlugRoute,

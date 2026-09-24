@@ -1420,6 +1420,27 @@ export type Database = {
         }
         Relationships: []
       }
+      org_members: {
+        Row: {
+          created_at: string
+          id: string
+          member_email: string
+          org_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_email: string
+          org_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_email?: string
+          org_id?: string
+        }
+        Relationships: []
+      }
       post_bookmarks: {
         Row: {
           created_at: string
@@ -2041,6 +2062,7 @@ export type Database = {
       book_slot: { Args: { _note: string; _slot: string }; Returns: undefined }
       cancel_booking: { Args: { _slot: string }; Returns: undefined }
       check_discount: { Args: { _code: string }; Returns: number }
+      check_maintenance_key: { Args: { _key: string }; Returns: boolean }
       claim_referral: { Args: { _code: string }; Returns: boolean }
       event_counts: {
         Args: never
@@ -2057,6 +2079,17 @@ export type Database = {
         Returns: boolean
       }
       in_course: { Args: { _slug: string; _user: string }; Returns: boolean }
+      is_top_admin: { Args: { _user_id: string }; Returns: boolean }
+      org_roster: {
+        Args: never
+        Returns: {
+          course_slug: string
+          full_name: string
+          member_email: string
+          progress: number
+          status: string
+        }[]
+      }
       place_mock_order: {
         Args: {
           _code: string
@@ -2109,7 +2142,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "student" | "trainer"
+      app_role: "admin" | "student" | "trainer" | "staff" | "organization"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2237,7 +2270,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "student", "trainer"],
+      app_role: ["admin", "student", "trainer", "staff", "organization"],
     },
   },
 } as const

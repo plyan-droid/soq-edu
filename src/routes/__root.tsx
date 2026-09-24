@@ -12,10 +12,13 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteLayout } from "@/components/site-shell";
+import { MaintenanceGate } from "@/components/maintenance-gate";
+import { AdminPathRedirect } from "@/components/admin-path";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
-  return (
+  return (<>
+    <AdminPathRedirect />
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
@@ -33,7 +36,7 @@ function NotFoundComponent() {
         </div>
       </div>
     </div>
-  );
+  </>);
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
@@ -119,7 +122,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteLayout><Outlet /></SiteLayout><Toaster richColors />
+      <MaintenanceGate><SiteLayout><Outlet /></SiteLayout></MaintenanceGate><Toaster richColors />
     </QueryClientProvider>
   );
 }

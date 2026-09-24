@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { StudentDashboard } from "@/components/student-dashboard";
+import { NoticesStrip, MyInstalments } from "@/components/learner-tools";
 import { ArrowRight, BookOpenCheck, CalendarClock, ClipboardCheck, FileText, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
@@ -29,7 +30,7 @@ const features = [
 function StudentPortal() {
   const { user, isAdmin, loading } = useAuth();
   if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
-  if (user) return <StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} />;
+  if (user) return <><NoticesStrip /><StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} /><MyInstalments userId={user.id} /></>;
   return (
     <>
       <section className="bg-brand-navy text-primary-foreground">

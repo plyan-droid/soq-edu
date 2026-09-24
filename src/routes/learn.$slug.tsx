@@ -1,4 +1,6 @@
 import { LessonNotes, CourseChatroom } from "@/components/student-extras";
+import { CourseNoticesList, StudentQuizzes, StudentAssignments } from "@/components/learner-tools";
+import { Lock } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -49,6 +51,7 @@ function LearnPage() {
 
   const lessons = data?.lessons ?? [];
   const active = lessons.find(l => l.id === activeId) ?? lessons[0];
+  const locked = (l: Lesson, i: number) => (!!l.unlock_at && new Date(l.unlock_at) > new Date());
   const doneCount = lessons.filter(l => data?.done.has(l.id)).length;
 
   const toggleDone = async (l: Lesson) => {
@@ -62,7 +65,10 @@ function LearnPage() {
       {isLoading ? <p className="text-muted-foreground">Loading lessons…</p> : (
         <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
           <div>
-            {!active ? (
+            <CourseNoticesList slug={slug} />
+            {active && locked(active, lessons.indexOf(active)) ? (
+              <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground"><Lock className="mx-auto mb-2 size-6" />"{active.title}" opens on {fmtDateTime(active.unlock_at!)}.</div>
+            ) : !active ? (
               <div className="rounded-lg border border-dashed border-border p-10 text-center text-muted-foreground">
                 No lessons yet. If you're enrolled, your trainer will add them here. If you're not enrolled in this course, lessons stay hidden.
               </div>
@@ -83,13 +89,15 @@ function LearnPage() {
           </div>
           <aside className="space-y-6">
             <CourseChatroom slug={slug} />
+            <StudentQuizzes slug={slug} />
+            <StudentAssignments slug={slug} />
             <div className="rounded-lg border border-border bg-card p-5">
               <p className="text-sm text-muted-foreground">{doneCount} of {lessons.length} lessons done</p>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${lessons.length ? (doneCount / lessons.length) * 100 : 0}%` }} /></div>
               <ol className="mt-4 space-y-1">
                 {lessons.map((l, i) => (
                   <li key={l.id}><button onClick={() => setActiveId(l.id)} className={`flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-muted ${active?.id === l.id ? "bg-muted font-medium" : ""}`}>
-                    {data?.done.has(l.id) ? <CheckCircle2 className="size-4 shrink-0 text-brand-gold" /> : <Circle className="size-4 shrink-0 text-muted-foreground" />}{i + 1}. {l.title}
+                    {locked(l, i) ? <Lock className="size-4 shrink-0 text-muted-foreground" /> : data?.done.has(l.id) ? <CheckCircle2 className="size-4 shrink-0 text-brand-gold" /> : <Circle className="size-4 shrink-0 text-muted-foreground" />}{i + 1}. {l.title}
                   </button></li>
                 ))}
               </ol>

@@ -215,6 +215,8 @@ export type Database = {
           id: number
           signatory: string
           signatory_title: string
+          subtitle: string
+          template: string
           updated_at: string
         }
         Insert: {
@@ -224,6 +226,8 @@ export type Database = {
           id?: number
           signatory?: string
           signatory_title?: string
+          subtitle?: string
+          template?: string
           updated_at?: string
         }
         Update: {
@@ -233,6 +237,8 @@ export type Database = {
           id?: number
           signatory?: string
           signatory_title?: string
+          subtitle?: string
+          template?: string
           updated_at?: string
         }
         Relationships: []
@@ -1765,6 +1771,27 @@ export type Database = {
         }
         Relationships: []
       }
+      sfc_balances: {
+        Row: {
+          balance: number
+          email: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          email: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          email?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sfc_claims: {
         Row: {
           claim_ref: string | null
@@ -1775,6 +1802,7 @@ export type Database = {
           sfc_amount: number
           status: string
           student_email: string
+          user_id: string | null
         }
         Insert: {
           claim_ref?: string | null
@@ -1785,6 +1813,7 @@ export type Database = {
           sfc_amount?: number
           status?: string
           student_email: string
+          user_id?: string | null
         }
         Update: {
           claim_ref?: string | null
@@ -1795,6 +1824,7 @@ export type Database = {
           sfc_amount?: number
           status?: string
           student_email?: string
+          user_id?: string | null
         }
         Relationships: []
       }

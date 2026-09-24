@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 import { money } from "@/lib/cart";
+import { SfcBalancesAdmin } from "@/components/skillsfuture";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const priceOf = (s: string) => Number(String((courses.find(c => c.slug === s) as { price?: unknown } | undefined)?.price ?? "0").replace(/[^0-9.]/g, "")) || 0;
@@ -117,6 +118,7 @@ export function SfcClaims() {
   };
   const total = data.filter(d => d.status !== "rejected").reduce((s, d) => s + Number(d.sfc_amount), 0);
   return (
+    <>
     <div className="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
       <Box><H>Record SkillsFuture Credit</H>
         <Input placeholder="Student email" value={f.student_email} onChange={e => setF({ ...f, student_email: e.target.value })} />
@@ -134,6 +136,8 @@ export function SfcClaims() {
               <td><select className="h-8 rounded border border-input bg-background text-xs" value={d.status} onChange={async e => { await supabase.from("sfc_claims").update({ status: e.target.value }).eq("id", d.id); void refresh(); }}><option value="submitted">Submitted</option><option value="approved">Approved</option><option value="paid">Paid out</option><option value="rejected">Rejected</option></select></td></tr>)}</tbody></table>}
       </Box>
     </div>
+    <SfcBalancesAdmin />
+    </>
   );
 }
 

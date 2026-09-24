@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BadgeCheck, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/page-hero";
@@ -17,23 +17,26 @@ export const Route = createFileRoute("/verify-certificate")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { code?: string } => (typeof s["code"] === "string" ? { code: s["code"].slice(0, 40) } : {}),
   component: VerifyPage,
 });
 
 type Cert = { code: string; student_name: string; course_slug: string; issued_on: string; status: string };
 
 function VerifyPage() {
-  const [code, setCode] = useState("");
+  const search = Route.useSearch();
+  const [code, setCode] = useState(search.code ?? "");
   const [result, setResult] = useState<Cert | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
-  const check = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const c = code.trim().slice(0, 40); if (!c) return;
+  const run = async (raw: string) => {
+    const c = raw.trim().slice(0, 40); if (!c) return;
     setBusy(true);
-    const { data } = await supabase.rpc("verify_certificate", { _code: c });
+    const { data, error } = await supabase.rpc("verify_certificate", { _code: c });
     setBusy(false);
-    setResult((data as Cert[] | null)?.[0] ?? null);
+    setResult(error ? null : (data as Cert[] | null)?.[0] ?? null);
   };
+  useEffect(() => { if (search.code) void run(search.code); }, [search.code]);
+  const check = async (e: React.FormEvent) => { e.preventDefault(); await run(code); };
   return (
     <>
       <PageHero eyebrow="Certificates" title="Verify a certificate." intro="Enter the certificate code printed on an SOQ certificate to confirm it is genuine." />

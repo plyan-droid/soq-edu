@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 import { money } from "@/lib/cart";
 import { aiWrite } from "@/lib/ai-writer.functions";
+import { CertificateView, downloadCertificatePdf, TEMPLATES, useCertDesign, type CertDesign } from "@/components/certificate";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const Box = ({ children }: { children: React.ReactNode }) => <div className="space-y-4 rounded-lg border border-border bg-card p-5">{children}</div>;
@@ -161,32 +162,26 @@ export function FormBuilder() {
     </Box></div>;
 }
 
-type D = { heading: string; body: string; signatory: string; signatory_title: string; accent: string };
+type D = CertDesign;
 /* ---------- Certificate designer ---------- */
 export function CertificateDesigner() {
   const qc = useQueryClient();
-  const { data } = useQuery({ queryKey: ["cert-design"], queryFn: async () => (await supabase.from("certificate_design").select("*").eq("id", 1).maybeSingle()).data });
+  const { data } = useCertDesign();
   const [f, setF] = useState<D | null>(null);
-  const d = f ?? (data as unknown as D | null);
+  const d = f ?? data ?? null;
   if (!d) return null;
   const set = (k: keyof D, v: string) => setF({ ...d, [k]: v });
-  const save = async () => { await supabase.from("certificate_design").update({ heading: d.heading, body: d.body, signatory: d.signatory, signatory_title: d.signatory_title, accent: d.accent, updated_at: new Date().toISOString() }).eq("id", 1); void qc.invalidateQueries({ queryKey: ["cert-design"] }); toast.success("Certificate design saved"); };
-  return <div className="grid gap-6 lg:grid-cols-2"><Box><H>Certificate designer</H>
-    <Input value={d.heading} onChange={e => set("heading", e.target.value)} />
-    <Textarea value={d.body} onChange={e => set("body", e.target.value)} /><p className="text-xs text-muted-foreground">Use {"{name}"} and {"{course}"} — they're filled in for each student.</p>
+  const sample = { name: "Jane Tan", course: courses[0]!.title, code: "SOQ-SAMPLE", date: new Date().toISOString() };
+  const save = async () => { await supabase.from("certificate_design").update({ heading: d.heading, subtitle: d.subtitle, body: d.body, signatory: d.signatory, signatory_title: d.signatory_title, accent: d.accent, template: d.template, updated_at: new Date().toISOString() }).eq("id", 1); void qc.invalidateQueries({ queryKey: ["cert-design"] }); toast.success("Certificate design saved"); };
+  return <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]"><Box><H>Certificate designer</H>
+    <div><p className="mb-2 text-sm font-medium">Template</p><div className="flex gap-2">{TEMPLATES.map(([k, l]) => <button key={k} onClick={() => set("template", k)} className={`rounded-full border px-4 py-1.5 text-sm ${d.template === k ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{l}</button>)}</div></div>
+    <label className="block text-sm">Heading<Input value={d.heading} onChange={e => set("heading", e.target.value)} /></label>
+    <label className="block text-sm">Line under the academy name<Input value={d.subtitle} onChange={e => set("subtitle", e.target.value)} /></label>
+    <label className="block text-sm">Wording<Textarea value={d.body} onChange={e => set("body", e.target.value)} /></label><p className="text-xs text-muted-foreground">Use {"{name}"} and {"{course}"} — they're filled in for each student.</p>
     <Input value={d.signatory} onChange={e => set("signatory", e.target.value)} placeholder="Signed by" /><Input value={d.signatory_title} onChange={e => set("signatory_title", e.target.value)} placeholder="Their title" />
-    <label className="flex items-center gap-2 text-sm">Border colour <input type="color" value={d.accent} onChange={e => set("accent", e.target.value)} /></label>
-    <Button className="rounded-full" onClick={() => void save()}>Save design</Button></Box>
-    <CertificatePreview design={d} name="Jane Tan" course={courses[0]!.title} code="SOQ-SAMPLE" /></div>;
-}
-export function CertificatePreview({ design: d, name, course, code }: { design: D; name: string; course: string; code: string }) {
-  return <div className="flex aspect-[1.414] flex-col items-center justify-center rounded-md bg-card p-8 text-center shadow-md" style={{ border: `10px double ${d.accent}` }}>
-    <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">SOQ International Academy</p>
-    <h2 className="mt-3 font-serif text-3xl text-primary">{d.heading}</h2>
-    <p className="mt-4 max-w-sm text-sm">{d.body.replace("{name}", name).replace("{course}", course)}</p>
-    <p className="mt-6 font-script text-3xl" style={{ color: d.accent }}>{d.signatory}</p>
-    <p className="text-xs text-muted-foreground">{d.signatory} · {d.signatory_title}</p>
-    <p className="mt-4 text-[10px] text-muted-foreground">Certificate no. {code}</p></div>;
+    <label className="flex items-center gap-2 text-sm">Accent colour <input type="color" value={d.accent} onChange={e => set("accent", e.target.value)} /></label>
+    <div className="flex flex-wrap gap-2"><Button className="rounded-full" onClick={() => void save()}>Save design</Button><Button variant="outline" className="rounded-full" onClick={() => void downloadCertificatePdf(d, sample)}>Download sample PDF</Button></div></Box>
+    <CertificateView design={d} {...sample} /></div>;
 }
 
 /* ---------- Login history ---------- */

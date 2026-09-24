@@ -39,3 +39,39 @@
 - [x] Course page colours: WSQ = blue & red (WSQ logo), Diploma/academic = gold/yellow-brown
 
 - [x] Community livestreams (dev.to style): staff schedule streams with YouTube link, live embed + description, listed in Community sidebar
+
+## Client guide gap check (approved plan)
+### Phase 1 — Students
+- [x] Course Q&A on course pages
+- [x] Private lesson notes
+- [x] Course chatroom (live)
+- [x] Tutor finder
+- [x] Gift a course
+### Phase 2 — Trainers
+- [ ] Quizzes + question bank + certificate on pass
+- [ ] Assignments (upload, grade)
+- [ ] Attendance
+- [ ] Drip content
+- [ ] Course notices
+- [ ] Course stats
+- [ ] Meeting booking
+- [ ] Upcoming courses "notify me" + events
+### Phase 3 — Staff/admin
+- [ ] Manual enrol + CSV import
+- [ ] PayNow/bank transfer approval
+- [ ] Instalments
+- [ ] Waitlist
+- [ ] Site noticeboard
+- [ ] Course bundles
+- [ ] Form builder
+- [ ] Certificate designer
+- [ ] Login history
+- [ ] AI writer
+- [ ] Simple referral scheme
+### Phase 4 — Singapore
+- [ ] Diploma admissions pipeline
+- [ ] Module exemptions
+- [ ] SkillsFuture Credit tracking
+- [ ] WhatsApp reminders
+- [ ] CRM leads import
+- [ ] Placeholders: TPGateway, grant checks, Singpass, Xero

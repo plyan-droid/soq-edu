@@ -38,6 +38,7 @@ import { Route as StudentPortalRouteImport } from './routes/student-portal'
 import { Route as TeachRouteImport } from './routes/teach'
 import { Route as TrainerRouteImport } from './routes/trainer'
 import { Route as TrainersRouteImport } from './routes/trainers'
+import { Route as TutorFinderRouteImport } from './routes/tutor-finder'
 import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
 import { Route as ApiCourseChatRouteImport } from './routes/api/course-chat'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
@@ -200,6 +201,11 @@ const TrainersRoute = TrainersRouteImport.update({
   path: '/trainers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TutorFinderRoute = TutorFinderRouteImport.update({
+  id: '/tutor-finder',
+  path: '/tutor-finder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyCertificateRoute = VerifyCertificateRouteImport.update({
   id: '/verify-certificate',
   path: '/verify-certificate',
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/teach': typeof TeachRoute
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
+  '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/teach': typeof TeachRoute
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
+  '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -405,6 +413,7 @@ export interface FileRoutesById {
   '/teach': typeof TeachRoute
   '/trainer': typeof TrainerRouteWithChildren
   '/trainers': typeof TrainersRoute
+  '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
@@ -454,6 +463,7 @@ export interface FileRouteTypes {
     | '/teach'
     | '/trainer'
     | '/trainers'
+    | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
     | '/community/guidelines'
@@ -500,6 +510,7 @@ export interface FileRouteTypes {
     | '/teach'
     | '/trainer'
     | '/trainers'
+    | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
     | '/community/guidelines'
@@ -547,6 +558,7 @@ export interface FileRouteTypes {
     | '/teach'
     | '/trainer'
     | '/trainers'
+    | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
     | '/community/guidelines'
@@ -595,6 +607,7 @@ export interface RootRouteChildren {
   TeachRoute: typeof TeachRoute
   TrainerRoute: typeof TrainerRouteWithChildren
   TrainersRoute: typeof TrainersRoute
+  TutorFinderRoute: typeof TutorFinderRoute
   VerifyCertificateRoute: typeof VerifyCertificateRoute
   ApiCourseChatRoute: typeof ApiCourseChatRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
@@ -815,6 +828,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrainersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tutor-finder': {
+      id: '/tutor-finder'
+      path: '/tutor-finder'
+      fullPath: '/tutor-finder'
+      preLoaderRoute: typeof TutorFinderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify-certificate': {
       id: '/verify-certificate'
       path: '/verify-certificate'
@@ -984,6 +1004,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeachRoute: TeachRoute,
   TrainerRoute: TrainerRouteWithChildren,
   TrainersRoute: TrainersRoute,
+  TutorFinderRoute: TutorFinderRoute,
   VerifyCertificateRoute: VerifyCertificateRoute,
   ApiCourseChatRoute: ApiCourseChatRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,

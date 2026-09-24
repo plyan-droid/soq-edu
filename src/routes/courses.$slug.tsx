@@ -41,6 +41,7 @@ const tabs = [
   { id: "outcomes", label: "Outcomes" },
   { id: "syllabus", label: "Syllabus" },
   { id: "reviews", label: "Reviews" },
+  { id: "questions", label: "Q&A" },
   { id: "apply", label: "Apply" },
 ];
 

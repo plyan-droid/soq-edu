@@ -42,11 +42,11 @@
 
 ## Client guide gap check (approved plan)
 ### Phase 1 — Students
-- [ ] Course Q&A on course pages
-- [ ] Private lesson notes
-- [ ] Course chatroom (live)
-- [ ] Tutor finder
-- [ ] Gift a course
+- [x] Course Q&A on course pages
+- [x] Private lesson notes
+- [x] Course chatroom (live)
+- [x] Tutor finder
+- [x] Gift a course
 ### Phase 2 — Trainers
 - [ ] Quizzes + question bank + certificate on pass
 - [ ] Assignments (upload, grade)

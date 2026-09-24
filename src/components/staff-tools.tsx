@@ -202,6 +202,7 @@ type UserRow = { id: string; email: string; full_name: string | null; created_at
 export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<"all" | "staff" | "trainer" | "student">("all");
   const { data } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
@@ -219,16 +220,27 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
     else { if (!confirm(`Give ${u.email} ${label} access?`)) return; await supabase.from("user_roles").insert({ user_id: u.id, role }); }
     void qc.invalidateQueries({ queryKey: ["admin-users"] });
   };
+  const reset = async (u: UserRow) => {
+    if (!confirm(`Send a password reset email to ${u.email}?`)) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(u.email, { redirectTo: `${window.location.origin}/reset-password` });
+    alert(error ? error.message : `Reset link sent to ${u.email}.`);
+  };
   if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
-  const shown = data.users.filter(u => `${u.email} ${u.full_name ?? ""}`.toLowerCase().includes(q.toLowerCase()));
+  const roleOf = (id: string) => data.admins.has(id) ? "staff" : data.trainers.has(id) ? "trainer" : "student";
+  const counts = { all: data.users.length, staff: data.users.filter(u => roleOf(u.id) === "staff").length, trainer: data.users.filter(u => roleOf(u.id) === "trainer").length, student: data.users.filter(u => roleOf(u.id) === "student").length };
+  const shown = data.users.filter(u => (filter === "all" || (filter === "staff" ? data.admins.has(u.id) : filter === "trainer" ? data.trainers.has(u.id) : roleOf(u.id) === "student")) && `${u.email} ${u.full_name ?? ""}`.toLowerCase().includes(q.toLowerCase()));
   return (
     <div>
-      <Input className="mt-5 max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        {([["all", "Everyone"], ["staff", "Staff"], ["trainer", "Trainers"], ["student", "Students"]] as const).map(([k, l]) => <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} className="rounded-full" onClick={() => setFilter(k)}>{l} ({counts[k]})</Button>)}
+        <Input className="ml-auto max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
+      </div>
       <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const trainer = data.trainers.has(u.id); return (
         <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[admin && "Staff", trainer && "Trainer"].filter(Boolean).join(", ") || "Student"}</td>
           <td className={`${td} flex flex-wrap gap-2`}>
             <Button size="sm" variant="outline" onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</Button>
             {u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, "admin", admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}
+            <Button size="sm" variant="ghost" onClick={() => void reset(u)}>Send password reset</Button>
           </td></tr>); })}</Table>
     </div>
   );

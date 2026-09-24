@@ -1846,6 +1846,36 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_requests: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          reason: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           created_at: string

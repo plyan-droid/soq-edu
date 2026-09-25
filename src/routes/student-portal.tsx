@@ -24,10 +24,10 @@ export const Route = createFileRoute("/student-portal")({
 });
 
 const features = [
-  { icon: BookOpenCheck, title: "Course progress", text: "See the modules you have finished and what comes next." },
-  { icon: CalendarClock, title: "Class schedule", text: "Check upcoming class dates, times and venues." },
-  { icon: ClipboardCheck, title: "Assessments", text: "View upcoming assessments and your results." },
-  { icon: FileText, title: "Learning materials", text: "Download course notes and handouts." },
+  { icon: BookOpenCheck, title: "Students", text: "Course progress, class dates, assessments, payments and certificates." },
+  { icon: CalendarClock, title: "Trainers", text: "Your courses, students, sessions, quizzes and attendance." },
+  { icon: ClipboardCheck, title: "Businesses", text: "Your package, sponsored employees and their progress." },
+  { icon: FileText, title: "SOQ staff", text: "Applications, enrolments, payments and site settings." },
 ];
 
 function StudentPortal() {
@@ -40,8 +40,8 @@ function StudentPortal() {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:px-8 lg:py-24">
           <div className="self-center">
             <p className="font-script text-3xl text-brand-gold">Welcome back</p>
-            <h1 className="mt-3 font-serif text-5xl leading-none md:text-7xl">Your SOQ student portal</h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-primary-foreground/75">Track your course progress, class dates, deadlines and assessments. Sign in with the login details SOQ sent you when you enrolled.</p>
+            <h1 className="mt-3 font-serif text-5xl leading-none md:text-7xl">Your SOQ portal</h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-primary-foreground/75">One login for students, trainers, partner businesses and SOQ staff. Sign in and you'll go straight to the dashboard for your account, plus the members-only SOQ Community.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild className="h-12 rounded-full bg-brand-gold px-7 text-brand-navy hover:bg-brand-gold/85">
                 <Link to="/login">Sign in to portal <ArrowRight /></Link>

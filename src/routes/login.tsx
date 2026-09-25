@@ -37,7 +37,14 @@ function Login() {
   const [busy, setBusy] = useState(false);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
 
-  const done = () => void navigate({ to: (next ?? "/student-portal") as "/student-portal" });
+  const done = async () => {
+    if (next) { void navigate({ to: next as "/student-portal" }); return; }
+    const { data: u } = await supabase.auth.getUser();
+    const { data } = u.user ? await supabase.from("user_roles").select("role").eq("user_id", u.user.id) : { data: [] };
+    const roles = (data ?? []).map(r => r.role as string);
+    const to = roles.includes("admin") || roles.includes("staff") ? "/portal-admin" : roles.includes("trainer") ? "/trainer" : "/student-portal";
+    void navigate({ to });
+  };
 
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault(); setMsg(null);
@@ -100,7 +107,8 @@ function Login() {
     <section className="bg-secondary">
       <div className="mx-auto max-w-md px-5 py-20">
         <div className="rounded-lg border border-border bg-card p-8">
-          <p className="font-script text-3xl text-brand-gold">Student portal</p>
+          <p className="font-script text-3xl text-brand-gold">SOQ portal</p>
+          <p className="mt-1 text-xs text-muted-foreground">For students, trainers, partner businesses and staff — you'll land on your own dashboard.</p>
           <h1 className="mt-2 font-serif text-4xl text-primary">
             {step === "signup" ? "Create your account" : step === "code" ? "Check your email" : "Welcome back"}
           </h1>

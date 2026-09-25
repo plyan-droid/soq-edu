@@ -4,7 +4,7 @@ import { SiteSettingsLayer } from "@/components/site-settings";
 import { RefCapture } from "@/components/learner-tools";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/soq-logo.png.asset.json";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -49,8 +49,13 @@ export function SiteHeader() {
         </nav>
         <div className="hidden items-center gap-4 lg:flex">
           <Link to="/recommend" aria-label="Find my course" className="grid size-10 place-items-center text-primary"><Search className="size-5" /></Link><CartLink />
-          <Link to="/community" className="text-sm font-medium text-primary hover:text-brand-gold">Community</Link>
-          <Link to="/student-portal" className="text-sm font-medium text-primary hover:text-brand-gold">Log in</Link>
+          {user ? (<>
+            <Link to="/community" className="text-sm font-medium text-primary hover:text-brand-gold">Community</Link>
+            <Link to={isAdmin ? "/portal-admin" : isTrainer ? "/trainer" : "/student-portal"} className="text-sm font-medium text-primary hover:text-brand-gold">My portal</Link>
+            <button type="button" onClick={() => void supabase.auth.signOut()} className="text-sm text-muted-foreground hover:text-primary">Log out</button>
+          </>) : (
+            <Link to="/login" className="text-sm font-medium text-primary hover:text-brand-gold">Log in</Link>
+          )}
           <Button asChild className="h-11 rounded-full bg-brand-gold px-6 text-brand-navy shadow-none hover:bg-brand-gold/85">
             <Link to="/contact">Get Course Advice <ArrowRight /></Link>
           </Button>
@@ -65,7 +70,7 @@ export function SiteHeader() {
               <>
                 <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Signed in as {user.email}</p>
                 <Link to="/community" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Community</Link>
-                <Link to="/student-portal" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Student Portal</Link>
+                <Link to="/student-portal" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">My Portal</Link>
                 {isTrainer && <Link to="/trainer" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Trainer Dashboard</Link>}
                 {isAdmin && <Link to="/portal-admin" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Staff Admin</Link>}
                 <Button variant="outline" className="mt-2 rounded-full" onClick={() => { close(); void supabase.auth.signOut(); }}>Log out</Button>
@@ -92,7 +97,7 @@ export function SiteFooter() {
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
           <div className="mt-4 grid gap-2 text-sm text-primary-foreground/70">
-            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/tutor-finder">Tutor Finder</Link><Link to="/book">Book a Trainer</Link><Link to="/events">Events</Link><Link to="/bundles">Course Bundles</Link><Link to="/noticeboard">Noticeboard</Link><Link to="/refer">Refer a Friend</Link><Link to="/calendar">Course Calendar</Link><Link to="/community">Community</Link><Link to="/student-portal">Student Portal</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/live-classes">Live Classes</Link><Link to="/trainer">Trainer Dashboard</Link><Link to="/cart">Cart</Link><Link to="/verify-certificate">Verify a Certificate</Link>
+            <Link to="/courses">Courses</Link><Link to="/recommend">Find My Course</Link><Link to="/compare">Compare Courses</Link><Link to="/tutor-finder">Tutor Finder</Link><Link to="/book">Book a Trainer</Link><Link to="/events">Events</Link><Link to="/bundles">Course Bundles</Link><Link to="/noticeboard">Noticeboard</Link><Link to="/refer">Refer a Friend</Link><Link to="/calendar">Course Calendar</Link><Link to="/login">Portal Log in</Link><Link to="/businesses">For Businesses</Link><Link to="/funding">Funding</Link><Link to="/about">About SOQ</Link><Link to="/resources">Resources</Link><Link to="/teach">Teach at SOQ</Link><Link to="/live-classes">Live Classes</Link><Link to="/trainer">Trainer Dashboard</Link><Link to="/cart">Cart</Link><Link to="/verify-certificate">Verify a Certificate</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">
@@ -117,6 +122,26 @@ export function SiteFooter() {
   );
 }
 
+function CommunityGate({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: s => s.location.pathname });
+  const { user, loading } = useAuth();
+  if (!pathname.startsWith("/community")) return <>{children}</>;
+  if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
+  if (user) return <>{children}</>;
+  return (
+    <section className="bg-secondary">
+      <div className="mx-auto max-w-lg px-5 py-24 text-center">
+        <p className="font-script text-3xl text-brand-gold">Members only</p>
+        <h1 className="mt-2 font-serif text-4xl text-primary">The SOQ Community</h1>
+        <p className="mt-4 text-muted-foreground">Community is open to SOQ students, alumni, trainers, partner businesses and staff. Log in to join the conversation.</p>
+        <Button asChild className="mt-8 h-12 rounded-full bg-brand-gold px-7 text-brand-navy hover:bg-brand-gold/85">
+          <Link to="/login" search={{ next: pathname }}>Log in to continue <ArrowRight /></Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
+
 export function SiteLayout({ children }: { children: ReactNode }) {
-  return <><SiteSettingsLayer /><RefCapture /><SiteHeader /><main>{children}</main><SiteFooter /></>;
+  return <><SiteSettingsLayer /><RefCapture /><SiteHeader /><main><CommunityGate>{children}</CommunityGate></main><SiteFooter /></>;
 }

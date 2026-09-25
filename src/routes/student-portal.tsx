@@ -24,10 +24,10 @@ export const Route = createFileRoute("/student-portal")({
 });
 
 const features = [
-  { icon: BookOpenCheck, title: "Course progress", text: "See the modules you have finished and what comes next." },
-  { icon: CalendarClock, title: "Class schedule", text: "Check upcoming class dates, times and venues." },
-  { icon: ClipboardCheck, title: "Assessments", text: "View upcoming assessments and your results." },
-  { icon: FileText, title: "Learning materials", text: "Download course notes and handouts." },
+  { icon: BookOpenCheck, title: "Students", text: "Course progress, class dates, assessments, payments and certificates." },
+  { icon: CalendarClock, title: "Trainers", text: "Your courses, students, sessions, quizzes and attendance." },
+  { icon: ClipboardCheck, title: "Businesses", text: "Your package, sponsored employees and their progress." },
+  { icon: FileText, title: "SOQ staff", text: "Applications, enrolments, payments and site settings." },
 ];
 
 function StudentPortal() {

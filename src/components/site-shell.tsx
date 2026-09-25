@@ -2,6 +2,7 @@ import { NewsletterSignup } from "@/components/newsletter-signup";
 import { CartLink } from "@/components/add-to-cart";
 import { SiteSettingsLayer } from "@/components/site-settings";
 import { RefCapture } from "@/components/learner-tools";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";

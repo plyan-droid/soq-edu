@@ -120,6 +120,32 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Recover from stale page files after an update: reload once instead of a blank screen.
+  useEffect(() => {
+    const KEY = "soq-chunk-reload";
+    const isChunkError = (msg: string) =>
+      /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg);
+    const recover = () => {
+      const last = Number(sessionStorage.getItem(KEY) || 0);
+      if (Date.now() - last < 10000) return;
+      sessionStorage.setItem(KEY, String(Date.now()));
+      window.location.reload();
+    };
+    const onPreload = (e: Event) => { e.preventDefault(); recover(); };
+    const onRejection = (e: PromiseRejectionEvent) => {
+      if (isChunkError(String(e.reason?.message ?? e.reason ?? ""))) recover();
+    };
+    const onError = (e: ErrorEvent) => { if (isChunkError(e.message ?? "")) recover(); };
+    window.addEventListener("vite:preloadError", onPreload);
+    window.addEventListener("unhandledrejection", onRejection);
+    window.addEventListener("error", onError);
+    return () => {
+      window.removeEventListener("vite:preloadError", onPreload);
+      window.removeEventListener("unhandledrejection", onRejection);
+      window.removeEventListener("error", onError);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <MaintenanceGate><SiteLayout><Outlet /></SiteLayout></MaintenanceGate><Toaster richColors />

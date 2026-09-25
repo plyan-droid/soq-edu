@@ -2,11 +2,13 @@ import { NewsletterSignup } from "@/components/newsletter-signup";
 import { CartLink } from "@/components/add-to-cart";
 import { SiteSettingsLayer } from "@/components/site-settings";
 import { RefCapture } from "@/components/learner-tools";
+import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/soq-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Phone, Search, X, Youtube } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 import { contact } from "@/lib/site-content";
 
 const nav = [
@@ -34,6 +36,8 @@ export function Brand({ size = "md" }: { size?: "md" | "lg"; light?: boolean }) 
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user, isAdmin, isTrainer, loading } = useAuth();
+  const close = () => setOpen(false);
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-5 lg:px-8">
@@ -56,8 +60,20 @@ export function SiteHeader() {
       {open && (
         <nav className="border-t border-border bg-background px-5 py-5 lg:hidden" aria-label="Mobile navigation">
           <div className="mx-auto grid max-w-7xl gap-1">
-            {[...nav, { label: "Find My Course", to: "/recommend" as const }, { label: "Compare Courses", to: "/compare" as const }, { label: "Tutor Finder", to: "/tutor-finder" as const }, { label: "Book a Trainer", to: "/book" as const }, { label: "Events", to: "/events" as const }, { label: "Course Bundles", to: "/bundles" as const }, { label: "Noticeboard", to: "/noticeboard" as const }, { label: "Refer a Friend", to: "/refer" as const }, { label: "Live Classes", to: "/live-classes" as const }, { label: "Course Calendar", to: "/calendar" as const }, { label: "Community", to: "/community" as const }, { label: "Student Portal", to: "/student-portal" as const }].map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
-            <Link to="/contact" onClick={() => setOpen(false)} className="mt-2 rounded-md bg-primary px-4 py-3 text-center font-semibold text-primary-foreground">Get Course Advice</Link>
+            {nav.map((item) => <Link key={item.to} to={item.to} onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">{item.label}</Link>)}
+            {user ? (
+              <>
+                <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Signed in as {user.email}</p>
+                <Link to="/community" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Community</Link>
+                <Link to="/student-portal" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Student Portal</Link>
+                {isTrainer && <Link to="/trainer" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Trainer Dashboard</Link>}
+                {isAdmin && <Link to="/portal-admin" onClick={close} className="rounded-md px-3 py-3 text-base hover:bg-muted">Staff Admin</Link>}
+                <Button variant="outline" className="mt-2 rounded-full" onClick={() => { close(); void supabase.auth.signOut(); }}>Log out</Button>
+              </>
+            ) : (
+              <Link to="/login" onClick={close} className={loading ? "rounded-md px-3 py-3 text-base hover:bg-muted" : "mt-2 rounded-md bg-primary px-4 py-3 text-center font-semibold text-primary-foreground"}>Log in</Link>
+            )}
+            <Link to="/contact" onClick={close} className="mt-2 rounded-md bg-brand-gold px-4 py-3 text-center font-semibold text-brand-navy">Get Course Advice</Link>
           </div>
         </nav>
       )}

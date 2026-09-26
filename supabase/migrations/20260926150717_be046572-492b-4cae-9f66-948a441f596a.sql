@@ -1,0 +1,1 @@
+ALTER FUNCTION public.issue_completed_certificate(uuid,text) SECURITY INVOKER;

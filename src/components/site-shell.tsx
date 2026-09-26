@@ -330,6 +330,11 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <SiteSettingsLayer />
       <RefCapture />
       <SiteHeader />
+      {portalPage && user?.email?.endsWith("@demo.com") && (
+        <div role="status" className="border-y border-amber-300 bg-amber-50 px-5 py-2 text-center text-sm font-medium text-amber-950">
+          Demo workspace — sample records and amounts only. No payments, funding, completions or certificates shown here are verified.
+        </div>
+      )}
       <main>
         <CommunityGate>{children}</CommunityGate>
       </main>

@@ -64,7 +64,7 @@ function Admin() {
             <p className="text-xs font-semibold uppercase text-muted-foreground">SOQ International Academy</p>
             <p className="mt-1 font-serif text-3xl font-semibold text-primary">Staff workspace</p>
           </div>
-          <div className="grid grid-cols-2 gap-3 lg:hidden">
+          <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
             <label className="min-w-0 text-xs font-medium text-muted-foreground">Section
               <select className={`${sel} mt-1 w-full text-foreground`} value={currentSection.name} onChange={event => {
                 const section = adminSections.find(item => item.name === event.target.value);
@@ -79,14 +79,16 @@ function Admin() {
               </select>
             </label>
           </div>
-          <nav className="hidden space-y-5 lg:block" aria-label="Staff workspace navigation">
+          <nav className="hidden space-y-1 lg:block" aria-label="Staff workspace navigation">
             {adminSections.map(section => <div key={section.name}>
-              <h2 className="mb-1 px-3 text-xs font-semibold uppercase text-muted-foreground">{section.name}</h2>
-              <div className="grid gap-0.5">
+              <Button type="button" variant="ghost" aria-expanded={currentSection.name === section.name} onClick={() => setActiveTool(section.items[0][0])} className={`h-auto min-h-10 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-xs font-semibold uppercase shadow-none ${currentSection.name === section.name ? "text-primary" : "text-muted-foreground"}`}>
+                {section.name}<ChevronRight className={`size-4 shrink-0 transition-transform ${currentSection.name === section.name ? "rotate-90" : ""}`} aria-hidden="true" />
+              </Button>
+              {currentSection.name === section.name && <div className="ml-2 grid gap-0.5 border-l border-border pl-2">
                 {section.items.map(([id, label]) => <Button key={id} type="button" variant="ghost" aria-current={activeTool === id ? "page" : undefined} onClick={() => setActiveTool(id)} className={`h-auto min-h-9 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-sm shadow-none ${activeTool === id ? "bg-secondary font-semibold text-primary hover:bg-secondary" : "font-normal text-muted-foreground hover:text-foreground"}`}>
                   <span>{label}</span>{activeTool === id && <ChevronRight className="size-4 shrink-0" aria-hidden="true" />}
                 </Button>)}
-              </div>
+              </div>}
             </div>)}
           </nav>
         </aside>

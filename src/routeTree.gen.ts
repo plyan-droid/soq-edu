@@ -15,6 +15,7 @@ import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as BundlesRouteImport } from './routes/bundles'
+import { Route as BusinessPortalRouteImport } from './routes/business-portal'
 import { Route as BusinessesRouteImport } from './routes/businesses'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as CareersRouteImport } from './routes/careers'
@@ -94,6 +95,11 @@ const BookRoute = BookRouteImport.update({
 const BundlesRoute = BundlesRouteImport.update({
   id: '/bundles',
   path: '/bundles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessPortalRoute = BusinessPortalRouteImport.update({
+  id: '/business-portal',
+  path: '/business-portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusinessesRoute = BusinessesRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
+  '/business-portal': typeof BusinessPortalRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
+  '/business-portal': typeof BusinessPortalRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -470,6 +478,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/book': typeof BookRoute
   '/bundles': typeof BundlesRoute
+  '/business-portal': typeof BusinessPortalRoute
   '/businesses': typeof BusinessesRoute
   '/calendar': typeof CalendarRoute
   '/careers': typeof CareersRoute
@@ -530,6 +539,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/book'
     | '/bundles'
+    | '/business-portal'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -588,6 +598,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/book'
     | '/bundles'
+    | '/business-portal'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -645,6 +656,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/book'
     | '/bundles'
+    | '/business-portal'
     | '/businesses'
     | '/calendar'
     | '/careers'
@@ -704,6 +716,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   BookRoute: typeof BookRoute
   BundlesRoute: typeof BundlesRoute
+  BusinessPortalRoute: typeof BusinessPortalRoute
   BusinessesRoute: typeof BusinessesRoute
   CalendarRoute: typeof CalendarRoute
   CareersRoute: typeof CareersRoute
@@ -795,6 +808,13 @@ declare module '@tanstack/react-router' {
       path: '/bundles'
       fullPath: '/bundles'
       preLoaderRoute: typeof BundlesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-portal': {
+      id: '/business-portal'
+      path: '/business-portal'
+      fullPath: '/business-portal'
+      preLoaderRoute: typeof BusinessPortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/businesses': {
@@ -1181,6 +1201,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   BookRoute: BookRoute,
   BundlesRoute: BundlesRoute,
+  BusinessPortalRoute: BusinessPortalRoute,
   BusinessesRoute: BusinessesRoute,
   CalendarRoute: CalendarRoute,
   CareersRoute: CareersRoute,

@@ -12,6 +12,8 @@ import { fmtDateTime, safeHref, type Lesson, type LiveSession } from "@/lib/lear
 const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 type Roster = { enrollment_id: string; course_slug: string; student_name: string; student_email: string; progress: number; status: string; start_date: string | null; end_date: string | null; lessons_done: number };
+type MeetingSlot = { id: string; topic: string; starts_at: string; duration_min: number; booked_by: string | null; booked_name: string | null; meeting_url: string | null };
+type CalendarItem = { kind: "class"; data: LiveSession } | { kind: "slot"; data: MeetingSlot };
 
 export function useTrainerCourses(userId: string) {
   return useQuery({ queryKey: ["t-courses", userId], queryFn: async () => ((await supabase.from("trainer_courses").select("course_slug").eq("trainer_id", userId)).data ?? []).map(r => r.course_slug as string) });
@@ -145,11 +147,26 @@ const dayKey = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d
 export function TrainerCalendar({ userId }: { userId: string }) {
   const qc = useQueryClient();
   const { data: sessions = [] } = useSessions(userId);
+  const { data: slots = [] } = useQuery({ queryKey: ["t-slots", userId], queryFn: async () => {
+    const { data, error } = await supabase.from("meeting_slots").select("id,topic,starts_at,duration_min,booked_by,booked_name,meeting_url").eq("trainer_id", userId).order("starts_at");
+    if (error) throw error;
+    return data as MeetingSlot[];
+  } });
   const { data: mine = [] } = useTrainerCourses(userId);
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [day, setDay] = useState<string | null>(null);
   const [f, setF] = useState({ slug: "", title: "", time: "10:00", duration_min: "60", meeting_url: "" });
-  const byDay = useMemo(() => { const m = new Map<string, LiveSession[]>(); sessions.forEach(s => { const k = dayKey(new Date(s.starts_at)); m.set(k, [...(m.get(k) ?? []), s]); }); return m; }, [sessions]);
+  const byDay = useMemo(() => {
+    const m = new Map<string, CalendarItem[]>();
+    const add = (startsAt: string, item: CalendarItem) => {
+      const k = dayKey(new Date(startsAt));
+      m.set(k, [...(m.get(k) ?? []), item]);
+    };
+    sessions.filter(s => s.status !== "cancelled").forEach(s => add(s.starts_at, { kind: "class", data: s }));
+    slots.forEach(s => add(s.starts_at, { kind: "slot", data: s }));
+    for (const [k, items] of m) m.set(k, [...items].sort((a, b) => a.data.starts_at.localeCompare(b.data.starts_at)));
+    return m;
+  }, [sessions, slots]);
   const first = (month.getDay() + 6) % 7; const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const cells = [...Array(first).fill(null), ...Array.from({ length: days }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1))];
   const today = dayKey(new Date());
@@ -176,25 +193,23 @@ export function TrainerCalendar({ userId }: { userId: string }) {
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <div key={d} className="py-1">{d}</div>)}</div>
         <div className="grid grid-cols-7 gap-1">{cells.map((d, i) => {
           if (!d) return <div key={`e${i}`} />;
-          const k = dayKey(d); const items = (byDay.get(k) ?? []).filter(s => s.status !== "cancelled");
+           const k = dayKey(d); const items = byDay.get(k) ?? [];
           return (
-            <button key={k} onClick={() => setDay(k)} className={`min-h-20 rounded-md border p-1.5 text-left text-xs transition ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
+             <Button key={k} variant="outline" onClick={() => setDay(k)} className={`h-auto min-h-20 min-w-0 flex-col items-stretch justify-start whitespace-normal rounded-md p-1.5 text-left text-xs shadow-none ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
               <span className={`inline-flex size-6 items-center justify-center rounded-full ${k === today ? "bg-primary text-primary-foreground" : ""}`}>{d.getDate()}</span>
-              {items.slice(0, 2).map(s => <p key={s.id} className="mt-0.5 truncate rounded bg-brand-gold/20 px-1">{new Date(s.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {s.title}</p>)}
+               {items.slice(0, 2).map(item => <span key={item.data.id} className={`mt-0.5 block w-full truncate rounded px-1 ${item.kind === "class" ? "bg-brand-gold/20" : "bg-secondary text-primary"}`}>{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {item.kind === "class" ? item.data.title : `1-to-1 · ${item.data.topic}`}</span>)}
               {items.length > 2 && <p className="mt-0.5 text-muted-foreground">+{items.length - 2} more</p>}
-            </button>
+             </Button>
           );
         })}</div>
       </div>
       <aside className="space-y-4">
         {!day ? <p className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground">Click a day to see its sessions or schedule a new one.</p> : <>
           <h3 className="font-serif text-2xl text-primary">{new Date(`${day}T00:00`).toLocaleDateString("en-SG", { weekday: "long", day: "numeric", month: "long" })}</h3>
-          {list.length === 0 ? <p className="text-sm text-muted-foreground">No sessions this day.</p> : <ul className="space-y-2">{list.map(s => (
-            <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title} {s.status === "cancelled" && <span className="text-xs text-destructive">(cancelled)</span>}</p>
-              <p className="text-xs text-muted-foreground">{new Date(s.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} · {s.duration_min} min · {courseName(s.course_slug)}</p>
-              <div className="mt-1 flex gap-3 text-xs">{s.meeting_url && s.status !== "cancelled" && <a className="underline" href={s.meeting_url} target="_blank" rel="noreferrer">Start & host</a>}
-                {s.status !== "cancelled" ? <button className="underline" onClick={() => void setStatus(s.id, "cancelled")}>Cancel</button> : <button className="underline" onClick={() => void setStatus(s.id, "scheduled")}>Restore</button>}</div></li>
-          ))}</ul>}
+           {list.length === 0 ? <p className="text-sm text-muted-foreground">No sessions this day.</p> : <ul className="space-y-2">{list.map(item => {
+             return item.kind === "class" ? <li key={item.data.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{item.data.title}</p><p className="text-xs text-muted-foreground">{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} · {item.data.duration_min} min · {courseName(item.data.course_slug)}</p><div className="mt-1 flex gap-3 text-xs">{item.data.meeting_url && <a className="underline" href={safeHref(item.data.meeting_url)} target="_blank" rel="noreferrer">Join meeting</a>}<Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => void setStatus(item.data.id, "cancelled")}>Cancel class</Button></div></li>
+             : <li key={item.data.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">1-to-1 · {item.data.topic}</p><p className="text-xs text-muted-foreground">{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} · {item.data.duration_min} min · {item.data.booked_by ? `Booked by ${item.data.booked_name || "student"}` : "Available"}</p><div className="mt-1 flex gap-3 text-xs">{item.data.meeting_url && <a className="underline" href={safeHref(item.data.meeting_url)} target="_blank" rel="noreferrer">Join meeting</a>}{!item.data.booked_by && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={async () => { const { error } = await supabase.from("meeting_slots").delete().eq("id", item.data.id).eq("trainer_id", userId); if (error) toast.error(error.message); else void qc.invalidateQueries({ queryKey: ["t-slots", userId] }); }}>Remove slot</Button>}</div></li>;
+           })}</ul>}
           <div className="space-y-2 rounded-lg border border-border bg-card p-4">
             <p className="text-sm font-medium">Schedule on this day</p>
             <select className={sel} value={f.slug || mine[0] || courses[0]!.slug} onChange={e => setF({ ...f, slug: e.target.value })}>{(mine.length ? courses.filter(c => mine.includes(c.slug)) : courses).map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select>

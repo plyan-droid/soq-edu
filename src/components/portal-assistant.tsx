@@ -74,10 +74,10 @@ function ThreadChat({
               <img src={logo.url} alt="SOQ" className="mx-auto size-14 object-contain" />
               <h3 className="mt-3 font-serif text-2xl text-primary">How can I help?</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Find a page, check your learning, or ask about your data.
+                 Ask about courses, funding, your learning, or where to go next.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-2">
-                {["Where are my courses?", "Show my progress", "Find the course calendar"].map(
+                 {["What is the attendance requirement?", "What does the AI course cover?", "Show my progress"].map(
                   (s) => (
                     <Button key={s} variant="outline" size="sm" onClick={() => send(s)}>
                       {s}

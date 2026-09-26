@@ -1,0 +1,1 @@
+CREATE POLICY "Org reads linked member profiles" ON public.profiles FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.org_members m WHERE m.org_id = auth.uid() AND lower(m.member_email) = lower(profiles.email)));

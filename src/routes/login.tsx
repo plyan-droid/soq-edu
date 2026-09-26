@@ -42,7 +42,7 @@ function Login() {
     const { data: u } = await supabase.auth.getUser();
     const { data } = u.user ? await supabase.from("user_roles").select("role").eq("user_id", u.user.id) : { data: [] };
     const roles = (data ?? []).map(r => r.role as string);
-    const to = roles.includes("admin") || roles.includes("staff") ? "/portal-admin" : roles.includes("trainer") ? "/trainer" : "/student-portal";
+    const to = roles.includes("admin") || roles.includes("staff") ? "/portal-admin" : roles.includes("trainer") ? "/trainer" : roles.includes("organization") ? "/business-portal" : "/student-portal";
     void navigate({ to });
   };
 

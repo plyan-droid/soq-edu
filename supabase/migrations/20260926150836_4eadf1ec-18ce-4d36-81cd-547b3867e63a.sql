@@ -1,0 +1,1 @@
+CREATE POLICY "Org reads member certificates" ON public.certificates FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.org_members m JOIN public.profiles p ON lower(p.email) = lower(m.member_email) WHERE m.org_id = auth.uid() AND m.member_role = 'student' AND p.id = certificates.student_id));

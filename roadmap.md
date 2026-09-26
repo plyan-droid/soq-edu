@@ -66,6 +66,7 @@
 - [x] Course bundles
 - [x] Form builder
 - [x] Certificate designer
+- [x] SOQ-branded certificate templates with official logo in the preview and issued PDFs
 - [x] Login history
 - [x] AI writer
 - [x] Simple referral scheme

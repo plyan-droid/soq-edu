@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { FeeBreakdown } from "@/components/fee-breakdown";
-import { CourseChat } from "@/components/course-chat";
+import { lazy as lazyLoad, Suspense as LazySuspense } from "react";
+import { ClientOnly as ChatClientOnly } from "@tanstack/react-router";
+const LazyCourseChat = lazyLoad(() => import("@/components/course-chat").then((m) => ({ default: m.CourseChat })));
+function CourseChat(props: { slug: string; title: string; onClose: () => void }) {
+  return <ChatClientOnly fallback={null}><LazySuspense fallback={null}><LazyCourseChat {...props} /></LazySuspense></ChatClientOnly>;
+}
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AddToCart } from "@/components/add-to-cart";
 import { Award, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock3, HelpCircle, Globe, GraduationCap, MapPin, MessageCircle, Share2, Star, Users } from "lucide-react";

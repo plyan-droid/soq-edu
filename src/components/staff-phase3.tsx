@@ -168,6 +168,26 @@ export function CertificateDesigner() {
   const qc = useQueryClient();
   const { data } = useCertDesign();
   const [f, setF] = useState<D | null>(null);
+  const [selected, setSelected] = useState("");
+  const [issued, setIssued] = useState<{ name: string; course: string; code: string; date: string } | null>(null);
+  const [issuing, setIssuing] = useState(false);
+  const { data: eligible = [] } = useQuery({ queryKey: ["certificate-eligible"], queryFn: async () => {
+    const [enrolments, passes, existing, profiles] = await Promise.all([
+      supabase.from("enrollments").select("student_id,course_slug,progress,status"),
+      supabase.from("quiz_attempts").select("student_id,quizzes!inner(course_slug,gives_certificate)").eq("passed", true).eq("quizzes.gives_certificate", true),
+      supabase.from("certificates").select("student_id,course_slug,status"),
+      supabase.from("profiles").select("id,full_name,email"),
+    ]);
+    const error = enrolments.error ?? passes.error ?? existing.error ?? profiles.error;
+    if (error) throw error;
+    const people = new Map((profiles.data ?? []).map(p => [p.id, p]));
+    const completed = (enrolments.data ?? []).filter(e => e.progress >= 100 || e.status === "completed").map(e => ({ student_id: e.student_id, course_slug: e.course_slug }));
+    const passed = (passes.data ?? []).map(a => ({ student_id: a.student_id, course_slug: a.quizzes.course_slug }));
+    return [...new Map([...completed, ...passed].map(row => [`${row.student_id}:${row.course_slug}`, row])).values()]
+      .filter(row => !(existing.data ?? []).some(c => c.student_id === row.student_id && c.course_slug === row.course_slug))
+      .map(row => ({ ...row, name: people.get(row.student_id)?.full_name || people.get(row.student_id)?.email || "", email: people.get(row.student_id)?.email || "" }))
+      .filter(row => row.name);
+  } });
   const d = f ?? data ?? null;
   if (!d) return null;
   const set = (k: keyof D, v: string) => setF({ ...d, [k]: v });
@@ -179,6 +199,25 @@ export function CertificateDesigner() {
     void qc.invalidateQueries({ queryKey: ["cert-design"] });
     toast.success("Certificate design saved");
   };
+  const issue = async () => {
+    const target = eligible.find(row => `${row.student_id}:${row.course_slug}` === selected);
+    if (!target) return;
+    setIssuing(true);
+    if (f) {
+      const { error } = await supabase.from("certificate_design").update({ ...d, updated_at: new Date().toISOString() }).eq("id", 1);
+      if (error) { setIssuing(false); return void toast.error(error.message); }
+      setF(null); void qc.invalidateQueries({ queryKey: ["cert-design"] });
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: cert, error } = await supabase.from("certificates").insert({ student_id: target.student_id, student_name: target.name, course_slug: target.course_slug, issued_on: today }).select("code,student_name,course_slug,issued_on").single();
+    setIssuing(false);
+    if (error || !cert) return void toast.error(error?.message ?? "Couldn't issue certificate");
+    setIssued({ name: cert.student_name, course: title(cert.course_slug), code: cert.code, date: cert.issued_on });
+    setSelected("");
+    void qc.invalidateQueries({ queryKey: ["certificate-eligible"] });
+    void qc.invalidateQueries({ queryKey: ["admin-certs"] });
+    toast.success(`Certificate ${cert.code} issued`);
+  };
   return <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]"><Box><H>Certificate designer</H>
     <div><p className="mb-2 text-sm font-medium">Template</p><div className="flex flex-wrap gap-2">{TEMPLATES.map(([k, l]) => <Button key={k} size="sm" variant={d.template === k ? "default" : "outline"} onClick={() => set("template", k)}>{l}</Button>)}</div></div>
     <label className="block text-sm">Heading<Input value={d.heading} onChange={e => set("heading", e.target.value)} /></label>
@@ -187,8 +226,14 @@ export function CertificateDesigner() {
     <label className="block text-sm">Signatory name<Input value={d.signatory} onChange={e => set("signatory", e.target.value)} placeholder="Signed by" /></label><label className="block text-sm">Signatory title<Input value={d.signatory_title} onChange={e => set("signatory_title", e.target.value)} placeholder="Their title" /></label>
     <p className="text-xs text-muted-foreground">The SOQ logo appears on every template. Confirm the authorised signatory before issuing certificates. Sample PDFs are marked as samples.</p>
     <label className="flex items-center gap-2 text-sm">Accent colour <input type="color" value={d.accent} onChange={e => set("accent", e.target.value)} /></label>
-    <div className="flex flex-wrap gap-2"><Button className="rounded-full" onClick={() => void save()}>Save design</Button><Button variant="outline" className="rounded-full" onClick={() => void downloadCertificatePdf(d, sample).catch(() => toast.error("Couldn't create the sample PDF"))}>Download sample PDF</Button></div></Box>
-    <CertificateView design={d} {...sample} /></div>;
+    <div className="flex flex-wrap gap-2"><Button className="rounded-full" onClick={() => void save()}>Save design</Button><Button variant="outline" className="rounded-full" onClick={() => void downloadCertificatePdf(d, sample).catch(() => toast.error("Couldn't create the sample PDF"))}>Download sample PDF</Button></div>
+    <div className="border-t border-border pt-5"><H>Issue a certificate</H><p className="mt-2 text-sm text-muted-foreground">Select a learner who completed a course or passed its certificate quiz. Only eligible learners without an issued certificate appear here.</p>
+      <select aria-label="Eligible learner and course" className={`${sel} mt-3 w-full`} value={selected} onChange={e => setSelected(e.target.value)}><option value="">Select learner and course…</option>{eligible.map(row => <option key={`${row.student_id}:${row.course_slug}`} value={`${row.student_id}:${row.course_slug}`}>{row.name} ({row.email}) · {title(row.course_slug)}</option>)}</select>
+      <Button className="mt-3" disabled={!selected || issuing} onClick={() => void issue()}>{issuing ? "Issuing…" : "Issue certificate"}</Button>
+      {eligible.length === 0 && <p className="mt-2 text-sm text-muted-foreground">No eligible completions awaiting a certificate.</p>}
+      {issued && <div className="mt-5 space-y-2 border-t border-border pt-4 text-sm"><p>Issued: <strong>{issued.code}</strong> · {issued.name}</p><Button variant="outline" onClick={() => void downloadCertificatePdf(d, issued).catch(() => toast.error("Couldn't create the PDF"))}>Download issued PDF</Button></div>}
+    </div></Box>
+    <CertificateView design={d} {...(issued ?? sample)} /></div>;
 }
 
 /* ---------- Login history ---------- */

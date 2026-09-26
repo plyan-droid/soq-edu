@@ -19,7 +19,11 @@ const pages = [
   ["Live classes and teaching slots", "/trainer", "trainer"],
   ["Quizzes, assignments and attendance", "/trainer", "trainer"],
   ["Reports (Overview)", "/portal-admin", "staff"],
-  ["Students, Course applications, Diploma admissions (Learners & admissions)", "/portal-admin", "staff"],
+  [
+    "Students, Course applications, Diploma admissions (Learners & admissions)",
+    "/portal-admin",
+    "staff",
+  ],
   ["PayNow & instalments, SkillsFuture Credit (Payments & funding)", "/portal-admin", "staff"],
   ["Users & roles (Site & settings)", "/portal-admin", "staff"],
   ["Support inbox, Noticeboard (Communications)", "/portal-admin", "staff"],
@@ -186,20 +190,25 @@ export async function handlePortalAgent(request: Request) {
     },
   });
   const readTrainerSchedule = tool({
-    description: "Read this trainer's own upcoming classes and course proposal statuses, never another trainer's records or private meeting URLs.",
+    description:
+      "Read this trainer's own upcoming classes and course proposal statuses, never another trainer's records or private meeting URLs.",
     inputSchema: z.object({ area: z.enum(["classes", "proposals"]) }),
     execute: async ({ area }) => {
       if (!trainer && !staff) return { error: "Trainer access required" };
       if (area === "classes") {
-        const { data, error } = await client.from("live_sessions")
+        const { data, error } = await client
+          .from("live_sessions")
           .select("title,course_slug,starts_at,status")
           .eq("trainer_id", userId)
-          .order("starts_at", { ascending: true }).limit(30);
+          .order("starts_at", { ascending: true })
+          .limit(30);
         return error ? { error: "Class schedule unavailable" } : { classes: data ?? [] };
       }
-      const { data, error } = await client.from("course_drafts")
+      const { data, error } = await client
+        .from("course_drafts")
         .select("title,status,created_at")
-        .eq("trainer_id", userId).limit(30);
+        .eq("trainer_id", userId)
+        .limit(30);
       return error ? { error: "Course proposals unavailable" } : { proposals: data ?? [] };
     },
   });

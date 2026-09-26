@@ -208,12 +208,13 @@ export function CertificateDesigner() {
     }
     const { data: cert, error } = await supabase.rpc("issue_completed_certificate", { _student_id: target.student_id, _course_slug: target.course_slug });
     setIssuing(false);
-    if (error || !cert) return void toast.error(error?.message ?? "Couldn't issue certificate");
-    setIssued({ name: cert.name, course: title(cert.course_slug), code: cert.code, date: cert.date });
+    if (error || !cert || typeof cert !== "object" || Array.isArray(cert)) return void toast.error(error?.message ?? "Couldn't issue certificate");
+    const result = cert as { name: string; course_slug: string; code: string; date: string };
+    setIssued({ name: result.name, course: title(result.course_slug), code: result.code, date: result.date });
     setSelected("");
     void qc.invalidateQueries({ queryKey: ["certificate-eligible"] });
     void qc.invalidateQueries({ queryKey: ["admin-certs"] });
-    toast.success(`Certificate ${cert.code} issued`);
+    toast.success(`Certificate ${result.code} issued`);
   };
   return <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]"><Box><H>Certificate designer</H>
     <div><p className="mb-2 text-sm font-medium">Template</p><div className="flex flex-wrap gap-2">{TEMPLATES.map(([k, l]) => <Button key={k} size="sm" variant={d.template === k ? "default" : "outline"} onClick={() => set("template", k)}>{l}</Button>)}</div></div>

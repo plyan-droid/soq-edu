@@ -37,6 +37,40 @@ export const demoLogin = createServerFn({ method: "POST" })
     return { ok: true as const, access_token: s.access_token, refresh_token: s.refresh_token };
   });
 
+const DEMO_STUDENTS = [
+  { email: "demo-student1@demo.com", name: "[DEMO] Aisha Rahman", slug: "ai-course-singapore", progress: 72 },
+  { email: "demo-student2@demo.com", name: "[DEMO] Benjamin Tan", slug: "ai-course-singapore", progress: 35 },
+  { email: "demo-student3@demo.com", name: "[DEMO] Chloe Lim", slug: "brand-management-and-storytelling", progress: 58 },
+  { email: "demo-student4@demo.com", name: "[DEMO] Daniel Ng", slug: "brand-management-and-storytelling", progress: 12 },
+  { email: "demo-student5@demo.com", name: "[DEMO] Priya Nair", slug: "certificate-in-eyebrow-embroidery", progress: 90 },
+  { email: "demo-student6@demo.com", name: "[DEMO] Marcus Wong", slug: "certificate-in-eyebrow-embroidery", progress: 5 },
+] as const;
+
+export const seedDemoStudents = createServerFn({ method: "POST" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: flag } = await supabaseAdmin.from("site_settings").select("value").eq("key", "demo_login").maybeSingle();
+  if (flag?.value !== true) return { ok: false as const, error: "Demo login is switched off." };
+
+  const today = new Date().toISOString().slice(0, 10);
+  let created = 0;
+  for (const s of DEMO_STUDENTS) {
+    const { data: prof } = await supabaseAdmin.from("profiles").select("id").eq("email", s.email).maybeSingle();
+    let id = prof?.id;
+    if (!id) {
+      const { data: c, error } = await supabaseAdmin.auth.admin.createUser({ email: s.email, password: "SoqDemo-student-2026!", email_confirm: true, user_metadata: { full_name: s.name } });
+      if (error || !c.user) continue;
+      id = c.user.id;
+      created++;
+    }
+    await supabaseAdmin.from("user_roles").upsert({ user_id: id, role: "student" as never }, { onConflict: "user_id,role", ignoreDuplicates: true });
+    const { data: en } = await supabaseAdmin.from("enrollments").select("id").eq("student_id", id).eq("course_slug", s.slug).maybeSingle();
+    if (!en) {
+      await supabaseAdmin.from("enrollments").insert({ student_id: id, course_slug: s.slug, progress: s.progress, status: "active", start_date: today });
+    }
+  }
+  return { ok: true as const, created, total: DEMO_STUDENTS.length };
+});
+
 export const demoDestination: Record<DemoRole, string> = {
   admin: "/portal-admin", staff: "/portal-admin", instructor: "/trainer", student: "/student-portal", organization: "/business-portal",
 };

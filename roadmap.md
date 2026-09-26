@@ -12,6 +12,10 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [ ] Issue an eligible learner's certificate from the designer and check its PDF branding (blocked until a learner completes a course or passes a certificate quiz)
+- [ ] Combine live classes and 1-to-1 slots in the trainer calendar
+- [ ] Answer site and course questions in the portal assistant
+- [ ] Build a dedicated partner business workspace
 - [x] Floating WhatsApp enquiry on public pages and a temporary signed-in portal assistant for navigation and permitted data summaries
 - [x] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
 - [x] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first

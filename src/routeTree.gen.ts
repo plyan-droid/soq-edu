@@ -48,6 +48,7 @@ import { Route as TrainersRouteImport } from './routes/trainers'
 import { Route as TutorFinderRouteImport } from './routes/tutor-finder'
 import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
 import { Route as ApiCourseChatRouteImport } from './routes/api/course-chat'
+import { Route as ApiPortalAgentRouteImport } from './routes/api/portal-agent'
 import { Route as CommunityIndexRouteImport } from './routes/community.index'
 import { Route as CommunityGuidelinesRouteImport } from './routes/community.guidelines'
 import { Route as CommunityMembersRouteImport } from './routes/community.members'
@@ -260,6 +261,11 @@ const ApiCourseChatRoute = ApiCourseChatRouteImport.update({
   path: '/api/course-chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPortalAgentRoute = ApiPortalAgentRouteImport.update({
+  id: '/api/portal-agent',
+  path: '/api/portal-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommunityIndexRoute = CommunityIndexRouteImport.update({
   id: '/community/',
   path: '/community/',
@@ -381,6 +387,7 @@ export interface FileRoutesByFullPath {
   '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
+  '/api/portal-agent': typeof ApiPortalAgentRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -437,6 +444,7 @@ export interface FileRoutesByTo {
   '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
+  '/api/portal-agent': typeof ApiPortalAgentRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -495,6 +503,7 @@ export interface FileRoutesById {
   '/tutor-finder': typeof TutorFinderRoute
   '/verify-certificate': typeof VerifyCertificateRoute
   '/api/course-chat': typeof ApiCourseChatRoute
+  '/api/portal-agent': typeof ApiPortalAgentRoute
   '/community/guidelines': typeof CommunityGuidelinesRoute
   '/community/members': typeof CommunityMembersRoute
   '/community/new': typeof CommunityNewRoute
@@ -554,6 +563,7 @@ export interface FileRouteTypes {
     | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
+    | '/api/portal-agent'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -610,6 +620,7 @@ export interface FileRouteTypes {
     | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
+    | '/api/portal-agent'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -667,6 +678,7 @@ export interface FileRouteTypes {
     | '/tutor-finder'
     | '/verify-certificate'
     | '/api/course-chat'
+    | '/api/portal-agent'
     | '/community/guidelines'
     | '/community/members'
     | '/community/new'
@@ -725,6 +737,7 @@ export interface RootRouteChildren {
   TutorFinderRoute: typeof TutorFinderRoute
   VerifyCertificateRoute: typeof VerifyCertificateRoute
   ApiCourseChatRoute: typeof ApiCourseChatRoute
+  ApiPortalAgentRoute: typeof ApiPortalAgentRoute
   CommunityGuidelinesRoute: typeof CommunityGuidelinesRoute
   CommunityMembersRoute: typeof CommunityMembersRoute
   CommunityNewRoute: typeof CommunityNewRoute
@@ -1015,6 +1028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCourseChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/portal-agent': {
+      id: '/api/portal-agent'
+      path: '/api/portal-agent'
+      fullPath: '/api/portal-agent'
+      preLoaderRoute: typeof ApiPortalAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/community/': {
       id: '/community/'
       path: '/community'
@@ -1194,6 +1214,7 @@ const rootRouteChildren: RootRouteChildren = {
   TutorFinderRoute: TutorFinderRoute,
   VerifyCertificateRoute: VerifyCertificateRoute,
   ApiCourseChatRoute: ApiCourseChatRoute,
+  ApiPortalAgentRoute: ApiPortalAgentRoute,
   CommunityGuidelinesRoute: CommunityGuidelinesRoute,
   CommunityMembersRoute: CommunityMembersRoute,
   CommunityNewRoute: CommunityNewRoute,

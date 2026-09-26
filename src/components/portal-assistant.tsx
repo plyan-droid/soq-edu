@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { BookOpen, MessageCircle, Plus, X } from "lucide-react";
+import { MessageCircle, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/soq-logo.png.asset.json";
@@ -45,8 +45,9 @@ function ThreadChat({ thread, onSave }: { thread: PortalThread; onSave: (id: str
 
 export function PortalAssistant() {
   const [open, setOpen] = useState(false);
-  const [threads, setThreads] = useState<PortalThread[]>(() => [{ id: crypto.randomUUID(), title: "New conversation", messages: [] }]);
-  const [active, setActive] = useState(() => threads[0]?.id ?? "");
+  const [threads, setThreads] = useState<PortalThread[]>([]);
+  const [active, setActive] = useState("");
+  useEffect(() => { if (threads.length === 0) { const id = crypto.randomUUID(); setThreads([{ id, title: "New conversation", messages: [] }]); setActive(id); } }, [threads.length]);
   const save = (id: string, messages: UIMessage[]) => setThreads(prev => prev.map(t => t.id === id && t.messages !== messages ? { ...t, messages, title: messages.find(m => m.role === "user")?.parts.filter(p => p.type === "text").map(p => p.text).join(" ").slice(0, 36) || t.title } : t));
   const current = threads.find(t => t.id === active) ?? threads[0];
   const create = () => { const id = crypto.randomUUID(); setThreads(prev => [...prev, { id, title: "New conversation", messages: [] }]); setActive(id); };

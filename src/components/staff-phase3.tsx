@@ -172,15 +172,22 @@ export function CertificateDesigner() {
   if (!d) return null;
   const set = (k: keyof D, v: string) => setF({ ...d, [k]: v });
   const sample = { name: "Jane Tan", course: courses[0]!.title, code: "SOQ-SAMPLE", date: new Date().toISOString() };
-  const save = async () => { await supabase.from("certificate_design").update({ heading: d.heading, subtitle: d.subtitle, body: d.body, signatory: d.signatory, signatory_title: d.signatory_title, accent: d.accent, template: d.template, updated_at: new Date().toISOString() }).eq("id", 1); void qc.invalidateQueries({ queryKey: ["cert-design"] }); toast.success("Certificate design saved"); };
+  const save = async () => {
+    const { error } = await supabase.from("certificate_design").update({ heading: d.heading, subtitle: d.subtitle, body: d.body, signatory: d.signatory, signatory_title: d.signatory_title, accent: d.accent, template: d.template, updated_at: new Date().toISOString() }).eq("id", 1);
+    if (error) { toast.error(error.message); return; }
+    setF(null);
+    void qc.invalidateQueries({ queryKey: ["cert-design"] });
+    toast.success("Certificate design saved");
+  };
   return <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]"><Box><H>Certificate designer</H>
-    <div><p className="mb-2 text-sm font-medium">Template</p><div className="flex gap-2">{TEMPLATES.map(([k, l]) => <button key={k} onClick={() => set("template", k)} className={`rounded-full border px-4 py-1.5 text-sm ${d.template === k ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{l}</button>)}</div></div>
+    <div><p className="mb-2 text-sm font-medium">Template</p><div className="flex flex-wrap gap-2">{TEMPLATES.map(([k, l]) => <Button key={k} size="sm" variant={d.template === k ? "default" : "outline"} onClick={() => set("template", k)}>{l}</Button>)}</div></div>
     <label className="block text-sm">Heading<Input value={d.heading} onChange={e => set("heading", e.target.value)} /></label>
     <label className="block text-sm">Line under the academy name<Input value={d.subtitle} onChange={e => set("subtitle", e.target.value)} /></label>
     <label className="block text-sm">Wording<Textarea value={d.body} onChange={e => set("body", e.target.value)} /></label><p className="text-xs text-muted-foreground">Use {"{name}"} and {"{course}"} — they're filled in for each student.</p>
-    <Input value={d.signatory} onChange={e => set("signatory", e.target.value)} placeholder="Signed by" /><Input value={d.signatory_title} onChange={e => set("signatory_title", e.target.value)} placeholder="Their title" />
+    <label className="block text-sm">Signatory name<Input value={d.signatory} onChange={e => set("signatory", e.target.value)} placeholder="Signed by" /></label><label className="block text-sm">Signatory title<Input value={d.signatory_title} onChange={e => set("signatory_title", e.target.value)} placeholder="Their title" /></label>
+    <p className="text-xs text-muted-foreground">The SOQ logo appears on every template. Confirm the authorised signatory before issuing certificates. Sample PDFs are marked as samples.</p>
     <label className="flex items-center gap-2 text-sm">Accent colour <input type="color" value={d.accent} onChange={e => set("accent", e.target.value)} /></label>
-    <div className="flex flex-wrap gap-2"><Button className="rounded-full" onClick={() => void save()}>Save design</Button><Button variant="outline" className="rounded-full" onClick={() => void downloadCertificatePdf(d, sample)}>Download sample PDF</Button></div></Box>
+    <div className="flex flex-wrap gap-2"><Button className="rounded-full" onClick={() => void save()}>Save design</Button><Button variant="outline" className="rounded-full" onClick={() => void downloadCertificatePdf(d, sample).catch(() => toast.error("Couldn't create the sample PDF"))}>Download sample PDF</Button></div></Box>
     <CertificateView design={d} {...sample} /></div>;
 }
 

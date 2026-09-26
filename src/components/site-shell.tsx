@@ -18,11 +18,12 @@ import {
   X,
   Youtube,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { contact } from "@/lib/site-content";
-import { PortalAssistant } from "@/components/portal-assistant";
+import { ClientOnly } from "@tanstack/react-router";
+const PortalAssistant = lazy(() => import("@/components/portal-assistant").then((m) => ({ default: m.PortalAssistant })));
 
 const nav = [
   { label: "Courses", to: "/courses" as const },
@@ -340,7 +341,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       </main>
       <SiteFooter />
       {portalPage && user ? (
-        <PortalAssistant key={user.id} />
+        <ClientOnly fallback={null}><Suspense fallback={null}><PortalAssistant key={user.id} /></Suspense></ClientOnly>
       ) : (
         !portalPage && (
           <a

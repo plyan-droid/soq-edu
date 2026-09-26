@@ -12,6 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Floating WhatsApp enquiry on public pages and a temporary signed-in portal assistant for navigation and permitted data summaries
 - [x] Student portal: sign-in, student dashboard (progress, deadlines, assessments), staff admin page
 - [x] Community portal like dev.to for the SOQ ecosystem (students, alumni, trainers, partners) — clarify scope with user first
 - [x] Course application form on each course page with on-screen confirmation; staff can view applications

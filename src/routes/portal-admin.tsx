@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { courses } from "@/lib/site-content";
 import { courseTitle, type Enrollment, type Task } from "@/components/student-dashboard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
@@ -32,9 +32,23 @@ export const Route = createFileRoute("/portal-admin")({
 type Profile = { id: string; email: string; full_name: string | null };
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
+const adminSections = [
+  { name: "Overview", items: [["reports", "Reports"]] },
+  { name: "Learners & admissions", items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
+  { name: "Courses & teaching", items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
+  { name: "Payments & funding", items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
+  { name: "Communications", items: [["inbox", "Support inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Site & settings", items: [["users", "Users & roles"], ["pages", "Pages"], ["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"], ["gov", "Gov & Xero links"], ["settings", "Settings"]] },
+] as const;
+type AdminSection = (typeof adminSections)[number];
+type AdminTool = AdminSection["items"][number][0];
+
 function Admin() {
   const { isAdmin, loading, user } = useAuth();
   const [studentId, setStudentId] = useState<string>("");
+  const [activeTool, setActiveTool] = useState<AdminTool>("reports");
+  const currentSection = adminSections.find(section => section.items.some(([id]) => id === activeTool)) ?? adminSections[0];
+  const currentLabel = currentSection.items.find(([id]) => id === activeTool)?.[1] ?? "Reports";
   const { data: students = [] } = useQuery({
     queryKey: ["admin-students"], enabled: isAdmin,
     queryFn: async () => ((await supabase.from("profiles").select("id,email,full_name").order("email")).data ?? []) as Profile[],
@@ -43,12 +57,45 @@ function Admin() {
   if (!isAdmin) return <div className="mx-auto max-w-7xl px-5 py-24"><h1 className="font-serif text-4xl text-primary">Staff only</h1><p className="mt-2 text-muted-foreground">This page is for SOQ staff accounts.</p><Button asChild className="mt-5 rounded-full"><Link to="/student-portal">Back to portal</Link></Button></div>;
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-      <h1 className="font-serif text-5xl text-primary">Staff admin</h1>
-      <Tabs defaultValue="reports" className="mt-6">
-        <TabsList className="h-auto flex-wrap justify-start">
-          {[["reports", "Reports"], ["students", "Students"], ["applications", "Course applications"], ["intakes", "Intakes"], ["certificates", "Certificates"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["inbox", "Support inbox"], ["reviews", "Reviews"], ["community", "Community members"], ["newsletter", "Newsletter"], ["users", "Users & roles"], ["sales", "Sales"], ["codes", "Discount codes"], ["pages", "Pages"], ["templates", "Message templates"], ["enrol", "Enrol students"], ["payments", "PayNow & instalments"], ["waitlist", "Waitlists"], ["notices", "Noticeboard"], ["bundles", "Bundles"], ["forms", "Forms"], ["certdesign", "Certificate design"], ["logins", "Login history"], ["ai", "AI writer"], ["referrals", "Referrals"], ["admissions", "Diploma admissions"], ["exemptions", "Exemptions"], ["sfc", "SkillsFuture Credit"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"], ["gov", "Gov & Xero links"], ["settings", "Settings"]].map(([v, l]) => <TabsTrigger key={v} value={v!}>{l}</TabsTrigger>)}
-        </TabsList>
+    <div className="mx-auto max-w-[92rem] px-5 py-8 lg:px-8 lg:py-10">
+      <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-10">
+        <aside className="min-w-0 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:pr-3" aria-label="Staff tools">
+          <div className="mb-5 border-b border-border pb-4">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">SOQ International Academy</p>
+            <p className="mt-1 font-serif text-3xl font-semibold text-primary">Staff workspace</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 lg:hidden">
+            <label className="min-w-0 text-xs font-medium text-muted-foreground">Section
+              <select className={`${sel} mt-1 w-full text-foreground`} value={currentSection.name} onChange={event => {
+                const section = adminSections.find(item => item.name === event.target.value);
+                if (section) setActiveTool(section.items[0][0]);
+              }}>
+                {adminSections.map(section => <option key={section.name} value={section.name}>{section.name}</option>)}
+              </select>
+            </label>
+            <label className="min-w-0 text-xs font-medium text-muted-foreground">Tool
+              <select className={`${sel} mt-1 w-full text-foreground`} value={activeTool} onChange={event => setActiveTool(event.target.value as AdminTool)}>
+                {currentSection.items.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+              </select>
+            </label>
+          </div>
+          <nav className="hidden space-y-5 lg:block" aria-label="Staff workspace navigation">
+            {adminSections.map(section => <div key={section.name}>
+              <h2 className="mb-1 px-3 text-xs font-semibold uppercase text-muted-foreground">{section.name}</h2>
+              <div className="grid gap-0.5">
+                {section.items.map(([id, label]) => <Button key={id} type="button" variant="ghost" aria-current={activeTool === id ? "page" : undefined} onClick={() => setActiveTool(id)} className={`h-auto min-h-9 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-sm shadow-none ${activeTool === id ? "bg-secondary font-semibold text-primary hover:bg-secondary" : "font-normal text-muted-foreground hover:text-foreground"}`}>
+                  <span>{label}</span>{activeTool === id && <ChevronRight className="size-4 shrink-0" aria-hidden="true" />}
+                </Button>)}
+              </div>
+            </div>)}
+          </nav>
+        </aside>
+        <main className="min-w-0">
+          <div className="border-b border-border pb-5">
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff workspace / {currentSection.name}</p>
+            <h1 className="mt-2 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentLabel}</h1>
+          </div>
+          <div className="min-w-0 pt-3">
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
           <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
@@ -91,6 +138,8 @@ function Admin() {
         <TabsContent value="whatsapp"><WhatsAppReminders /></TabsContent>
         <TabsContent value="leads"><LeadsAdmin /></TabsContent>
         <TabsContent value="gov"><IntegrationsStatus /></TabsContent>
+          </div>
+        </main>
       </Tabs>
     </div>
   );

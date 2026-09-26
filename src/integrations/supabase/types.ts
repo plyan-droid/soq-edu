@@ -2140,6 +2140,10 @@ export type Database = {
       }
       in_course: { Args: { _slug: string; _user: string }; Returns: boolean }
       is_top_admin: { Args: { _user_id: string }; Returns: boolean }
+      issue_completed_certificate: {
+        Args: { _course_slug: string; _student_id: string }
+        Returns: Json
+      }
       org_add_member: {
         Args: { _email: string; _role: string }
         Returns: string

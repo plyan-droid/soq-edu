@@ -26,7 +26,7 @@ import { PortalAssistant } from "@/components/portal-assistant";
 
 const nav = [
   { label: "Courses", to: "/courses" as const },
-  { label: "For Businesses", to: "/businesses" as const },
+  { label: "Businesses", to: "/businesses" as const },
   { label: "Funding", to: "/funding" as const },
   { label: "About SOQ", to: "/about" as const },
   { label: "Resources", to: "/resources" as const },
@@ -229,9 +229,6 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_1.2fr_1.3fr] lg:px-8">
         <div>
           <Brand size="lg" />
-          <p className="mt-4 font-script text-2xl text-primary-foreground/85">
-            Skills for People. Opportunities for Tomorrow.
-          </p>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15">
           <h2 className="text-sm font-semibold">Quick Links</h2>
@@ -239,23 +236,14 @@ export function SiteFooter() {
             <Link to="/courses">Courses</Link>
             <Link to="/recommend">Find My Course</Link>
             <Link to="/compare">Compare Courses</Link>
-            <Link to="/tutor-finder">Tutor Finder</Link>
-            <Link to="/book">Book a Trainer</Link>
-            <Link to="/events">Events</Link>
-            <Link to="/bundles">Course Bundles</Link>
-            <Link to="/noticeboard">Noticeboard</Link>
-            <Link to="/refer">Refer a Friend</Link>
             <Link to="/calendar">Course Calendar</Link>
-            <Link to="/login">Portal Log in</Link>
-            <Link to="/businesses">For Businesses</Link>
+            <Link to="/businesses">Businesses</Link>
             <Link to="/funding">Funding</Link>
             <Link to="/about">About SOQ</Link>
             <Link to="/resources">Resources</Link>
             <Link to="/teach">Teach at SOQ</Link>
-            <Link to="/live-classes">Live Classes</Link>
-            <Link to="/trainer">Trainer Dashboard</Link>
-            <Link to="/cart">Cart</Link>
             <Link to="/verify-certificate">Verify a Certificate</Link>
+            <Link to="/login">Portal Log in</Link>
           </div>
         </div>
         <div className="lg:border-r lg:border-primary-foreground/15 lg:pr-8">
@@ -292,10 +280,6 @@ export function SiteFooter() {
             ))}
           </div>
           <NewsletterSignup />
-          <p className="mt-8 -rotate-6 font-script text-3xl leading-tight text-primary-foreground/85">
-            A More Capable You,
-            <br />A Brighter Tomorrow
-          </p>
         </div>
       </div>
       <div className="border-t border-primary-foreground/10 px-5 py-5 text-center text-xs text-primary-foreground/45">

@@ -38,5 +38,5 @@ export const demoLogin = createServerFn({ method: "POST" })
   });
 
 export const demoDestination: Record<DemoRole, string> = {
-  admin: "/portal-admin", staff: "/portal-admin", instructor: "/trainer", student: "/student-portal", organization: "/student-portal",
+  admin: "/portal-admin", staff: "/portal-admin", instructor: "/trainer", student: "/student-portal", organization: "/business-portal",
 };

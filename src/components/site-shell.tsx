@@ -59,7 +59,7 @@ export function Brand({ size = "md" }: { size?: "md" | "lg"; light?: boolean }) 
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { user, isAdmin, isTrainer, loading } = useAuth();
+  const { user, isAdmin, isTrainer, isOrg, loading } = useAuth();
   const close = () => setOpen(false);
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur">
@@ -95,7 +95,7 @@ export function SiteHeader() {
                 Community
               </Link>
               <Link
-                to={isAdmin ? "/portal-admin" : isTrainer ? "/trainer" : "/student-portal"}
+                 to={isAdmin ? "/portal-admin" : isTrainer ? "/trainer" : isOrg ? "/business-portal" : "/student-portal"}
                 className="text-sm font-medium text-primary hover:text-brand-gold"
               >
                 My portal
@@ -161,7 +161,7 @@ export function SiteHeader() {
                   Community
                 </Link>
                 <Link
-                  to="/student-portal"
+                  to={isAdmin ? "/portal-admin" : isTrainer ? "/trainer" : isOrg ? "/business-portal" : "/student-portal"}
                   onClick={close}
                   className="rounded-md px-3 py-3 text-base hover:bg-muted"
                 >
@@ -322,7 +322,7 @@ export function SiteLayout({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useAuth();
   const portalPage =
-    /^\/(student-portal|portal-admin|trainer|staff-courses|learn\/|live-classes|community)(\/|$)/.test(
+    /^\/(student-portal|business-portal|portal-admin|trainer|staff-courses|learn\/|live-classes|community)(\/|$)/.test(
       pathname,
     );
   return (

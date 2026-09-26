@@ -1,4 +1,4 @@
-import { RequestStaffAccess, OrgRoster } from "@/components/staff-phase5";
+import { RequestStaffAccess } from "@/components/staff-phase5";
 import { useState } from "react";
 import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
 import { MyCertificates } from "@/components/certificate";
@@ -10,6 +10,7 @@ import { NoticesStrip, MyInstalments } from "@/components/learner-tools";
 import { ArrowRight, BookOpenCheck, CalendarClock, ClipboardCheck, FileText, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
+import { BusinessWorkspace } from "@/components/business-workspace";
 
 export const Route = createFileRoute("/student-portal")({
   head: () => ({
@@ -33,9 +34,8 @@ const features = [
 ];
 
 function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; email: string; isAdmin: boolean; isOrg: boolean }) {
-  const [active, setActive] = useState(isOrg ? "org" : "courses");
+  const [active, setActive] = useState("courses");
   const sections: WorkspaceSection[] = [
-    ...(isOrg ? [{ name: "My business", items: [{ id: "org", label: "Team & package", content: <OrgRoster /> }] }] : []),
     { name: "My learning", items: [
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },
       { id: "certs", label: "My certificates", content: <MyCertificates userId={userId} /> },
@@ -46,7 +46,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
     ] },
     ...(!isAdmin ? [{ name: "Account", items: [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] }] : []),
   ];
-  return <WorkspaceShell title="My portal" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
+  return isOrg ? <BusinessWorkspace userId={userId} /> : <WorkspaceShell title="My portal" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
 }
 
 function StudentPortal() {

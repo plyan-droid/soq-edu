@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
 import { TrainerQuizzes, TrainerAssignments, TrainerAttendance, TrainerNotices, TrainerStats, TrainerSlots } from "@/components/trainer-tools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -37,26 +37,35 @@ function TrainerPage() {
   if (loading) return <Wrap><p className="text-muted-foreground">Loading…</p></Wrap>;
   if (!user) return <Wrap><p className="text-muted-foreground">Please <Link to="/login" className="underline">log in</Link> first.</p></Wrap>;
   if (!isTrainer && !isAdmin) return <Wrap><p className="max-w-xl text-muted-foreground">This page is for SOQ trainers. Want to teach with us? <Link to="/teach" className="underline">Apply here</Link>. Once staff approve you, this dashboard opens.</p></Wrap>;
-  return (
-    <Wrap>
-      <Tabs defaultValue="overview">
-        <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview">Overview</TabsTrigger><TabsTrigger value="students">Students</TabsTrigger><TabsTrigger value="calendar">Calendar</TabsTrigger><TabsTrigger value="lessons">Lessons</TabsTrigger><TabsTrigger value="history">Lesson history</TabsTrigger><TabsTrigger value="live">Live classes</TabsTrigger><TabsTrigger value="quizzes">Quizzes</TabsTrigger><TabsTrigger value="assignments">Assignments</TabsTrigger><TabsTrigger value="attendance">Attendance</TabsTrigger><TabsTrigger value="notices">Notices</TabsTrigger><TabsTrigger value="stats">Stats</TabsTrigger><TabsTrigger value="slots">1-to-1 slots</TabsTrigger><TabsTrigger value="drafts">My course proposals</TabsTrigger></TabsList>
-        <TabsContent value="overview"><TrainerOverview userId={user.id} /></TabsContent>
-        <TabsContent value="students"><TrainerStudents userId={user.id} /></TabsContent>
-        <TabsContent value="calendar"><TrainerCalendar userId={user.id} /></TabsContent>
-        <TabsContent value="history"><TrainerLessonHistory userId={user.id} /></TabsContent>
-        <TabsContent value="lessons"><Lessons userId={user.id} isAdmin={isAdmin} /></TabsContent>
-        <TabsContent value="live"><Live userId={user.id} /></TabsContent>
-        <TabsContent value="quizzes"><TrainerQuizzes userId={user.id} isAdmin={isAdmin} /></TabsContent>
-        <TabsContent value="assignments"><TrainerAssignments userId={user.id} isAdmin={isAdmin} /></TabsContent>
-        <TabsContent value="attendance"><TrainerAttendance userId={user.id} /></TabsContent>
-        <TabsContent value="notices"><TrainerNotices userId={user.id} isAdmin={isAdmin} /></TabsContent>
-        <TabsContent value="stats"><TrainerStats userId={user.id} /></TabsContent>
-        <TabsContent value="slots"><TrainerSlots userId={user.id} /></TabsContent>
-        <TabsContent value="drafts">{isTrainer ? <Drafts userId={user.id} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p>}</TabsContent>
-      </Tabs>
-    </Wrap>
-  );
+  return <TrainerWorkspace userId={user.id} isAdmin={isAdmin} isTrainer={isTrainer} />;
+}
+
+function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAdmin: boolean; isTrainer: boolean }) {
+  const [active, setActive] = useState("overview");
+  const sections: WorkspaceSection[] = [
+    { name: "Overview", items: [
+      { id: "overview", label: "Overview", content: <TrainerOverview userId={userId} /> },
+      { id: "calendar", label: "Calendar", content: <TrainerCalendar userId={userId} /> },
+      { id: "stats", label: "Stats", content: <TrainerStats userId={userId} /> },
+    ] },
+    { name: "Teaching", items: [
+      { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
+      { id: "live", label: "Live classes", content: <Live userId={userId} /> },
+      { id: "history", label: "Lesson history", content: <TrainerLessonHistory userId={userId} /> },
+      { id: "slots", label: "1-to-1 slots", content: <TrainerSlots userId={userId} /> },
+    ] },
+    { name: "Students & assessment", items: [
+      { id: "students", label: "Students", content: <TrainerStudents userId={userId} /> },
+      { id: "attendance", label: "Attendance", content: <TrainerAttendance userId={userId} /> },
+      { id: "quizzes", label: "Quizzes", content: <TrainerQuizzes userId={userId} isAdmin={isAdmin} /> },
+      { id: "assignments", label: "Assignments", content: <TrainerAssignments userId={userId} isAdmin={isAdmin} /> },
+    ] },
+    { name: "Communication & courses", items: [
+      { id: "notices", label: "Notices", content: <TrainerNotices userId={userId} isAdmin={isAdmin} /> },
+      { id: "drafts", label: "My course proposals", content: isTrainer ? <Drafts userId={userId} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p> },
+    ] },
+  ];
+  return <WorkspaceShell title="Trainer workspace" sections={sections} active={active} onChange={setActive} />;
 }
 
 function Wrap({ children }: { children: React.ReactNode }) {

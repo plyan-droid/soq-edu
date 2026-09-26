@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 Staff Admin navigation groups existing tool IDs in one section definition on the portal page; this keeps desktop and mobile navigation synchronized without changing tool workflows.
+- Role dashboards (student portal, trainer) use the shared WorkspaceShell grouped sidebar; keeps navigation consistent with Staff admin.

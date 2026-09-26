@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { MessageCircle, Plus, X } from "lucide-react";
@@ -161,24 +161,15 @@ export function PortalAssistant() {
       setActive(id);
     }
   }, [threads.length]);
-  const save = (id: string, messages: UIMessage[]) =>
-    setThreads((prev) =>
-      prev.map((t) =>
-        t.id === id && t.messages !== messages
-          ? {
-              ...t,
-              messages,
-              title:
-                messages
-                  .find((m) => m.role === "user")
-                  ?.parts.filter((p) => p.type === "text")
-                  .map((p) => p.text)
-                  .join(" ")
-                  .slice(0, 36) || t.title,
-            }
-          : t,
-      ),
-    );
+  const save = useCallback((id: string, messages: UIMessage[]) =>
+    setThreads((prev) => {
+      if (prev.find(t => t.id === id)?.messages === messages) return prev;
+      return prev.map((t) => t.id === id ? {
+        ...t,
+        messages,
+        title: messages.find((m) => m.role === "user")?.parts.filter((p) => p.type === "text").map((p) => p.text).join(" ").slice(0, 36) || t.title,
+      } : t);
+    }), []);
   const current = threads.find((t) => t.id === active) ?? threads[0];
   const create = () => {
     const id = crypto.randomUUID();

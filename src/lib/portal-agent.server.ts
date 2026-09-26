@@ -62,7 +62,7 @@ export async function handlePortalAgent(request: Request) {
     .eq("user_id", userId);
   if (roleError) return new Response("Couldn't verify your account access.", { status: 403 });
   const roles = (roleRows ?? []).map((row) => row.role as string);
-  const staff = roles.includes("admin") || roles.includes("staff");
+  const staff = roles.includes("admin");
   const trainer = roles.includes("trainer");
   const availablePages = pages.filter(
     ([, , access]) =>

@@ -13,6 +13,7 @@ const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 type Roster = { enrollment_id: string; course_slug: string; student_name: string; student_email: string; progress: number; status: string; start_date: string | null; end_date: string | null; lessons_done: number };
 type MeetingSlot = { id: string; topic: string; starts_at: string; duration_min: number; booked_by: string | null; booked_name: string | null; meeting_url: string | null };
+type CalendarItem = { kind: "class"; data: LiveSession } | { kind: "slot"; data: MeetingSlot };
 
 export function useTrainerCourses(userId: string) {
   return useQuery({ queryKey: ["t-courses", userId], queryFn: async () => ((await supabase.from("trainer_courses").select("course_slug").eq("trainer_id", userId)).data ?? []).map(r => r.course_slug as string) });
@@ -156,15 +157,14 @@ export function TrainerCalendar({ userId }: { userId: string }) {
   const [day, setDay] = useState<string | null>(null);
   const [f, setF] = useState({ slug: "", title: "", time: "10:00", duration_min: "60", meeting_url: "" });
   const byDay = useMemo(() => {
-    const m = new Map<string, { kind: "class"; data: LiveSession }[] | { kind: "slot"; data: MeetingSlot }[]>();
-    const add = (startsAt: string, item: { kind: "class"; data: LiveSession } | { kind: "slot"; data: MeetingSlot }) => {
+    const m = new Map<string, CalendarItem[]>();
+    const add = (startsAt: string, item: CalendarItem) => {
       const k = dayKey(new Date(startsAt));
-      const items = m.get(k) ?? [];
-      m.set(k, [...items, item] as typeof items);
+      m.set(k, [...(m.get(k) ?? []), item]);
     };
     sessions.filter(s => s.status !== "cancelled").forEach(s => add(s.starts_at, { kind: "class", data: s }));
     slots.forEach(s => add(s.starts_at, { kind: "slot", data: s }));
-    for (const [k, items] of m) m.set(k, [...items].sort((a, b) => a.data.starts_at.localeCompare(b.data.starts_at)) as typeof items);
+    for (const [k, items] of m) m.set(k, [...items].sort((a, b) => a.data.starts_at.localeCompare(b.data.starts_at)));
     return m;
   }, [sessions, slots]);
   const first = (month.getDay() + 6) % 7; const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();

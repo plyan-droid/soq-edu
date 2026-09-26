@@ -53,6 +53,8 @@ function Team({ userId, role }: { userId: string; role: "student" | "instructor"
   const qc = useQueryClient();
   const { data, isPending, error } = useBusiness(userId);
   const [email, setEmail] = useState("");
+  const [bulk, setBulk] = useState("");
+  const [showBulk, setShowBulk] = useState(false);
   const [busy, setBusy] = useState(false);
   if (isPending) return <p className="py-8 text-muted-foreground">Loading team…</p>;
   if (error || !data) return <p role="alert" className="py-8 text-destructive">Couldn't load your team.</p>;
@@ -66,9 +68,26 @@ function Team({ userId, role }: { userId: string; role: "student" | "instructor"
     setBusy(false);
     if (err) toast.error(err.message); else { setEmail(""); refresh(); toast.success("Member added"); }
   };
+  const addBulk = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const addresses = [...new Set(bulk.split(/[\s,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean))];
+    if (!addresses.length || addresses.some(s => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))) return void toast.error("Enter valid email addresses, separated by commas or new lines.");
+    setBusy(true);
+    let added = 0;
+    for (const address of addresses) {
+      const { error: err } = await supabase.rpc("org_add_member", { _email: address, _role: role });
+      if (err) { toast.error(`${address}: ${err.message}`); break; }
+      added++;
+    }
+    setBusy(false); refresh();
+    if (added) toast.success(`${added} ${role}${added === 1 ? "" : "s"} added`);
+    if (added === addresses.length) { setBulk(""); setShowBulk(false); }
+    else setBulk(addresses.slice(added).join("\n"));
+  };
   return <div className="mt-6 space-y-7">
     <div className="border-b border-border pb-5"><p className="text-sm text-muted-foreground">{members.length} of {cap} {role} seats used{expired ? " · Package expired" : ""}</p><div className="mt-2 h-2 w-full max-w-lg bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${cap ? Math.min(100, members.length / cap * 100) : 0}%` }} /></div></div>
     <form onSubmit={e => void add(e)} className="flex max-w-xl flex-wrap gap-2"><Input type="email" required aria-label={`${role} email`} placeholder={`${role === "student" ? "Student" : "Instructor"} email address`} value={email} onChange={e => setEmail(e.target.value)} className="min-w-48 flex-1" /><Button type="submit" disabled={!data.pkg || expired || members.length >= cap || busy}>Add {role}</Button></form>
+    <div><Button type="button" variant="link" className="p-0" onClick={() => setShowBulk(!showBulk)}>{showBulk ? "Hide bulk add" : "Add several by email"}</Button>{showBulk && <form onSubmit={e => void addBulk(e)} className="mt-3 max-w-xl space-y-2"><label htmlFor={`bulk-${role}`} className="text-sm font-medium">Email addresses (one per line or comma-separated)</label><textarea id={`bulk-${role}`} value={bulk} onChange={e => setBulk(e.target.value)} className="min-h-28 w-full rounded-md border border-input bg-background p-3 text-sm" placeholder="person1@example.com&#10;person2@example.com" /><Button type="submit" disabled={!data.pkg || expired || members.length >= cap || busy}>Add team members</Button><p className="text-xs text-muted-foreground">Package seat limits are checked for every member. Adding someone links their existing SOQ account by email; it does not create an account or send an invitation.</p></form>}</div>
     {!data.pkg && <p className="text-sm text-muted-foreground">SOQ staff must assign a package before you can add team members.</p>}
     {members.length ? <ul className="divide-y divide-border border-t border-border">{members.map(member => {
       const rows = data.roster.filter(r => r.member_email === member.member_email && r.course_slug);

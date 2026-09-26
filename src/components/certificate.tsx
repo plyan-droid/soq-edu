@@ -80,11 +80,17 @@ export async function downloadCertificatePdf(d: CertDesign, c: { name: string; c
   if (d.template === "heritage") { pdf.setLineWidth(0.25); pdf.rect(12, 12, W - 24, H - 24); }
   const logoImage = await logoData();
   pdf.addImage(logoImage, "PNG", modern ? 41 : W / 2 - 19, 15, 38, 38);
-  const line = (s: string, y: number, font: "times" | "helvetica", style: "normal" | "bold", size: number, color: [number, number, number], width = 230) => {
-    pdf.setFont(font, style); pdf.setFontSize(size); pdf.setTextColor(...color);
+  const line = (s: string, y: number, font: "times" | "helvetica", style: "normal" | "bold", size: number, color: [number, number, number], width = 230, maxLines = 1) => {
+    pdf.setFont(font, style); pdf.setTextColor(...color);
+    let fitted = size;
+    pdf.setFontSize(fitted);
     let lines = pdf.splitTextToSize(s, width) as string[];
-    if (lines.length > 2) { pdf.setFontSize(size * 0.82); lines = pdf.splitTextToSize(s, width) as string[]; }
-    pdf.text(lines.slice(0, 3), x, y, { align: textAlign, lineHeightFactor: 1.1 });
+    while (lines.length > maxLines && fitted > 7) {
+      fitted -= 0.5;
+      pdf.setFontSize(fitted);
+      lines = pdf.splitTextToSize(s, width) as string[];
+    }
+    pdf.text(lines, x, y, { align: textAlign, lineHeightFactor: 1.1 });
   };
   line("SOQ INTERNATIONAL ACADEMY", 55, "helvetica", "bold", 9, navy);
   line(d.subtitle, 61, "helvetica", "normal", 8, [90, 96, 105]);
@@ -92,7 +98,7 @@ export async function downloadCertificatePdf(d: CertDesign, c: { name: string; c
   line(d.heading, 83, "times", "bold", 27, navy, 225);
   line("PRESENTED TO", 96, "helvetica", "normal", 8, [90, 96, 105]);
   line(c.name, 111, "times", "bold", 30, navy, 210);
-  line(wording(d.body, c.name, c.course), 124, "helvetica", "normal", 11, navy, 208);
+  line(wording(d.body, c.name, c.course), 124, "helvetica", "normal", 11, navy, 208, 4);
   const sx = modern ? 46 : 40;
   pdf.setDrawColor(...acc); pdf.line(sx, 170, sx + 67, 170);
   pdf.setFont("helvetica", "bold"); pdf.setFontSize(9); pdf.setTextColor(...navy); pdf.text(d.signatory, sx, 176);

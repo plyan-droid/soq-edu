@@ -11,6 +11,7 @@ import { courses } from "@/lib/site-content";
 type Member = { id: string; member_email: string; member_role: string };
 type RosterRow = { member_email: string; full_name: string | null; course_slug: string | null; progress: number | null; status: string | null };
 type Package = { name: string; student_seats: number; instructor_seats: number; expires_on: string | null };
+type TeamCertificate = { student_id: string | null; student_name: string; course_slug: string; code: string; issued_on: string; status: string };
 const courseName = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const date = (value: string) => new Date(`${value.slice(0, 10)}T12:00:00`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" });
 
@@ -107,12 +108,31 @@ function TeamProgress({ userId }: { userId: string }) {
   }) : <p className="text-sm text-muted-foreground">Add students to your team to track their learning.</p>}</div>;
 }
 
+function TeamCertificates({ userId }: { userId: string }) {
+  const { data, isPending, error } = useQuery({ queryKey: ["business-certificates", userId], queryFn: async () => {
+    const members = await supabase.from("org_members").select("member_email,member_role").eq("org_id", userId);
+    if (members.error) throw members.error;
+    const emails = (members.data ?? []).filter(m => m.member_role === "student").map(m => m.member_email);
+    if (!emails.length) return [] as TeamCertificate[];
+    const people = await supabase.from("profiles").select("id,email").in("email", emails);
+    if (people.error) throw people.error;
+    const ids = (people.data ?? []).map(p => p.id);
+    if (!ids.length) return [] as TeamCertificate[];
+    const certs = await supabase.from("certificates").select("student_id,student_name,course_slug,code,issued_on,status").in("student_id", ids).order("issued_on", { ascending: false });
+    if (certs.error) throw certs.error;
+    return certs.data as TeamCertificate[];
+  } });
+  if (isPending) return <p className="py-8 text-muted-foreground">Loading team certificates…</p>;
+  if (error) return <p role="alert" className="py-8 text-destructive">Couldn't load team certificates.</p>;
+  return <div className="mt-6">{data?.length ? <ul className="divide-y divide-border border-t border-border">{data.map(c => <li key={c.code} className="flex flex-wrap items-center justify-between gap-3 py-4 text-sm"><div><p className="font-medium">{c.student_name} · {courseName(c.course_slug)}</p><p className="text-muted-foreground">{c.code} · {date(c.issued_on)} · {c.status}</p></div><Button asChild size="sm" variant="outline"><Link to="/verify-certificate" search={{ code: c.code }}>Verify</Link></Button></li>)}</ul> : <p className="text-sm text-muted-foreground">No certificates have been issued for your linked students yet.</p>}</div>;
+}
+
 export function BusinessWorkspace({ userId }: { userId: string }) {
   const [active, setActive] = useState("overview");
   const sections: WorkspaceSection[] = [
     { name: "Business", items: [{ id: "overview", label: "Overview", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }, { id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
     { name: "Team", items: [{ id: "members", label: "Students", content: <Team userId={userId} role="student" /> }, { id: "instructors", label: "Instructors", content: <Team userId={userId} role="instructor" /> }] },
-    { name: "Learning", items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }] },
+    { name: "Learning", items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }, { id: "certificates", label: "Team certificates", content: <TeamCertificates userId={userId} /> }] },
   ];
   return <WorkspaceShell title="Business workspace" sections={sections} active={active} onChange={setActive} />;
 }

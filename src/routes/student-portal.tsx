@@ -1,4 +1,6 @@
 import { RequestStaffAccess, OrgRoster } from "@/components/staff-phase5";
+import { useState } from "react";
+import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
 import { MyCertificates } from "@/components/certificate";
 import { MySkillsFuture } from "@/components/skillsfuture";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -30,10 +32,27 @@ const features = [
   { icon: FileText, title: "SOQ staff", text: "Applications, enrolments, payments and site settings." },
 ];
 
+function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; email: string; isAdmin: boolean; isOrg: boolean }) {
+  const [active, setActive] = useState(isOrg ? "org" : "courses");
+  const sections: WorkspaceSection[] = [
+    ...(isOrg ? [{ name: "My business", items: [{ id: "org", label: "Team & package", content: <OrgRoster /> }] }] : []),
+    { name: "My learning", items: [
+      { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },
+      { id: "certs", label: "My certificates", content: <MyCertificates userId={userId} /> },
+    ] },
+    { name: "Payments & funding", items: [
+      { id: "pay", label: "Instalments", content: <MyInstalments userId={userId} /> },
+      { id: "sfc", label: "SkillsFuture Credit", content: <MySkillsFuture userId={userId} email={email} /> },
+    ] },
+    ...(!isAdmin ? [{ name: "Account", items: [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] }] : []),
+  ];
+  return <WorkspaceShell title="My portal" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
+}
+
 function StudentPortal() {
   const { user, isAdmin, isOrg, loading } = useAuth();
   if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
-  if (user) return <><NoticesStrip />{isOrg && <OrgRoster />}<StudentDashboard userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} /><MyInstalments userId={user.id} /><MyCertificates userId={user.id} /><MySkillsFuture userId={user.id} email={user.email ?? ""} />{!isAdmin && <div className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><RequestStaffAccess userId={user.id} email={user.email ?? ""} /></div>}</>;
+  if (user) return <MemberWorkspace userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} isOrg={isOrg} />;
   return (
     <>
       <section className="bg-brand-navy text-primary-foreground">

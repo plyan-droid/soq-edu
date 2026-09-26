@@ -258,7 +258,7 @@ export async function handlePortalAgent(request: Request) {
       const { data, error } = await client.rpc("org_roster");
       if (error) return { error: "Business progress unavailable" };
       const studentEmails = new Set(students.map(m => m.member_email.toLowerCase()));
-      const rows = (data ?? []).filter(r => r.course_slug && studentEmails.has(r.member_email.toLowerCase()));
+      const rows = ((data ?? []) as { member_email: string; course_slug: string | null; progress: number | null; status: string | null }[]).filter(r => r.course_slug && studentEmails.has(r.member_email.toLowerCase()));
       return { seats, enrolments: rows.length, completed: rows.filter(r => r.status === "completed" || (r.progress ?? 0) >= 100).length, averageProgress: rows.length ? Math.round(rows.reduce((sum, r) => sum + (r.progress ?? 0), 0) / rows.length) : null, note: "Only linked SOQ enrolments are included. Progress is not a funding or completion eligibility determination." };
     },
   });

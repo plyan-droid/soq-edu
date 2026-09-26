@@ -11,3 +11,4 @@
 
 Staff Admin navigation groups existing tool IDs in one section definition on the portal page; this keeps desktop and mobile navigation synchronized without changing tool workflows.
 - Role dashboards (student portal, trainer) use the shared WorkspaceShell grouped sidebar; keeps navigation consistent with Staff admin.
+- The portal assistant uses a signed-in server route with read-only, account-scoped data tools and keeps separate conversations only in page memory; this prevents cross-user disclosures and clears chats on refresh.

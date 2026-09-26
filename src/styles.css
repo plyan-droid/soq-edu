@@ -66,6 +66,8 @@
   --color-brand-gold: var(--brand-gold);
   --color-brand-gold-soft: var(--brand-gold-soft);
   --color-brand-cream: var(--brand-cream);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
 }
 
 :root {
@@ -93,6 +95,8 @@
   --brand-gold: oklch(0.77 0.13 82);
   --brand-gold-soft: oklch(0.93 0.055 83);
   --brand-cream: oklch(0.975 0.022 83);
+  --whatsapp: oklch(0.69 0.18 151);
+  --whatsapp-foreground: oklch(1 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);

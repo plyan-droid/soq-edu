@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +46,22 @@ type AdminTool = AdminSection["items"][number][0];
 function Admin() {
   const { isAdmin, loading, user } = useAuth();
   const [studentId, setStudentId] = useState<string>("");
-  const [activeTool, setActiveTool] = useState<AdminTool>("reports");
+  const [activeTool, setToolState] = useState<AdminTool>("reports");
+  const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
+  // Keep the open tool in the address bar (?tool=) so refresh, Back and shared links work.
+  useEffect(() => {
+    const sync = () => { const t = new URLSearchParams(window.location.search).get("tool"); if (isTool(t)) setToolState(t); };
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const setActiveTool = (id: AdminTool) => {
+    setToolState(id);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("tool") !== id) { url.searchParams.set("tool", id); window.history.pushState(window.history.state, "", url); }
+    window.scrollTo({ top: 0 });
+  };
   const currentSection = adminSections.find(section => section.items.some(([id]) => id === activeTool)) ?? adminSections[0];
   const currentLabel = currentSection.items.find(([id]) => id === activeTool)?.[1] ?? "Reports";
   const { data: students = [] } = useQuery({

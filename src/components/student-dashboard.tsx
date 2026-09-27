@@ -32,16 +32,9 @@ export function StudentDashboard({ userId, email, isAdmin }: { userId: string; e
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-script text-3xl text-brand-gold">Welcome back</p>
-          <h1 className="font-serif text-5xl text-primary">My learning</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-        </div>
-        <div className="flex gap-2">
-          {isAdmin && <Button asChild variant="outline" className="rounded-full"><Link to="/portal-admin"><Settings /> Staff admin</Link></Button>}
-          <Button variant="ghost" className="rounded-full" onClick={() => void supabase.auth.signOut()}><LogOut /> Sign out</Button>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">Signed in as {email}</p>
+        {isAdmin && <Button asChild variant="outline" className="rounded-full"><Link to="/portal-admin"><Settings /> Staff admin</Link></Button>}
       </div>
 
       {!isLoading && data && (

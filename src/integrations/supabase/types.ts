@@ -2160,6 +2160,89 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_conversations: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          customer_phone: string
+          id: string
+          last_message_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone: string
+          id?: string
+          last_message_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          customer_phone?: string
+          id?: string
+          last_message_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      whatsapp_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          delivery_error: Json | null
+          delivery_status: string | null
+          direction: string
+          id: string
+          media_id: string | null
+          media_type: string | null
+          provider_message_id: string | null
+          provider_timestamp: string | null
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          conversation_id: string
+          created_at?: string
+          delivery_error?: Json | null
+          delivery_status?: string | null
+          direction: string
+          id?: string
+          media_id?: string | null
+          media_type?: string | null
+          provider_message_id?: string | null
+          provider_timestamp?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          delivery_error?: Json | null
+          delivery_status?: string | null
+          direction?: string
+          id?: string
+          media_id?: string | null
+          media_type?: string | null
+          provider_message_id?: string | null
+          provider_timestamp?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

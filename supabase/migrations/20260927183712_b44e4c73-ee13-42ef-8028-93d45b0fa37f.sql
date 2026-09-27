@@ -1,0 +1,4 @@
+CREATE POLICY "Staff view WhatsApp conversations" ON public.whatsapp_conversations FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'staff'));
+CREATE POLICY "Staff view WhatsApp messages" ON public.whatsapp_messages FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'staff'));
+CREATE POLICY "Staff view contact enquiries" ON public.support_tickets FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'staff'));
+CREATE POLICY "Staff update contact enquiries" ON public.support_tickets FOR UPDATE TO authenticated USING (public.has_role(auth.uid(), 'staff')) WITH CHECK (public.has_role(auth.uid(), 'staff'));

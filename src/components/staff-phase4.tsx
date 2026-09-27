@@ -217,6 +217,7 @@ export function LeadsAdmin() {
 
 /* ---------- Government / accounting connections (placeholders) ---------- */
 const LINKS = [
+  ["WhatsApp Business", "Bring real customer conversations into Staff → Messages and reply from the inbox. The sample conversations are not real messages.", "Connect SOQ's WhatsApp Business account in Lovable, then choose this project under Incoming messages after the receiver has been set up. No messages are sent automatically."],
   ["TPGateway (SSG)", "Send course runs, enrolments, attendance and assessments to SkillsFuture Singapore.", "SOQ's TPGateway API access and digital certificate from SSG."],
   ["Grant checks", "Check a learner's funding eligibility and submit grant claims automatically.", "SSG grant API access (comes with TPGateway)."],
   ["Singpass / Corppass", "Let learners sign in and fill in forms with MyInfo; companies sign in with Corppass.", "A Singpass partner app registration under SOQ's UEN."],

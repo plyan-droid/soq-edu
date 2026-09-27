@@ -321,10 +321,6 @@ export function LearningOversight() {
       return rows;
     },
   });
-  const { data: subs = [] } = useQuery({
-    queryKey: ["admin-assignments"],
-    select: () => undefined,
-  });
   const { data: quizList = [] } = useQuery({
     queryKey: ["admin-quizzes"],
     queryFn: async () => {

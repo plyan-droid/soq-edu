@@ -403,7 +403,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Who Will Benefit From This Course",
    "items": [
     "This course is designed for individuals who wish to develop a strong understanding of colour theory and its practical application in beauty, cosmetics, and retail environments. It is ideal for:",
-    "Beauty Advisors & Makeup Artists – who want to enhance their ability to choose and recommend suitable colours for different skin tones and client preferences.",
+    "Beauty Advisers & Makeup Artists – who want to enhance their ability to choose and recommend suitable colours for different skin tones and client preferences.",
     "Retail & Visual Merchandising Staff – who aim to use colour coordination effectively to create appealing displays and product presentations.",
     "Fashion & Image Consultants – who wish to deepen their knowledge of colour harmony, emotion, and cultural meanings.",
     "Skincare & Wellness Professionals – who want to understand how colour affects mood, comfort, and customer perception.",
@@ -3458,7 +3458,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This course is suitable for anyone passionate about beauty, wellness, and client care — whether you’re new to the field or already working in the industry. It’s ideal for:",
     "Individuals looking to switch into the beauty care industry and gain essential product advisory skills.",
     "Professionals seeking to enhance their consultation and product recommendation techniques.",
-    "Beauty Care Product Consultants & Advisors who aiming to deepen their product knowledge and improve customer engagement.",
+    "Beauty Care Product Consultants & Advisers who aiming to deepen their product knowledge and improve customer engagement.",
     "Anyone who wants to learn how to maintain their own beauty and wellness effectively.",
     "Welcoming both male and female learners, with or without prior experience."
    ]
@@ -3471,7 +3471,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Learn how to analyse customer needs, recommend suitable products, and deliver effective advice.",
     "Practise demonstrating and introducing products professionally to build customer trust.",
     "Develop advisory and sales closure techniques through interactive role play sessions.",
-    "Gain valuable skills that enhance your credibility as a beauty consultant or advisor.",
+    "Gain valuable skills that enhance your credibility as a beauty consultant or adviser.",
     "Designed for all levels, combining theory, demonstration, and practical learning for an engaging experience."
    ]
   },

@@ -464,7 +464,7 @@ const baseCourses: Course[] = [
     price: "From $150",
     badge: "WSQ",
     image: serviceImage,
-    outcomes: ["Enhance your expertise in beauty care products and customer consultation", "Learn how to identify client needs, recommend suitable products, and present them professionally to boost trust and sales", "This practical course also covers communication, product demonstration, and sales closure techniques — empowering you to become a confident, knowledgeable beauty advisor who elevates both customer experience and brand image"],
+    outcomes: ["Enhance your expertise in beauty care products and customer consultation", "Learn how to identify client needs, recommend suitable products, and present them professionally to boost trust and sales", "This practical course also covers communication, product demonstration, and sales closure techniques — empowering you to become a confident, knowledgeable beauty adviser who elevates both customer experience and brand image"],
   },
   {
     slug: "vtct-skills-itec-level-3-diploma-in-fashion-theatre-and-media-make-up",

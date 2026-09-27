@@ -1,9 +1,10 @@
-import { StartHere, PageSkeleton } from "@/components/start-here";
+import { StartHere, PageSkeleton, EmptyState } from "@/components/start-here";
 import { PendingSeatRequests, SessionRequests } from "@/components/session-bookings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Home, CalendarDays, BookOpen, Users, UserRound } from "lucide-react";
+import { TutorProfileEditor } from "@/components/tutor-profile-editor";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,34 +46,30 @@ function TrainerPage() {
 function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAdmin: boolean; isTrainer: boolean }) {
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
-    { name: "Overview", items: [
-      { id: "start", label: "Start here", content: <StartHere role="trainer" userId={userId} onNavigate={setActive} greeting="Welcome to your teaching space. Here are the things trainers do most." cards={[
-        { tool: "live", title: "Live classes", text: "Schedule a class and confirm students' seat requests." },
-        { tool: "lessons", title: "Lessons", text: "Add notes, videos and materials to your courses." },
-        { tool: "students", title: "My students", text: "See each learner's progress and who needs a nudge." },
-        { tool: "calendar", title: "Calendar", text: "Your upcoming classes and bookings in one view." },
-        { tool: "quizzes", title: "Quizzes", text: "Build and mark assessments." },
-        { tool: "slots", title: "1-to-1 sessions", text: "Offer paid or free private tutoring times." },
-      ]} /> },
-      { id: "overview", label: "Overview", content: <TrainerOverview userId={userId} /> },
-      { id: "calendar", label: "Calendar", content: <TrainerCalendar userId={userId} /> },
-      { id: "stats", label: "Stats", content: <TrainerStats userId={userId} /> },
+    { name: "Home", icon: Home, items: [
+      { id: "start", label: "Home", content: <StartHere role="trainer" userId={userId} onNavigate={setActive} greeting="Welcome to your teaching space. Pick what you want to do, or follow the set-up steps." /> },
     ] },
-    { name: "Teaching", items: [
-      { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
+    { name: "Classes", icon: CalendarDays, items: [
       { id: "live", label: "Live classes", content: <Live userId={userId} /> },
-      { id: "history", label: "Lesson history", content: <TrainerLessonHistory userId={userId} /> },
-      { id: "slots", label: "1-to-1 slots", content: <TrainerSlots userId={userId} /> },
+      { id: "calendar", label: "Calendar view", content: <TrainerCalendar userId={userId} /> },
+      { id: "slots", label: "1-to-1 sessions", content: <TrainerSlots userId={userId} /> },
+      { id: "history", label: "Past lessons", content: <TrainerLessonHistory userId={userId} /> },
     ] },
-    { name: "Students & assessment", items: [
-      { id: "students", label: "Students", content: <TrainerStudents userId={userId} /> },
-      { id: "attendance", label: "Attendance", content: <TrainerAttendance userId={userId} /> },
+    { name: "Courses", icon: BookOpen, items: [
+      { id: "overview", label: "My courses", content: <TrainerOverview userId={userId} /> },
+      { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
       { id: "quizzes", label: "Quizzes", content: <TrainerQuizzes userId={userId} isAdmin={isAdmin} /> },
       { id: "assignments", label: "Assignments", content: <TrainerAssignments userId={userId} isAdmin={isAdmin} /> },
+      { id: "drafts", label: "Propose a course", content: isTrainer ? <Drafts userId={userId} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p> },
     ] },
-    { name: "Communication & courses", items: [
+    { name: "Students", icon: Users, items: [
+      { id: "students", label: "Progress", content: <TrainerStudents userId={userId} /> },
+      { id: "attendance", label: "Attendance", content: <TrainerAttendance userId={userId} /> },
       { id: "notices", label: "Notices", content: <TrainerNotices userId={userId} isAdmin={isAdmin} /> },
-      { id: "drafts", label: "My course proposals", content: isTrainer ? <Drafts userId={userId} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p> },
+      { id: "stats", label: "Stats", content: <TrainerStats userId={userId} /> },
+    ] },
+    { name: "Profile", icon: UserRound, items: [
+      { id: "profile", label: "Public profile", content: <TutorProfileEditor /> },
     ] },
   ];
   return <WorkspaceShell title="Trainer workspace" sections={sections} active={active} onChange={setActive} />;
@@ -113,7 +110,7 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
       </div>
       <div>
         <h2 className="font-serif text-2xl text-primary">{courseName(slug)}</h2>
-        {data.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No lessons yet.</p> : (
+        {data.length === 0 ? <EmptyState text="No lessons for this course yet. Add a title and notes on the left to create the first one." /> : (
           <ol className="mt-3 space-y-2">{data.map((l, i) => (
             <li key={l.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</span>
               {(l.created_by === userId || isAdmin) && <button onClick={() => void del(l.id)} aria-label="Delete lesson"><Trash2 className="size-4 text-muted-foreground" /></button>}</li>))}</ol>
@@ -144,7 +141,7 @@ function Live({ userId }: { userId: string }) {
         <Input placeholder="Meeting link (Zoom, Google Meet, Teams)" value={f.meeting_url} onChange={e => setF({ ...f, meeting_url: e.target.value })} />
         <Button className="rounded-full" onClick={() => void add()}>Schedule class</Button>
       </div>
-      <div className="space-y-3"><PendingSeatRequests userId={userId} /><ul className="space-y-2">{data.length === 0 ? <p className="text-sm text-muted-foreground">No live classes yet.</p> : data.map(s => (
+      <div className="space-y-3"><PendingSeatRequests userId={userId} /><ul className="space-y-2">{data.length === 0 ? <EmptyState text="No live classes yet. Use the form to schedule your first one — students can then request a seat." /> : data.map(s => (
         <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
           {s.status !== "cancelled" && <button className="mt-1 text-xs underline" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</button>}{s.status !== "cancelled" && <SessionRequests sessionId={s.id} />}</li>))}</ul></div>
     </div>

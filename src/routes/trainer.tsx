@@ -72,7 +72,7 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
       { id: "profile", label: "Public profile", content: <TutorProfileEditor /> },
     ] },
   ];
-  return <WorkspaceShell title="Trainer workspace" sections={sections} active={active} onChange={setActive} />;
+  return <WorkspaceShell title="Trainer Dashboard" sections={sections} active={active} onChange={setActive} />;
 }
 
 function Wrap({ children }: { children: React.ReactNode }) {

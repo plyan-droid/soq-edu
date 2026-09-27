@@ -69,10 +69,10 @@ function Admin() {
   return (
     <div className="mx-auto max-w-[92rem] px-5 pb-28 pt-6 lg:px-8 lg:py-10">
       <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10">
-        <WorkspaceNav title="Staff workspace" sections={visibleSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
+        <WorkspaceNav title="Staff Dashboard" sections={visibleSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
         <main className="min-w-0">
           <div>
-            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff workspace</p>
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff Dashboard</p>
             <h1 className="mt-1 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentSection.name}</h1>
             <WorkspaceTabs items={currentSection.items} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           </div>

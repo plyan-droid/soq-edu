@@ -53,7 +53,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
       ...(!isAdmin ? [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] : []),
     ] },
   ];
-  return isOrg ? <BusinessWorkspace userId={userId} /> : <WorkspaceShell title="My portal" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
+  return isOrg ? <BusinessWorkspace userId={userId} /> : <WorkspaceShell title="Student Dashboard" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
 }
 
 function StudentPortal() {

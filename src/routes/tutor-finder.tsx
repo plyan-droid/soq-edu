@@ -88,7 +88,7 @@ function TutorFinder() {
               </li>))}</ul>}
           </div>
         )}
-        {user && (isTrainer || isAdmin) && <p className="mt-10 text-center text-sm text-muted-foreground">Want to change your listing? Open <Link to="/trainer" search={{ tool: "profile" } as never} className="underline">Trainer workspace → Profile</Link>.</p>}
+        {user && (isTrainer || isAdmin) && <p className="mt-10 text-center text-sm text-muted-foreground">Want to change your listing? Open <Link to="/trainer" search={{ tool: "profile" } as never} className="underline">Trainer Dashboard → Profile</Link>.</p>}
         {!user && <p className="mt-10 text-center text-sm text-muted-foreground">Are you an SOQ trainer? <Link to="/login" className="underline">Log in</Link> to list yourself here.</p>}
       </section>
     </>

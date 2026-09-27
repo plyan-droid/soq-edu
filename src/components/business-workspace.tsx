@@ -137,5 +137,5 @@ export function BusinessWorkspace({ userId }: { userId: string }) {
     { name: "Progress", icon: TrendingUp, items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }, { id: "certificates", label: "Certificates", content: <TeamCertificates userId={userId} /> }] },
     { name: "Package", icon: Package, items: [{ id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
   ];
-  return <WorkspaceShell title="Business workspace" sections={sections} active={active} onChange={setActive} aliases={{ overview: "start" }} />;
+  return <WorkspaceShell title="Business Dashboard" sections={sections} active={active} onChange={setActive} aliases={{ overview: "start" }} />;
 }

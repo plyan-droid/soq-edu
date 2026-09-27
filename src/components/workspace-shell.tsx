@@ -30,7 +30,7 @@ export function useToolParam(isValid: (id: string) => boolean, setActive: (id: s
 export function WorkspaceNav({ title, sections, section, onChange }: { title: string; sections: readonly NavSection[]; section: string; onChange: (id: string) => void }) {
   const [more, setMore] = useState(false);
   // Lets floating buttons (WhatsApp, assistant) sit above the phone bottom bar.
-  useEffect(() => { document.body.dataset.workspace = "1"; return () => { delete document.body.dataset.workspace; }; }, []);
+  useEffect(() => { document.body.setAttribute("data-workspace", "1"); return () => document.body.removeAttribute("data-workspace"); }, []);
   const overflow = sections.length > 5;
   const bar = overflow ? sections.slice(0, 4) : sections;
   const rest = overflow ? sections.slice(4) : [];

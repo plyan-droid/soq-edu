@@ -54,7 +54,7 @@ function Admin() {
   const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
   const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
-  const ownerToolIds = new Set(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0]));
+  const ownerToolIds = new Set<string>(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0] as string));
   const visibleSections = isTopAdmin ? adminSections : adminSections.filter(s => s.name !== "Owner");
   const ownerLocked = !isTopAdmin && ownerToolIds.has(activeTool as string);
   const currentSection = visibleSections.find(section => section.items.some(([id]) => id === activeTool)) ?? visibleSections[0];

@@ -154,7 +154,8 @@ export function CommunityModeration() {
     await toastErr(error, hidden ? "Hidden from members" : "Restored"); refresh();
   };
   const setVerified = async (id: string, verified: boolean) => {
-    const { error } = await supabase.from("community_profiles").update({ verified, verified_at: verified ? new Date().toISOString() : null, verified_by: verified ? (await supabase.auth.getUser()).data.user?.id : null }).eq("id", id);
+    const uid = verified ? (await supabase.auth.getUser()).data.user?.id ?? null : null;
+    const { error } = await supabase.from("community_profiles").update({ verified, verified_at: verified ? new Date().toISOString() : null, verified_by: uid }).eq("id", id);
     await toastErr(error, verified ? "Badge granted" : "Badge removed"); refresh();
   };
   if (!posts) return <ListSkeleton />;
@@ -267,7 +268,8 @@ export function EventsAdmin() {
   const [f, setF] = useState({ title: "", description: "", starts: "", location: "", url: "", capacity: "50" });
   const create = async () => {
     if (!f.title || !f.starts || !f.location) return;
-    const { error } = await supabase.from("events").insert({ title: f.title, description: f.description, starts_at: new Date(f.starts).toISOString(), location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 50 });
+    const uid = (await supabase.auth.getUser()).data.user?.id ?? "";
+    const { error } = await supabase.from("events").insert({ title: f.title, description: f.description, starts_at: new Date(f.starts).toISOString(), location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 50, created_by: uid });
     await toastErr(error, "Event created"); if (!error) { setF({ ...f, title: "", description: "", starts: "" }); refresh(); }
   };
   const remove = async (id: string) => {
@@ -328,7 +330,7 @@ export function LearningOversight() {
       return rows;
     },
   });
-  const { data: quizList = [] } = useQuery({
+  const { data: quizList = { quizzes: [], attempts: [] } } = useQuery({
     queryKey: ["admin-quizzes"],
     queryFn: async () => {
       const quizzes = ((await supabase.from("quizzes").select("*").order("course_slug")).data ?? []) as Quiz[];
@@ -365,14 +367,17 @@ export function LearningOversight() {
         const bySession = new Map<string, Att[]>();
         attendance.forEach(r => { const list = bySession.get(r.session_id) ?? []; list.push(r); bySession.set(r.session_id, list); });
         return (
-          <Table head={["Class", "When", "Present", "Absent", "Excused"]}>{[...bySession.entries()].map(([sid, rows]) => (
+          <Table head={["Class", "When", "Present", "Absent", "Excused"]}>{[...bySession.entries()].map(([sid, rows]) => {
+            const meta = rows[0]?.live_sessions ?? null;
+            return (
             <tr key={sid} className="border-t border-border">
-              <td className={td}>{rows[0].live_sessions?.title ?? "Class"}<div className="text-xs text-muted-foreground">{courseTitle(rows[0].live_sessions?.course_slug ?? "")}</div></td>
-              <td className={td}>{rows[0].live_sessions ? fmtDateTime(rows[0].live_sessions.starts_at) : "—"}</td>
+              <td className={td}>{meta?.title ?? "Class"}<div className="text-xs text-muted-foreground">{meta ? courseTitle(meta.course_slug) : ""}</div></td>
+              <td className={td}>{meta ? fmtDateTime(meta.starts_at) : "—"}</td>
               <td className={td}>{rows.filter(r => r.status === "present").length}</td>
               <td className={td}>{rows.filter(r => r.status === "absent").length}</td>
               <td className={td}>{rows.filter(r => r.status === "excused").length}</td>
-            </tr>))}</Table>);
+            </tr>);
+          })}</Table>);
       })()}
     </div>
   );

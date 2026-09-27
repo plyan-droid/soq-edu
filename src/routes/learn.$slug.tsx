@@ -107,7 +107,8 @@ function LearnPage() {
               {(data?.live.length ?? 0) === 0 ? <p className="mt-2 text-sm text-muted-foreground">No live classes scheduled.</p> : (
                 <ul className="mt-3 space-y-3">{data!.live.map(s => (
                   <li key={s.id} className="text-sm"><p className="font-medium">{s.title}</p><p className="text-muted-foreground">{fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
-                    {s.meeting_url && <a href={safeHref(s.meeting_url)} target="_blank" rel="noreferrer" className="text-primary underline">Join class</a>}</li>))}</ul>
+                    {s.meeting_url && <a href={safeHref(s.meeting_url)} target="_blank" rel="noreferrer" className="text-primary underline">Join class</a>}
+                    {user && <SessionBookButton sessionId={s.id} userId={user.id} startsAt={s.starts_at} />}</li>))}</ul>
               )}
             </div>
           </aside>

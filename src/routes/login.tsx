@@ -11,9 +11,9 @@ export const Route = createFileRoute("/login")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional(), next: z.string().regex(/^\/[a-z0-9\-\/]*$/).optional() }),
   head: () => ({
     meta: [
-      { title: "Student Sign In | SOQ International Academy" },
+      { title: "Portal Sign In | SOQ International Academy" },
       { name: "description", content: "Sign in to your SOQ student account with a one-time email code or your password." },
-      { property: "og:title", content: "SOQ Student Sign In" },
+      { property: "og:title", content: "SOQ Portal Sign In" },
       { property: "og:description", content: "Access your SOQ student portal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -21,5 +21,5 @@ function BusinessPortal() {
   const { user, isOrg, loading } = useAuth();
   if (loading) return <PageSkeleton />;
   if (user && isOrg) return <BusinessWorkspace userId={user.id} />;
-  return <div className="mx-auto max-w-7xl px-5 py-20"><h1 className="font-serif text-4xl text-primary">Business workspace</h1><p className="mt-3 text-muted-foreground">{user ? "This workspace is available to partner business accounts." : "Sign in with your partner business account to manage your team."}</p><Button asChild className="mt-6"><Link to={user ? "/student-portal" : "/login"}>{user ? "My portal" : "Sign in"}</Link></Button></div>;
+  return <div className="mx-auto max-w-7xl px-5 py-20"><h1 className="font-serif text-4xl text-primary">Business Dashboard</h1><p className="mt-3 text-muted-foreground">{user ? "This workspace is available to partner business accounts." : "Sign in with your partner business account to manage your team."}</p><Button asChild className="mt-6"><Link to={user ? "/student-portal" : "/login"}>{user ? "My portal" : "Sign in"}</Link></Button></div>;
 }

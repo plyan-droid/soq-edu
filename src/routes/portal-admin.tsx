@@ -80,6 +80,8 @@ function Admin() {
             {ownerLocked && <div className="rounded-lg border border-border bg-card p-8"><h2 className="font-serif text-2xl text-primary">Owner only</h2><p className="mt-2 text-muted-foreground">This area is for SOQ owner accounts. Ask an admin if you need something here.</p></div>}
         <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} onNavigate={id => setActiveTool(id as AdminTool)} greeting="Here's what needs your attention today. Anything urgent is shown first." /></TabsContent>
         <TabsContent value="reports"><Reports /></TabsContent>
+        <TabsContent value="live-classes"><LiveClassesOversight /></TabsContent>
+        <TabsContent value="events"><EventsAdmin /></TabsContent>
         <TabsContent value="students">
           <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
           <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
@@ -96,6 +98,7 @@ function Admin() {
         <TabsContent value="trainers"><TrainerApplications /></TabsContent>
         <TabsContent value="drafts"><CourseDraftsReview /></TabsContent>
         <TabsContent value="inbox"><StaffMessages /></TabsContent>
+        <TabsContent value="moderation"><CommunityModeration /></TabsContent>
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
         <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>
@@ -106,6 +109,8 @@ function Admin() {
         <TabsContent value="templates"><TemplatesEditor /></TabsContent>
         <TabsContent value="settings"><SettingsHub /></TabsContent>
         <TabsContent value="enrol"><ManualEnrol /></TabsContent>
+        <TabsContent value="orgs"><OrganisationsAdmin /></TabsContent>
+        <TabsContent value="learning"><LearningOversight /></TabsContent>
         <TabsContent value="payments"><BankPayments /></TabsContent>
         <TabsContent value="waitlist"><WaitlistAdmin /></TabsContent>
         <TabsContent value="notices"><NoticeboardAdmin /></TabsContent>

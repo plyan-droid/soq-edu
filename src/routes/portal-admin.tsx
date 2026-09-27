@@ -126,7 +126,7 @@ function Admin() {
         <TabsContent value="whatsapp"><WhatsAppReminders /></TabsContent>
         <TabsContent value="leads"><LeadsAdmin /></TabsContent>
         <TabsContent value="gov"><IntegrationsStatus /></TabsContent>
-        </>)}
+        </div>)}
           </div>
         </main>
       </Tabs>

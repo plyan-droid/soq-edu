@@ -1,3 +1,5 @@
+import { StartHere, PageSkeleton } from "@/components/start-here";
+import { MobileNav } from "@/components/workspace-shell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -33,7 +35,7 @@ type Profile = { id: string; email: string; full_name: string | null };
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 const adminSections = [
-  { name: "Overview", items: [["reports", "Reports"]] },
+  { name: "Overview", items: [["start", "Start here"], ["reports", "Reports"]] },
   { name: "Learners & admissions", items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses & teaching", items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Payments & funding", items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
@@ -46,7 +48,7 @@ type AdminTool = AdminSection["items"][number][0];
 function Admin() {
   const { isAdmin, loading, user } = useAuth();
   const [studentId, setStudentId] = useState<string>("");
-  const [activeTool, setToolState] = useState<AdminTool>("reports");
+  const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
   // Keep the open tool in the address bar (?tool=) so refresh, Back and shared links work.
   useEffect(() => {
@@ -68,7 +70,7 @@ function Admin() {
     queryKey: ["admin-students"], enabled: isAdmin,
     queryFn: async () => ((await supabase.from("profiles").select("id,email,full_name").order("email")).data ?? []) as Profile[],
   });
-  if (loading) return <div className="mx-auto max-w-7xl px-5 py-24">Loading…</div>;
+  if (loading) return <PageSkeleton />;
   if (!isAdmin) return <div className="mx-auto max-w-7xl px-5 py-24"><h1 className="font-serif text-4xl text-primary">Staff only</h1><p className="mt-2 text-muted-foreground">This page is for SOQ staff accounts.</p><Button asChild className="mt-5 rounded-full"><Link to="/student-portal">Back to portal</Link></Button></div>;
 
   return (
@@ -79,21 +81,7 @@ function Admin() {
             <p className="text-xs font-semibold uppercase text-muted-foreground">SOQ International Academy</p>
             <p className="mt-1 font-serif text-3xl font-semibold text-primary">Staff workspace</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
-            <label className="min-w-0 text-xs font-medium text-muted-foreground">Section
-              <select className={`${sel} mt-1 w-full text-foreground`} value={currentSection.name} onChange={event => {
-                const section = adminSections.find(item => item.name === event.target.value);
-                if (section) setActiveTool(section.items[0][0]);
-              }}>
-                {adminSections.map(section => <option key={section.name} value={section.name}>{section.name}</option>)}
-              </select>
-            </label>
-            <label className="min-w-0 text-xs font-medium text-muted-foreground">Tool
-              <select className={`${sel} mt-1 w-full text-foreground`} value={activeTool} onChange={event => setActiveTool(event.target.value as AdminTool)}>
-                {currentSection.items.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-              </select>
-            </label>
-          </div>
+          <MobileNav sections={adminSections} section={currentSection.name} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           <nav className="hidden space-y-1 lg:block" aria-label="Staff workspace navigation">
             {adminSections.map(section => <div key={section.name}>
               <Button type="button" variant="ghost" aria-expanded={currentSection.name === section.name} onClick={() => setActiveTool(section.items[0][0])} className={`h-auto min-h-10 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-xs font-semibold uppercase shadow-none ${currentSection.name === section.name ? "text-primary" : "text-muted-foreground"}`}>
@@ -113,6 +101,14 @@ function Admin() {
             <h1 className="mt-2 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentLabel}</h1>
           </div>
           <div className="min-w-0 pt-3">
+        <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} onNavigate={id => setActiveTool(id as AdminTool)} greeting="Here's what needs your attention today. Pick a task below or use the menu." cards={[
+          { tool: "applications", title: "Course applications", text: "New sign-ups waiting for approval and enrolment." },
+          { tool: "payments", title: "Payments", text: "PayNow receipts and instalments to confirm." },
+          { tool: "students", title: "Students", text: "Look up a learner's courses, progress and results." },
+          { tool: "enrol", title: "Enrol students", text: "Add learners one by one or from a spreadsheet." },
+          { tool: "notices", title: "Noticeboard", text: "Post an announcement all students will see." },
+          { tool: "reports", title: "Reports", text: "Sales, enrolments and completion at a glance." },
+        ]} /></TabsContent>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
           <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>

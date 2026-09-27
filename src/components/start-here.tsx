@@ -28,12 +28,11 @@ async function loadSteps(role: StartRole, userId: string): Promise<StartStep[]> 
   if (role === "trainer") {
     const [live, slots, profile] = await Promise.all([
       count(supabase.from("live_sessions").select("id", head).eq("trainer_id", userId)),
-      count(supabase.from("meeting_slots").select("id", head).eq("tutor_id", userId)),
+      count(supabase.from("meeting_slots").select("id", head).eq("trainer_id", userId)),
       count(supabase.from("tutor_profiles").select("user_id", head).eq("user_id", userId)),
     ]);
     return [
       { label: "Fill in your public tutor listing", done: profile > 0, tool: "slots" },
-      { label: "Add lessons to a course", done: live > 0, tool: "lessons" },
       { label: "Schedule a live class", done: live > 0, tool: "live" },
       { label: "Offer 1-to-1 time slots", done: slots > 0, tool: "slots" },
     ];
@@ -52,7 +51,7 @@ async function loadSteps(role: StartRole, userId: string): Promise<StartStep[]> 
   }
   const [apps, pay] = await Promise.all([
     count(supabase.from("course_applications").select("id", head).eq("status", "new")),
-    count(supabase.from("sfc_claims").select("id", head).eq("status", "pending")),
+    count(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
   ]);
   return [
     { label: apps ? `Review ${apps} new course application${apps === 1 ? "" : "s"}` : "No new course applications", done: apps === 0, tool: "applications" },

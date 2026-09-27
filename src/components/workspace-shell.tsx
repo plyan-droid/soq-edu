@@ -4,7 +4,19 @@ import { Button } from "@/components/ui/button";
 
 export type WorkspaceSection = { name: string; items: { id: string; label: string; content: ReactNode }[] };
 
-const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground";
+/** Mobile: tappable section and page chips (swipe sideways) instead of dropdowns. */
+export function MobileNav({ sections, section, active, onChange }: { sections: { name: string; items: [string, string][] }[]; section: string; active: string; onChange: (id: string) => void }) {
+  const cur = sections.find(s => s.name === section) ?? sections[0]!;
+  const chip = (on: boolean) => `shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm transition ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground"}`;
+  return <div className="space-y-2 lg:hidden">
+    <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" role="tablist" aria-label="Sections">
+      {sections.map(s => <button key={s.name} type="button" role="tab" aria-selected={s.name === cur.name} className={chip(s.name === cur.name)} onClick={() => onChange(s.items[0]![0])}>{s.name}</button>)}
+    </div>
+    {cur.items.length > 1 && <div className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" aria-label="Pages">
+      {cur.items.map(([id, label]) => <button key={id} type="button" aria-current={id === active ? "page" : undefined} className={`shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm ${id === active ? "bg-secondary font-semibold text-primary" : "text-muted-foreground"}`} onClick={() => onChange(id)}>{label}</button>)}
+    </div>}
+  </div>;
+}
 
 /** Grouped sidebar (desktop) + section/tool selectors (mobile), shared by role dashboards. */
 export function WorkspaceShell({ title, sections, active, onChange: setActive, top }: { title: string; sections: WorkspaceSection[]; active: string; onChange: (id: string) => void; top?: ReactNode }) {
@@ -33,18 +45,7 @@ export function WorkspaceShell({ title, sections, active, onChange: setActive, t
             <p className="text-xs font-semibold uppercase text-muted-foreground">SOQ International Academy</p>
             <p className="mt-1 font-serif text-3xl font-semibold text-primary">{title}</p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:hidden">
-            <label className="min-w-0 text-xs font-medium text-muted-foreground">Section
-              <select className={`${sel} mt-1`} value={current.name} onChange={e => { const s = sections.find(x => x.name === e.target.value); if (s) onChange(s.items[0]!.id); }}>
-                {sections.map(s => <option key={s.name}>{s.name}</option>)}
-              </select>
-            </label>
-            <label className="min-w-0 text-xs font-medium text-muted-foreground">Page
-              <select className={`${sel} mt-1`} value={item.id} onChange={e => onChange(e.target.value)}>
-                {current.items.map(i => <option key={i.id} value={i.id}>{i.label}</option>)}
-              </select>
-            </label>
-          </div>
+          <MobileNav sections={sections.map(x => ({ name: x.name, items: x.items.map(i => [i.id, i.label] as [string, string]) }))} section={current.name} active={item.id} onChange={onChange} />
           <nav className="hidden space-y-1 lg:block">
             {sections.map(s => {
               const open = s.name === current.name;

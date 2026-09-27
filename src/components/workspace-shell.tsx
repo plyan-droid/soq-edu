@@ -41,9 +41,6 @@ export function WorkspaceNav({ title, sections, section, onChange }: { title: st
   const moreActive = rest.some(s => s.name === section);
   return <>
     <aside className="hidden min-w-0 lg:sticky lg:top-28 lg:block lg:self-start" aria-label={title}>
-      <div className="mb-5 border-b border-border pb-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">SOQ International Academy</p>
-      </div>
       <nav className="grid gap-1">
         {sections.map(s => { const on = s.name === section; const Icon = s.icon; return (
           <button key={s.name} type="button" aria-current={on ? "page" : undefined} onClick={() => onChange(s.items[0]![0])}

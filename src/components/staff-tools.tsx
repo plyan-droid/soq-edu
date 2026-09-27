@@ -401,7 +401,6 @@ export function SettingsHub() {
       <div className={box}><p className="font-serif text-2xl text-primary">General</p>
         <label className="text-sm">Timezone<select className={`${sel} mt-1 w-full`} value={zone} onChange={e => setTz(e.target.value)}>{["Asia/Singapore", "Asia/Kuala_Lumpur", "Asia/Jakarta", "Asia/Hong_Kong", "UTC"].map(z => <option key={z}>{z}</option>)}</select></label>
         <Button onClick={() => void put("general", { timezone: zone })}>Save</Button></div>
-      <div className={box}><p className="font-serif text-2xl text-primary">Payments</p><p className="text-sm text-muted-foreground">Checkout is in test mode — no money is taken. Real card payments can be switched on later.</p></div>
       <SecuritySettings data={data} put={put} box={box} />
     </div>
   );

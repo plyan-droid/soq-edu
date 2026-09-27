@@ -83,7 +83,8 @@ function CartPage() {
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8">
       <h1 className="font-serif text-5xl text-primary">Your cart</h1>
-      <p className="mt-3 rounded-md bg-brand-gold-soft px-4 py-3 text-sm text-primary">Test mode: checkout is pretend and no money is taken. Monthly-fee courses charge the first month.</p>
+      <p className="mt-3 text-sm text-muted-foreground">Monthly-fee courses charge the first month.</p>
+
 
       {bankDone ? (
         <div className="mt-8 rounded-lg border border-border bg-card p-8 text-center">

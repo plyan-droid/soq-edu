@@ -237,12 +237,12 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
         <Input className="ml-auto max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
       </div>
       <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const top = data.tops.has(u.id); const trainer = data.trainers.has(u.id); const org = data.orgs.has(u.id); return (
-        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[top ? "Admin" : admin && "Staff", trainer && "Trainer", org && "Organization"].filter(Boolean).join(", ") || "Student"}</td>
+        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[top ? "Admin" : admin && "Staff", trainer && "Trainer", org && "Organisation"].filter(Boolean).join(", ") || "Student"}</td>
           <td className={`${td} flex flex-wrap gap-2`}>
             <Button size="sm" variant="outline" onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</Button>
             {u.id !== selfId && !top && <Button size="sm" variant="outline" onClick={() => void toggle(u, "staff", admin)}>{admin ? "Remove staff" : "Make staff"}</Button>}
             {u.id !== selfId && <Button size="sm" variant="outline" onClick={() => void toggle(u, "admin", top)}>{top ? "Remove Admin" : "Make Admin"}</Button>}
-            <Button size="sm" variant="outline" onClick={() => void toggle(u, "organization", org)}>{org ? "Remove organization" : "Make organization"}</Button>
+            <Button size="sm" variant="outline" onClick={() => void toggle(u, "organization", org)}>{org ? "Remove organisation" : "Make organisation"}</Button>
             <Button size="sm" variant="ghost" onClick={() => void reset(u)}>Send password reset</Button>
           </td></tr>); })}</Table>
     </div>

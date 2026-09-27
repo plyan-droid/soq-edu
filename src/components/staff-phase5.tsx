@@ -115,7 +115,7 @@ export function OrgRoster() {
   const course = (e: string) => roster.filter(x => x.member_email === e && x.course_slug).map(x => `${title(x.course_slug!)} · ${x.progress ?? 0}%`).join(", ");
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-5 py-10 lg:px-8">
-      <Box><H>Organization package</H>
+      <Box><H>Organisation package</H>
         {!pkg ? <p className="text-sm text-muted-foreground">No package yet. Ask SOQ staff to set up your seats.</p> :
           <div className="grid gap-3 text-sm sm:grid-cols-3">
             <p><b>{pkg.name}</b><span className="block text-muted-foreground">{pkg.expires_on ? `${expired ? "Expired" : "Valid until"} ${d(pkg.expires_on)}` : "No expiry"}</span></p>
@@ -149,13 +149,13 @@ function OrgPackageAdmin() {
   const [s, setS] = useState(10); const [i, setI] = useState(2); const [exp, setExp] = useState("");
   const save = async () => {
     const { data: p } = await supabase.from("profiles").select("id").ilike("email", org.trim()).maybeSingle();
-    if (!p) { toast.error("No account with that organization email"); return; }
+    if (!p) { toast.error("No account with that organisation email"); return; }
     const { error } = await supabase.from("org_packages" as never).upsert({ org_id: p.id, name, student_seats: s, instructor_seats: i, expires_on: exp || null, updated_at: new Date().toISOString() } as never);
     if (error) toast.error(error.message); else toast.success("Package saved");
   };
   const inp = "h-10 rounded-md border border-input bg-background px-3 text-sm";
   return (
-    <Box><H>Organization packages</H>
+    <Box><H>Organisation packages</H>
       <p className="text-sm text-muted-foreground">Set how many students and instructors a company can add itself, and until when.</p>
       <input className={`${inp} w-full`} placeholder="Organization account email" value={org} onChange={e => setOrg(e.target.value)} />
       <div className="grid gap-2 sm:grid-cols-4">
@@ -174,14 +174,14 @@ export function OrgMembersAdmin() {
   const [org, setOrg] = useState(""); const [emails, setEmails] = useState("");
   const add = async () => {
     const { data: p } = await supabase.from("profiles").select("id").ilike("email", org.trim()).maybeSingle();
-    if (!p) { toast.error("No account with that organization email"); return; }
+    if (!p) { toast.error("No account with that organisation email"); return; }
     const rows = emails.split(/[\s,]+/).filter(e => e.includes("@")).map(member_email => ({ org_id: p.id, member_email: member_email.toLowerCase() }));
     const { error } = await supabase.from("org_members" as never).upsert(rows as never, { ignoreDuplicates: true } as never);
     if (error) toast.error(error.message); else { toast.success(`${rows.length} linked`); setEmails(""); void qc.invalidateQueries(); }
   };
   return (
     <div className="space-y-6"><OrgPackageAdmin />
-    <Box><H>Organization employees</H>
+    <Box><H>Organisation employees</H>
       <p className="text-sm text-muted-foreground">Link a company account to the employees it sponsors. The company then sees their course progress in its portal. The account must have the Organization role (Users & roles).</p>
       <input className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" placeholder="Organization account email" value={org} onChange={e => setOrg(e.target.value)} />
       <Textarea placeholder="Employee emails, one per line" value={emails} onChange={e => setEmails(e.target.value)} />

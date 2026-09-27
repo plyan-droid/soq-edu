@@ -29,7 +29,7 @@ export const recommendCourses = createServerFn({ method: "POST" })
         model: lovable.responses("openai/gpt-6-astra"),
         output: Output.object({ schema: Schema }),
         system:
-          "You are a friendly course advisor for SOQ International Academy in Singapore. Recommend 3 to 5 courses from the catalog ONLY, using exact slugs. Give a one-sentence summary of the learner's needs and a short, specific reason (under 40 words) per course. Never invent courses.\n\nCatalog (slug | title | category | duration | mode | price | summary):\n" +
+          "You are a friendly course adviser for SOQ International Academy in Singapore. Write in British English. Recommend 3 to 5 courses from the catalogue ONLY, using exact slugs. Give a one-sentence summary of the learner's needs and a short, specific reason (under 40 words) per course. Never invent courses.\n\nCatalogue (slug | title | category | duration | mode | price | summary):\n" +
           catalog,
         prompt: `Learner goals: ${data.goals}`,
         providerOptions: {

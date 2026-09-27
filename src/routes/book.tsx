@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,7 +38,7 @@ function BookPage() {
     <>
       <PageHero eyebrow="1-to-1 sessions" title="Book time with a trainer." intro="Coaching, revision or career advice. Pick a free slot that suits you." />
       <section className="mx-auto max-w-5xl px-5 py-14 lg:px-8">
-        {loading ? <p className="text-muted-foreground">Loading…</p> : !user ? <p><Link to="/login" className="text-primary underline">Log in</Link> to see free slots and book.</p> : <>
+        {loading ? <ListSkeleton /> : !user ? <p><Link to="/login" className="text-primary underline">Log in</Link> to see free slots and book.</p> : <>
           {mine.length > 0 && <div className="mb-10"><h2 className="font-serif text-3xl text-primary">My bookings</h2><ul className="mt-4 space-y-2">{mine.map(s => (
             <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-brand-gold bg-secondary p-4 text-sm"><span><b>{fmtDateTime(s.starts_at)}</b> · {s.duration_min} min with {s.trainer_name} · {s.topic}</span>
               <span className="flex gap-2">{s.meeting_url && <Button asChild size="sm"><a href={safeHref(s.meeting_url)} target="_blank" rel="noreferrer">Join</a></Button>}<Button size="sm" variant="outline" onClick={() => void cancel(s.id)}>Cancel</Button></span></li>))}</ul></div>}

@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -38,7 +39,7 @@ function TutorProfile() {
     if (error) return void toast.error(error.message);
     toast.success("Booked! See it under My bookings on the Book page."); void qc.invalidateQueries({ queryKey: ["public-tutor", id] });
   };
-  if (isLoading) return <p className="mx-auto max-w-6xl px-5 py-24 text-muted-foreground">Loading…</p>;
+  if (isLoading) return <DetailSkeleton />;
   const t = data?.tutor;
   if (!t) return <div className="mx-auto max-w-6xl px-5 py-24"><h1 className="font-serif text-4xl text-primary">Tutor not found</h1><Link to="/tutors" className="mt-4 inline-block underline">See all tutors</Link></div>;
   const slots = data?.slots ?? [];

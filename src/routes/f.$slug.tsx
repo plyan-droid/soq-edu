@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -23,7 +24,7 @@ function Page() {
   const { slug } = Route.useParams();
   const { data: form, isLoading } = useQuery({ queryKey: ["form", slug], queryFn: async () => (await supabase.from("custom_forms").select("*").eq("slug", slug).maybeSingle()).data });
   const [v, setV] = useState<Record<string, string>>({}); const [done, setDone] = useState(false);
-  if (isLoading) return <p className="mx-auto max-w-2xl px-5 py-20 text-muted-foreground">Loading…</p>;
+  if (isLoading) return <DetailSkeleton />;
   if (!form) return <p className="mx-auto max-w-2xl px-5 py-20 text-muted-foreground">This form isn't available.</p>;
   const fields = form.fields as unknown as Field[];
   const submit = async () => {

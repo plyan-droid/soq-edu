@@ -1,3 +1,4 @@
+import { Home, Users, TrendingUp, Package } from "lucide-react";
 import { StartHere, ListSkeleton } from "@/components/start-here";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -131,14 +132,10 @@ function TeamCertificates({ userId }: { userId: string }) {
 export function BusinessWorkspace({ userId }: { userId: string }) {
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
-    { name: "Business", items: [{ id: "start", label: "Start here", content: <StartHere role="business" userId={userId} onNavigate={setActive} greeting="Manage your team's training in one place. Start with the steps below." cards={[
-      { tool: "members", title: "Add employees", text: "Give staff a seat on your training package." },
-      { tool: "progress", title: "Team progress", text: "See who's on track and who's falling behind." },
-      { tool: "certificates", title: "Team certificates", text: "Verify certificates your people have earned." },
-      { tool: "package", title: "Package & seats", text: "Seats used, seats left and renewal date." },
-    ]} /> }, { id: "overview", label: "Overview", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }, { id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
-    { name: "Team", items: [{ id: "members", label: "Students", content: <Team userId={userId} role="student" /> }, { id: "instructors", label: "Instructors", content: <Team userId={userId} role="instructor" /> }] },
-    { name: "Learning", items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }, { id: "certificates", label: "Team certificates", content: <TeamCertificates userId={userId} /> }] },
+    { name: "Home", icon: Home, items: [{ id: "start", label: "Home", content: <StartHere role="business" userId={userId} onNavigate={setActive} greeting="Manage your team's training in one place." /> }] },
+    { name: "Team", icon: Users, items: [{ id: "members", label: "Employees", content: <Team userId={userId} role="student" /> }, { id: "instructors", label: "In-house instructors", content: <Team userId={userId} role="instructor" /> }] },
+    { name: "Progress", icon: TrendingUp, items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }, { id: "certificates", label: "Certificates", content: <TeamCertificates userId={userId} /> }] },
+    { name: "Package", icon: Package, items: [{ id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
   ];
-  return <WorkspaceShell title="Business workspace" sections={sections} active={active} onChange={setActive} />;
+  return <WorkspaceShell title="Business workspace" sections={sections} active={active} onChange={setActive} aliases={{ overview: "start" }} />;
 }

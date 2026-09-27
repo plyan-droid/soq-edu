@@ -1,3 +1,4 @@
+import { Home, BookOpen, Award, Wallet } from "lucide-react";
 import { StartHere, PageSkeleton } from "@/components/start-here";
 import { RequestStaffAccess } from "@/components/staff-phase5";
 import { useState } from "react";
@@ -37,21 +38,20 @@ const features = [
 function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; email: string; isAdmin: boolean; isOrg: boolean }) {
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
-    { name: "My learning", items: [
-      { id: "start", label: "Start here", content: <StartHere role="student" userId={userId} onNavigate={setActive} greeting="Welcome back. Pick up where you left off, or tick off the steps below." cards={[
-        { tool: "courses", title: "Continue learning", text: "Open your courses, lessons and class dates." },
-        { tool: "certs", title: "My certificates", text: "Download or share certificates you've earned." },
-        { tool: "pay", title: "Payments", text: "See instalments due and how to pay by PayNow." },
-        { tool: "sfc", title: "SkillsFuture Credit", text: "Track your balance and funding claims." },
-      ]} /> },
-      { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },
-      { id: "certs", label: "My certificates", content: <MyCertificates userId={userId} /> },
+    { name: "Home", icon: Home, items: [
+      { id: "start", label: "Home", content: <StartHere role="student" userId={userId} onNavigate={setActive} greeting="Welcome back. Pick up where you left off." /> },
     ] },
-    { name: "Payments & funding", items: [
+    { name: "My courses", icon: BookOpen, items: [
+      { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },
+    ] },
+    { name: "Certificates", icon: Award, items: [
+      { id: "certs", label: "Certificates", content: <MyCertificates userId={userId} /> },
+    ] },
+    { name: "Payments", icon: Wallet, items: [
       { id: "pay", label: "Instalments", content: <MyInstalments userId={userId} /> },
       { id: "sfc", label: "SkillsFuture Credit", content: <MySkillsFuture userId={userId} email={email} /> },
+      ...(!isAdmin ? [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] : []),
     ] },
-    ...(!isAdmin ? [{ name: "Account", items: [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] }] : []),
   ];
   return isOrg ? <BusinessWorkspace userId={userId} /> : <WorkspaceShell title="My portal" sections={sections} active={active} onChange={setActive} top={<NoticesStrip />} />;
 }

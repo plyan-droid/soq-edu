@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ function Saved() {
             <p className="text-muted-foreground">Sign in to save posts and read them later.</p>
             <Button asChild className="mt-4 rounded-full"><Link to="/login">Log in</Link></Button>
           </div>
-        ) : isLoading ? <p className="mt-6 text-muted-foreground">Loading…</p> : posts.length === 0 ? (
+        ) : isLoading ? <ListSkeleton /> : posts.length === 0 ? (
           <p className="mt-6 text-muted-foreground">You haven't saved any posts yet. Tap the bookmark on any post to keep it here.</p>
         ) : <div className="mt-6 grid gap-4">{posts.map(p => <PostCard key={p.id} post={p} />)}</div>}
       </div>

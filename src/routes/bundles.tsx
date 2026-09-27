@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -23,7 +24,7 @@ function Page() {
   return <>
     <PageHero eyebrow="Course bundles" title="Learn more, pay less." intro="Courses that go well together, at one bundle price." />
     <section className="mx-auto grid max-w-6xl gap-6 px-5 py-14 md:grid-cols-2 lg:px-8">
-      {isLoading ? <p className="text-muted-foreground">Loading…</p> : data.length === 0 ? <p className="text-muted-foreground">No bundles on offer right now. <Link to="/courses" className="underline">Browse courses</Link></p> :
+      {isLoading ? <ListSkeleton /> : data.length === 0 ? <p className="text-muted-foreground">No bundles on offer right now. <Link to="/courses" className="underline">Browse courses</Link></p> :
         data.map(b => {
           const list = b.slugs.map(s => courses.find(c => c.slug === s)).filter(Boolean) as typeof courses;
           const full = list.reduce((s, c) => s + (priceNumber(c.price) ?? 0), 0);

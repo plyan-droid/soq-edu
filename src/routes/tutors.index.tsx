@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,7 +37,7 @@ function TutorsPage() {
       <PageHero eyebrow="1-to-1 sessions" title="Learn one-to-one with an SOQ trainer." intro="Anyone can book, not just enrolled students. Pick a tutor, choose an open time, and create a free account to confirm." />
       <section className="mx-auto max-w-6xl px-5 py-12 lg:px-8">
         <div className="flex flex-wrap gap-5 border-b border-border pb-3 text-sm">{tabs.map(([k, l]) => <button key={k} onClick={() => setFilter(k)} className={filter === k ? "font-semibold text-primary" : "text-muted-foreground hover:text-foreground"}>{l}</button>)}</div>
-        {isLoading ? <p className="mt-8 text-muted-foreground">Loading…</p> : shown.length === 0 ? <p className="mt-8 text-muted-foreground">No tutors listed here yet.</p> : (
+        {isLoading ? <ListSkeleton /> : shown.length === 0 ? <p className="mt-8 text-muted-foreground">No tutors listed here yet.</p> : (
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{shown.map(t => {
             const next = slots.find(s => s.trainer_id === t.user_id);
             return (

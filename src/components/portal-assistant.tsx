@@ -190,7 +190,7 @@ export function PortalAssistant() {
     setActive(id);
   };
   return (
-    <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
+    <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6 [[data-workspace]_&]:bottom-20 lg:[[data-workspace]_&]:bottom-6">
       {open && (
         <section
           role="dialog"

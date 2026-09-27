@@ -1,9 +1,9 @@
 import { StartHere, PageSkeleton } from "@/components/start-here";
-import { MobileNav } from "@/components/workspace-shell";
+import { WorkspaceNav, WorkspaceTabs, useToolParam } from "@/components/workspace-shell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ChevronRight, Trash2 } from "lucide-react";
+import { Trash2, Home, GraduationCap, BookOpen, Wallet, MessageSquare, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,12 +35,12 @@ type Profile = { id: string; email: string; full_name: string | null };
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 const adminSections = [
-  { name: "Overview", items: [["start", "Start here"], ["reports", "Reports"]] },
-  { name: "Learners & admissions", items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
-  { name: "Courses & teaching", items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
-  { name: "Payments & funding", items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
-  { name: "Communications", items: [["inbox", "Support inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
-  { name: "Site & settings", items: [["users", "Users & roles"], ["pages", "Pages"], ["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"], ["gov", "Gov & Xero links"], ["settings", "Settings"]] },
+  { name: "Home", icon: Home, items: [["start", "Today"], ["reports", "Reports"]] },
+  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
+  { name: "Courses", icon: BookOpen, items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
+  { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
+  { name: "Messages", icon: MessageSquare, items: [["inbox", "Support inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Settings", icon: Settings, items: [["users", "Users & roles"], ["pages", "Pages"], ["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"], ["gov", "Gov & Xero links"], ["settings", "Settings"]] },
 ] as const;
 type AdminSection = (typeof adminSections)[number];
 type AdminTool = AdminSection["items"][number][0];
@@ -50,20 +50,7 @@ function Admin() {
   const [studentId, setStudentId] = useState<string>("");
   const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
-  // Keep the open tool in the address bar (?tool=) so refresh, Back and shared links work.
-  useEffect(() => {
-    const sync = () => { const t = new URLSearchParams(window.location.search).get("tool"); if (isTool(t)) setToolState(t); };
-    sync();
-    window.addEventListener("popstate", sync);
-    return () => window.removeEventListener("popstate", sync);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const setActiveTool = (id: AdminTool) => {
-    setToolState(id);
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("tool") !== id) { url.searchParams.set("tool", id); window.history.pushState(window.history.state, "", url); }
-    window.scrollTo({ top: 0 });
-  };
+  const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
   const currentSection = adminSections.find(section => section.items.some(([id]) => id === activeTool)) ?? adminSections[0];
   const currentLabel = currentSection.items.find(([id]) => id === activeTool)?.[1] ?? "Reports";
   const { data: students = [] } = useQuery({
@@ -74,41 +61,17 @@ function Admin() {
   if (!isAdmin) return <div className="mx-auto max-w-7xl px-5 py-24"><h1 className="font-serif text-4xl text-primary">Staff only</h1><p className="mt-2 text-muted-foreground">This page is for SOQ staff accounts.</p><Button asChild className="mt-5 rounded-full"><Link to="/student-portal">Back to portal</Link></Button></div>;
 
   return (
-    <div className="mx-auto max-w-[92rem] px-5 py-8 lg:px-8 lg:py-10">
-      <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[15.5rem_minmax(0,1fr)] lg:gap-10">
-        <aside className="min-w-0 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:self-start lg:overflow-y-auto lg:pr-3" aria-label="Staff tools">
-          <div className="mb-5 border-b border-border pb-4">
-            <p className="text-xs font-semibold uppercase text-muted-foreground">SOQ International Academy</p>
-            <p className="mt-1 font-serif text-3xl font-semibold text-primary">Staff workspace</p>
-          </div>
-          <MobileNav sections={adminSections} section={currentSection.name} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
-          <nav className="hidden space-y-1 lg:block" aria-label="Staff workspace navigation">
-            {adminSections.map(section => <div key={section.name}>
-              <Button type="button" variant="ghost" aria-expanded={currentSection.name === section.name} onClick={() => setActiveTool(section.items[0][0])} className={`h-auto min-h-10 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-xs font-semibold uppercase shadow-none ${currentSection.name === section.name ? "text-primary" : "text-muted-foreground"}`}>
-                {section.name}<ChevronRight className={`size-4 shrink-0 transition-transform ${currentSection.name === section.name ? "rotate-90" : ""}`} aria-hidden="true" />
-              </Button>
-              {currentSection.name === section.name && <div className="ml-2 grid gap-0.5 border-l border-border pl-2">
-                {section.items.map(([id, label]) => <Button key={id} type="button" variant="ghost" aria-current={activeTool === id ? "page" : undefined} onClick={() => setActiveTool(id)} className={`h-auto min-h-9 w-full justify-between whitespace-normal rounded-md px-3 py-2 text-left text-sm shadow-none ${activeTool === id ? "bg-secondary font-semibold text-primary hover:bg-secondary" : "font-normal text-muted-foreground hover:text-foreground"}`}>
-                  <span>{label}</span>{activeTool === id && <ChevronRight className="size-4 shrink-0" aria-hidden="true" />}
-                </Button>)}
-              </div>}
-            </div>)}
-          </nav>
-        </aside>
+    <div className="mx-auto max-w-[92rem] px-5 pb-28 pt-6 lg:px-8 lg:py-10">
+      <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10">
+        <WorkspaceNav title="Staff workspace" sections={adminSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
         <main className="min-w-0">
-          <div className="border-b border-border pb-5">
-            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff workspace / {currentSection.name}</p>
-            <h1 className="mt-2 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentLabel}</h1>
+          <div>
+            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff workspace</p>
+            <h1 className="mt-1 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentSection.name}</h1>
+            <WorkspaceTabs items={currentSection.items} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           </div>
           <div className="min-w-0 pt-3">
-        <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} onNavigate={id => setActiveTool(id as AdminTool)} greeting="Here's what needs your attention today. Pick a task below or use the menu." cards={[
-          { tool: "applications", title: "Course applications", text: "New sign-ups waiting for approval and enrolment." },
-          { tool: "payments", title: "Payments", text: "PayNow receipts and instalments to confirm." },
-          { tool: "students", title: "Students", text: "Look up a learner's courses, progress and results." },
-          { tool: "enrol", title: "Enrol students", text: "Add learners one by one or from a spreadsheet." },
-          { tool: "notices", title: "Noticeboard", text: "Post an announcement all students will see." },
-          { tool: "reports", title: "Reports", text: "Sales, enrolments and completion at a glance." },
-        ]} /></TabsContent>
+        <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} onNavigate={id => setActiveTool(id as AdminTool)} greeting="Here's what needs your attention today. Anything urgent is shown first." /></TabsContent>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="students">
           <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>

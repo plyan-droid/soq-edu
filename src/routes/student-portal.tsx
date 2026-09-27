@@ -1,3 +1,4 @@
+import { StartHere, PageSkeleton } from "@/components/start-here";
 import { RequestStaffAccess } from "@/components/staff-phase5";
 import { useState } from "react";
 import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
@@ -34,9 +35,15 @@ const features = [
 ];
 
 function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; email: string; isAdmin: boolean; isOrg: boolean }) {
-  const [active, setActive] = useState("courses");
+  const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
     { name: "My learning", items: [
+      { id: "start", label: "Start here", content: <StartHere role="student" userId={userId} onNavigate={setActive} greeting="Welcome back. Pick up where you left off, or tick off the steps below." cards={[
+        { tool: "courses", title: "Continue learning", text: "Open your courses, lessons and class dates." },
+        { tool: "certs", title: "My certificates", text: "Download or share certificates you've earned." },
+        { tool: "pay", title: "Payments", text: "See instalments due and how to pay by PayNow." },
+        { tool: "sfc", title: "SkillsFuture Credit", text: "Track your balance and funding claims." },
+      ]} /> },
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },
       { id: "certs", label: "My certificates", content: <MyCertificates userId={userId} /> },
     ] },
@@ -51,7 +58,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
 
 function StudentPortal() {
   const { user, isAdmin, isOrg, loading } = useAuth();
-  if (loading) return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
+  if (loading) return <PageSkeleton />;
   if (user) return <MemberWorkspace userId={user.id} email={user.email ?? ""} isAdmin={isAdmin} isOrg={isOrg} />;
   return (
     <>

@@ -1,3 +1,4 @@
+import { StartHere, ListSkeleton } from "@/components/start-here";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -122,15 +123,20 @@ function TeamCertificates({ userId }: { userId: string }) {
     if (certs.error) throw certs.error;
     return certs.data as TeamCertificate[];
   } });
-  if (isPending) return <p className="py-8 text-muted-foreground">Loading team certificates…</p>;
+  if (isPending) return <ListSkeleton />;
   if (error) return <p role="alert" className="py-8 text-destructive">Couldn't load team certificates.</p>;
   return <div className="mt-6">{data?.length ? <ul className="divide-y divide-border border-t border-border">{data.map(c => <li key={c.code} className="flex flex-wrap items-center justify-between gap-3 py-4 text-sm"><div><p className="font-medium">{c.student_name} · {courseName(c.course_slug)}</p><p className="text-muted-foreground">{c.code} · {date(c.issued_on)} · {c.status}</p></div><Button asChild size="sm" variant="outline"><Link to="/verify-certificate" search={{ code: c.code }}>Verify</Link></Button></li>)}</ul> : <p className="text-sm text-muted-foreground">No certificates have been issued for your linked students yet.</p>}</div>;
 }
 
 export function BusinessWorkspace({ userId }: { userId: string }) {
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
-    { name: "Business", items: [{ id: "overview", label: "Overview", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }, { id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
+    { name: "Business", items: [{ id: "start", label: "Start here", content: <StartHere role="business" userId={userId} onNavigate={setActive} greeting="Manage your team's training in one place. Start with the steps below." cards={[
+      { tool: "members", title: "Add employees", text: "Give staff a seat on your training package." },
+      { tool: "progress", title: "Team progress", text: "See who's on track and who's falling behind." },
+      { tool: "certificates", title: "Team certificates", text: "Verify certificates your people have earned." },
+      { tool: "package", title: "Package & seats", text: "Seats used, seats left and renewal date." },
+    ]} /> }, { id: "overview", label: "Overview", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }, { id: "package", label: "Package & seats", content: <BusinessOverview userId={userId} onNavigate={setActive} /> }] },
     { name: "Team", items: [{ id: "members", label: "Students", content: <Team userId={userId} role="student" /> }, { id: "instructors", label: "Instructors", content: <Team userId={userId} role="instructor" /> }] },
     { name: "Learning", items: [{ id: "progress", label: "Course progress", content: <TeamProgress userId={userId} /> }, { id: "certificates", label: "Team certificates", content: <TeamCertificates userId={userId} /> }] },
   ];

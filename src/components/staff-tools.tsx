@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Download, Trash2 } from "lucide-react";
@@ -30,7 +31,7 @@ export function Reports() {
       return { apps, enr, rev, tix, tr, subs, certs, users, posts, byCourse: byCourse ?? [] };
     },
   });
-  if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  if (!data) return <ListSkeleton />;
   const tally = new Map<string, number>();
   data.byCourse.forEach(r => tally.set(r.course_slug, (tally.get(r.course_slug) ?? 0) + 1));
   const top = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
@@ -225,7 +226,7 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
     const { error } = await supabase.auth.resetPasswordForEmail(u.email, { redirectTo: `${window.location.origin}/reset-password` });
     alert(error ? error.message : `Reset link sent to ${u.email}.`);
   };
-  if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  if (!data) return <ListSkeleton />;
   const roleOf = (id: string) => data.admins.has(id) ? "staff" : data.trainers.has(id) ? "trainer" : "student";
   const counts = { all: data.users.length, staff: data.users.filter(u => roleOf(u.id) === "staff").length, trainer: data.users.filter(u => roleOf(u.id) === "trainer").length, student: data.users.filter(u => roleOf(u.id) === "student").length };
   const shown = data.users.filter(u => (filter === "all" || (filter === "staff" ? data.admins.has(u.id) : filter === "trainer" ? data.trainers.has(u.id) : roleOf(u.id) === "student")) && `${u.email} ${u.full_name ?? ""}`.toLowerCase().includes(q.toLowerCase()));
@@ -381,7 +382,7 @@ export function SettingsHub() {
   const [a, setA] = useState<{ text: string; link: string; on: boolean } | null>(null);
   const [c, setC] = useState<{ navy: string; gold: string } | null>(null);
   const [tz, setTz] = useState<string | null>(null);
-  if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  if (!data) return <ListSkeleton />;
   const ann = a ?? { text: "", link: "", on: false, ...(data['announcement'] ?? {}) };
   const col = c ?? { navy: "#1b2a4a", gold: "#d4a94a", ...(data['appearance'] ?? {}) };
   const zone = tz ?? data['general']?.timezone ?? "Asia/Singapore";

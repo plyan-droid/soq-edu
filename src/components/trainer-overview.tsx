@@ -1,3 +1,4 @@
+import { PageSkeleton, ListSkeleton } from "@/components/start-here";
 import { PendingSeatRequests, SessionRequests } from "@/components/session-bookings";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -91,7 +92,7 @@ export function TrainerStudents({ userId }: { userId: string }) {
   const [course, setCourse] = useState("all");
   const [q, setQ] = useState("");
   const shown = roster.filter(r => (course === "all" || r.course_slug === course) && (!q || `${r.student_name} ${r.student_email}`.toLowerCase().includes(q.toLowerCase())));
-  if (isLoading) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  if (isLoading) return <ListSkeleton />;
   if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach on the Overview tab first.</p>;
   return (
     <div className="mt-6">

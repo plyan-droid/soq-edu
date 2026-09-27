@@ -1,3 +1,4 @@
+import { StartHere, PageSkeleton } from "@/components/start-here";
 import { PendingSeatRequests, SessionRequests } from "@/components/session-bookings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,16 +36,24 @@ const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 
 function TrainerPage() {
   const { user, isTrainer, isAdmin, loading } = useAuth();
-  if (loading) return <Wrap><p className="text-muted-foreground">Loading…</p></Wrap>;
+  if (loading) return <PageSkeleton />;
   if (!user) return <Wrap><p className="text-muted-foreground">Please <Link to="/login" className="underline">log in</Link> first.</p></Wrap>;
   if (!isTrainer && !isAdmin) return <Wrap><p className="max-w-xl text-muted-foreground">This page is for SOQ trainers. Want to teach with us? <Link to="/teach" className="underline">Apply here</Link>. Once staff approve you, this dashboard opens.</p></Wrap>;
   return <TrainerWorkspace userId={user.id} isAdmin={isAdmin} isTrainer={isTrainer} />;
 }
 
 function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAdmin: boolean; isTrainer: boolean }) {
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
     { name: "Overview", items: [
+      { id: "start", label: "Start here", content: <StartHere role="trainer" userId={userId} onNavigate={setActive} greeting="Welcome to your teaching space. Here are the things trainers do most." cards={[
+        { tool: "live", title: "Live classes", text: "Schedule a class and confirm students' seat requests." },
+        { tool: "lessons", title: "Lessons", text: "Add notes, videos and materials to your courses." },
+        { tool: "students", title: "My students", text: "See each learner's progress and who needs a nudge." },
+        { tool: "calendar", title: "Calendar", text: "Your upcoming classes and bookings in one view." },
+        { tool: "quizzes", title: "Quizzes", text: "Build and mark assessments." },
+        { tool: "slots", title: "1-to-1 sessions", text: "Offer paid or free private tutoring times." },
+      ]} /> },
       { id: "overview", label: "Overview", content: <TrainerOverview userId={userId} /> },
       { id: "calendar", label: "Calendar", content: <TrainerCalendar userId={userId} /> },
       { id: "stats", label: "Stats", content: <TrainerStats userId={userId} /> },

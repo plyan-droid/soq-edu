@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { Check, ChevronDown, MoreHorizontal, type LucideIcon } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export type WorkspaceSection = { name: string; icon?: LucideIcon | undefined; items: { id: string; label: string; content: ReactNode }[] };
@@ -74,35 +73,13 @@ export function WorkspaceNav({ title, sections, section, onChange }: { title: st
   </>;
 }
 
-/** Tools across the top of an area: underline tabs when few, a compact dropdown picker when the list gets long. */
+/** Keep every tool visible; longer lists wrap onto another line instead of hiding behind a menu. */
 export function WorkspaceTabs({ items, active, onChange }: { items: readonly (readonly [string, string])[]; active: string; onChange: (id: string) => void }) {
   if (items.length < 2) return null;
-  if (items.length <= 4) {
-    return <div className="-mx-5 mt-4 flex gap-1 overflow-x-auto border-b border-border px-5 lg:mx-0 lg:px-0" role="tablist">
-      {items.map(([id, label]) => <button key={id} type="button" role="tab" aria-selected={id === active} onClick={() => onChange(id)}
-        className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm transition ${id === active ? "border-accent font-semibold text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{label}</button>)}
-    </div>;
-  }
-  const current = items.find(([id]) => id === active)?.[1] ?? active;
-  return (
-    <div className="mt-4">
-      <DropdownMenu>
-        <DropdownMenuTrigger className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-primary shadow-sm outline-none transition hover:bg-secondary/60 focus-visible:ring-2 focus-visible:ring-ring">
-          <span className="truncate">{current}</span>
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="max-h-80 w-64 overflow-y-auto rounded-xl border-border p-1.5">
-          {items.map(([id, label]) => (
-            <DropdownMenuItem key={id} onClick={() => onChange(id)}
-              className={`min-h-9 cursor-pointer rounded-md ${id === active ? "bg-secondary font-semibold text-primary" : "text-foreground/80"}`}>
-              <span className="truncate">{label}</span>
-              {id === active && <Check className="ml-auto size-4 shrink-0 text-primary" aria-hidden="true" />}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
+  return <div className="-mx-5 mt-4 flex flex-wrap gap-x-1 border-b border-border px-5 lg:mx-0 lg:px-0" role="tablist">
+    {items.map(([id, label]) => <button key={id} type="button" role="tab" aria-selected={id === active} onClick={() => onChange(id)}
+      className={`min-h-10 border-b-2 px-3 py-2 text-sm transition ${id === active ? "border-accent font-semibold text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{label}</button>)}
+  </div>;
 }
 
 export function WorkspaceShell({ title, sections, active, onChange: setActive, top, aliases }: { title: string; sections: WorkspaceSection[]; active: string; onChange: (id: string) => void; top?: ReactNode; aliases?: Record<string, string> }) {

@@ -15,3 +15,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Certificate preview and PDF share one design record and the official SOQ logo asset; this keeps issued downloads consistent with staff-selected templates.
 - Demo portal records are linked only to demo accounts and visibly marked DEMO; never seed genuine certificate validation or confirmed funding because those imply verified achievements or entitlements.
 - Role portals use WorkspaceShell: 4–6 main areas (sidebar on desktop, bottom bar + More sheet on phones), tools as tabs inside an area, a Home page with urgent-first action cards and a dismissible checklist; keeps each task in one obvious place.
+- Staff Messages shows live Contact tickets alongside explicitly DEMO-only WhatsApp conversations; private WhatsApp tables remain empty until a verified Business connection and receiver exist, preventing mock chats from being mistaken for customer messages.

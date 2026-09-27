@@ -12,6 +12,8 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Show clearly marked demo WhatsApp conversations beside live Contact enquiries, with empty staff-only storage and a not-connected setup notice.
+- [ ] Connect WhatsApp Business and deploy a verified message receiver before enabling live chats or replies (blocked: SOQ connection was declined; requires account setup and incoming-message destination).
 - [x] Standardise user-facing English across the site and portals to British English.
 - [x] Populate demo-only portal records for student, trainer, business, and staff workflows without presenting them as real credentials or qualifications. Sample applications, learning, scheduling, assessment, payments, funding, enquiries, and partner seats use demo accounts. Certificates are intentionally not issued; no real payment or grant was recorded.
 - [ ] Issue an eligible learner's certificate from the designer and check its PDF branding (verified-issuance control is ready; currently no completed learner or passed certificate quiz exists)

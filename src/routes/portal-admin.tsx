@@ -11,7 +11,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { courses } from "@/lib/site-content";
 import { courseTitle, type Enrollment, type Task } from "@/components/student-dashboard";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, SupportInbox, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
+import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
+import { StaffMessages } from "@/components/staff-messages";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
@@ -39,7 +40,7 @@ const adminSections = [
   { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses", icon: BookOpen, items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
-  { name: "Messages", icon: MessageSquare, items: [["inbox", "Support inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
   { name: "Settings", icon: Settings, items: [["users", "Users & roles"], ["pages", "Pages"], ["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"], ["gov", "Gov & Xero links"], ["settings", "Settings"]] },
 ] as const;
 type AdminSection = (typeof adminSections)[number];
@@ -88,7 +89,7 @@ function Admin() {
         <TabsContent value="certificates"><CertificatesAdmin /></TabsContent>
         <TabsContent value="trainers"><TrainerApplications /></TabsContent>
         <TabsContent value="drafts"><CourseDraftsReview /></TabsContent>
-        <TabsContent value="inbox"><SupportInbox /></TabsContent>
+        <TabsContent value="inbox"><StaffMessages /></TabsContent>
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
         <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>

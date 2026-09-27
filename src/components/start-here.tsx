@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { courses } from "@/lib/site-content";
 
 export type StartRole = "student" | "trainer" | "business" | "staff";
-type Card = { tool: string; title: string; text: string; count?: number; badge?: string };
+type Card = { tool: string; title: string; text: string; count?: number | undefined; badge?: string | undefined };
 type Step = { label: string; done: boolean; tool: string };
 type Home = { cards: Card[]; steps: Step[] };
 

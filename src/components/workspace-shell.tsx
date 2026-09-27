@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export type WorkspaceSection = { name: string; items: { id: string; label: string; content: ReactNode }[] };
 
 /** Mobile: tappable section and page chips (swipe sideways) instead of dropdowns. */
-export function MobileNav({ sections, section, active, onChange }: { sections: { name: string; items: [string, string][] }[]; section: string; active: string; onChange: (id: string) => void }) {
+export function MobileNav({ sections, section, active, onChange }: { sections: readonly { name: string; items: readonly (readonly [string, string])[] }[]; section: string; active: string; onChange: (id: string) => void }) {
   const cur = sections.find(s => s.name === section) ?? sections[0]!;
   const chip = (on: boolean) => `shrink-0 whitespace-nowrap rounded-full border px-3.5 py-2 text-sm transition ${on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground"}`;
   return <div className="space-y-2 lg:hidden">

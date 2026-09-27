@@ -1,3 +1,4 @@
+import { SessionBookButton, SessionRequests } from "@/components/session-bookings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -128,6 +129,7 @@ function SessionList({ userId, canHost, isAdmin, onOpenRoom }: { userId: string;
               <p className="text-xs font-semibold uppercase tracking-wide text-brand-gold">{startsIn(s, now)}{plat && ` · ${plat}`}</p>
               <p className="mt-1 font-semibold text-brand-navy">{s.title}</p>
               <p className="text-sm text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
+              {mine ? <SessionRequests sessionId={s.id} /> : <SessionBookButton sessionId={s.id} userId={userId} startsAt={s.starts_at} />}
             </div>
             <div className="flex flex-wrap gap-2">
               {s.meeting_url && (p === "open" || mine) && (

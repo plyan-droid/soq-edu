@@ -56,6 +56,7 @@ function Admin() {
   const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
   const ownerToolIds = new Set<string>(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0] as string));
   const visibleSections = isTopAdmin ? adminSections : adminSections.filter(s => s.name !== "Owner");
+  const dashboardTitle = isTopAdmin ? "Admin Dashboard" : "Staff Dashboard";
   const ownerLocked = !isTopAdmin && ownerToolIds.has(activeTool as string);
   const currentSection = visibleSections.find(section => section.items.some(([id]) => id === activeTool)) ?? visibleSections[0];
   const currentLabel = currentSection.items.find(([id]) => id === activeTool)?.[1] ?? "Reports";
@@ -69,10 +70,10 @@ function Admin() {
   return (
     <div className="mx-auto max-w-[92rem] px-5 pb-28 pt-6 lg:px-8 lg:py-10">
       <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10">
-        <WorkspaceNav title="Staff Dashboard" sections={visibleSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
+        <WorkspaceNav title={dashboardTitle} sections={visibleSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
         <main className="min-w-0">
           <div>
-            <p className="text-xs font-semibold uppercase text-muted-foreground">Staff Dashboard</p>
+            <p className="text-xs font-semibold uppercase text-muted-foreground">{dashboardTitle}</p>
             <h1 className="mt-1 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentSection.name}</h1>
             <WorkspaceTabs items={currentSection.items} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           </div>

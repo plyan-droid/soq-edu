@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { courses } from "@/lib/site-content";
+import { useWorkspaceNavigate } from "@/components/workspace-shell";
 
 export type StartRole = "student" | "trainer" | "business" | "staff";
 type Card = { tool: string; title: string; text: string; count?: number | undefined; badge?: string | undefined };
@@ -110,7 +111,8 @@ async function load(role: StartRole, uid: string): Promise<Home> {
   };
 }
 
-export function StartHere({ role, userId, greeting, onNavigate, stats }: { role: StartRole; userId: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode }) {
+export function StartHere({ role, userId, greeting, onNavigate: fallback, stats }: { role: StartRole; userId: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode }) {
+  const onNavigate = useWorkspaceNavigate() ?? fallback;
   const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId], queryFn: () => load(role, userId) });
   const key = `soq-checklist-hidden:${role}:${userId}`;
   const [hidden, setHidden] = useState(false);

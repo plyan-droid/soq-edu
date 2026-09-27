@@ -1,9 +1,13 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export type WorkspaceSection = { name: string; icon?: LucideIcon | undefined; items: { id: string; label: string; content: ReactNode }[] };
 export type NavSection = { name: string; icon?: LucideIcon | undefined; items: readonly (readonly [string, string])[] };
+
+const NavCtx = createContext<((id: string) => void) | null>(null);
+/** Navigate inside the surrounding workspace (updates the address bar too). */
+export const useWorkspaceNavigate = () => useContext(NavCtx);
 
 /** Keeps the open page in ?tool= so refresh, Back and shared links work. Old ids map through `aliases`. */
 export function useToolParam(isValid: (id: string) => boolean, setActive: (id: string) => void, aliases: Record<string, string> = {}) {
@@ -93,7 +97,7 @@ export function WorkspaceShell({ title, sections, active, onChange: setActive, t
           <p className="text-xs font-semibold uppercase text-muted-foreground">{title}</p>
           <h1 className="mt-1 font-serif text-4xl font-semibold text-primary sm:text-5xl">{current.name}</h1>
           <WorkspaceTabs items={current.items.map(i => [i.id, i.label] as const)} active={item.id} onChange={onChange} />
-          <div className="min-w-0 pt-3">{item.content}</div>
+          <div className="min-w-0 pt-3"><NavCtx.Provider value={onChange}>{item.content}</NavCtx.Provider></div>
         </main>
       </div>
     </div>

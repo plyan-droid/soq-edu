@@ -29,6 +29,8 @@ export function useToolParam(isValid: (id: string) => boolean, setActive: (id: s
 /** Desktop: short list of main areas. Phone: fixed bottom bar (+ "More" sheet when there are more than 5). */
 export function WorkspaceNav({ title, sections, section, onChange }: { title: string; sections: readonly NavSection[]; section: string; onChange: (id: string) => void }) {
   const [more, setMore] = useState(false);
+  // Lets floating buttons (WhatsApp, assistant) sit above the phone bottom bar.
+  useEffect(() => { document.body.dataset.workspace = "1"; return () => { delete document.body.dataset.workspace; }; }, []);
   const overflow = sections.length > 5;
   const bar = overflow ? sections.slice(0, 4) : sections;
   const rest = overflow ? sections.slice(4) : [];

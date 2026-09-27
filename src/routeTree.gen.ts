@@ -35,6 +35,7 @@ import { Route as LiveClassesRouteImport } from './routes/live-classes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NoticeboardRouteImport } from './routes/noticeboard'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
+import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
 import { Route as RecommendRouteImport } from './routes/recommend'
 import { Route as ReferRouteImport } from './routes/refer'
@@ -197,6 +198,11 @@ const NoticeboardRoute = NoticeboardRouteImport.update({
 const PeiProfileRoute = PeiProfileRouteImport.update({
   id: '/pei-profile',
   path: '/pei-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortalRoute = PortalRouteImport.update({
+  id: '/portal',
+  path: '/portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalAdminRoute = PortalAdminRouteImport.update({
@@ -392,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
@@ -452,6 +459,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
   '/pei-profile': typeof PeiProfileRoute
+  '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
   '/recommend': typeof RecommendRoute
   '/refer': typeof ReferRoute
@@ -577,6 +586,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/noticeboard'
     | '/pei-profile'
+    | '/portal'
     | '/portal-admin'
     | '/recommend'
     | '/refer'
@@ -637,6 +647,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/noticeboard'
     | '/pei-profile'
+    | '/portal'
     | '/portal-admin'
     | '/recommend'
     | '/refer'
@@ -698,6 +709,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/noticeboard'
     | '/pei-profile'
+    | '/portal'
     | '/portal-admin'
     | '/recommend'
     | '/refer'
@@ -760,6 +772,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   NoticeboardRoute: typeof NoticeboardRoute
   PeiProfileRoute: typeof PeiProfileRoute
+  PortalRoute: typeof PortalRoute
   PortalAdminRoute: typeof PortalAdminRoute
   RecommendRoute: typeof RecommendRoute
   ReferRoute: typeof ReferRoute
@@ -974,6 +987,13 @@ declare module '@tanstack/react-router' {
       path: '/pei-profile'
       fullPath: '/pei-profile'
       preLoaderRoute: typeof PeiProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portal': {
+      id: '/portal'
+      path: '/portal'
+      fullPath: '/portal'
+      preLoaderRoute: typeof PortalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal-admin': {
@@ -1261,6 +1281,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   NoticeboardRoute: NoticeboardRoute,
   PeiProfileRoute: PeiProfileRoute,
+  PortalRoute: PortalRoute,
   PortalAdminRoute: PortalAdminRoute,
   RecommendRoute: RecommendRoute,
   ReferRoute: ReferRoute,

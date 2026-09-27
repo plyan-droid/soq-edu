@@ -280,8 +280,7 @@ export function Sales() {
   const setStatus = async (id: string, status: string) => { await supabase.from("orders").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-orders"] }); };
   return (
     <div>
-      <p className="mt-4 rounded-md bg-brand-gold-soft px-4 py-2 text-sm">Test mode — these are pretend payments, no money is taken.</p>
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">{[["Paid orders", String(paid.length)], ["Revenue (test)", `$${revenue.toFixed(2)}`], ["Refunded", String(data.filter(o => o.status === "refunded").length)]].map(([l, v]) => <div key={l} className="rounded-lg border border-border bg-card p-4"><p className="text-sm text-muted-foreground">{l}</p><p className="font-serif text-3xl text-primary">{v}</p></div>)}</div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-3">{[["Paid orders", String(paid.length)], ["Revenue", `$${revenue.toFixed(2)}`], ["Refunded", String(data.filter(o => o.status === "refunded").length)]].map(([l, v]) => <div key={l} className="rounded-lg border border-border bg-card p-4"><p className="text-sm text-muted-foreground">{l}</p><p className="font-serif text-3xl text-primary">{v}</p></div>)}</div>
       {data.length === 0 ? <p className="mt-6 text-muted-foreground">No orders yet.</p> : <Table head={["Date", "Buyer", "Courses", "Total", "Status"]}>{data.map(o => (
         <tr key={o.id} className="border-t border-border"><td className={td}>{date(o.created_at)}<div className="text-xs text-muted-foreground">{o.payment_ref}</div></td><td className={td}>{o.full_name}<div className="text-xs">{o.email}</div></td>
           <td className={`${td} text-xs`}>{o.items.map(i => i.title).join(", ")}</td>

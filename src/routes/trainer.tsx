@@ -1,3 +1,4 @@
+import { PendingSeatRequests, SessionRequests } from "@/components/session-bookings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -134,9 +135,9 @@ function Live({ userId }: { userId: string }) {
         <Input placeholder="Meeting link (Zoom, Google Meet, Teams)" value={f.meeting_url} onChange={e => setF({ ...f, meeting_url: e.target.value })} />
         <Button className="rounded-full" onClick={() => void add()}>Schedule class</Button>
       </div>
-      <ul className="space-y-2">{data.length === 0 ? <p className="text-sm text-muted-foreground">No live classes yet.</p> : data.map(s => (
+      <div className="space-y-3"><PendingSeatRequests userId={userId} /><ul className="space-y-2">{data.length === 0 ? <p className="text-sm text-muted-foreground">No live classes yet.</p> : data.map(s => (
         <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
-          {s.status !== "cancelled" && <button className="mt-1 text-xs underline" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</button>}</li>))}</ul>
+          {s.status !== "cancelled" && <button className="mt-1 text-xs underline" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</button>}{s.status !== "cancelled" && <SessionRequests sessionId={s.id} />}</li>))}</ul></div>
     </div>
   );
 }

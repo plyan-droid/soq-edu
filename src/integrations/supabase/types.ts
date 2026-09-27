@@ -1801,6 +1801,44 @@ export type Database = {
         }
         Relationships: []
       }
+      session_bookings: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string
+          status: string
+          student_id: string
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id: string
+          status?: string
+          student_id: string
+          student_name?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string
+          status?: string
+          student_id?: string
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_bookings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sfc_balances: {
         Row: {
           balance: number
@@ -2061,37 +2099,46 @@ export type Database = {
           bio: string
           days: string[]
           display_name: string
+          headline: string
           location: string
           online: boolean
+          photo_url: string | null
           subjects: string[]
           times: string[]
           updated_at: string
           user_id: string
           visible: boolean
+          years_experience: number | null
         }
         Insert: {
           bio?: string
           days?: string[]
           display_name: string
+          headline?: string
           location?: string
           online?: boolean
+          photo_url?: string | null
           subjects?: string[]
           times?: string[]
           updated_at?: string
           user_id: string
           visible?: boolean
+          years_experience?: number | null
         }
         Update: {
           bio?: string
           days?: string[]
           display_name?: string
+          headline?: string
           location?: string
           online?: boolean
+          photo_url?: string | null
           subjects?: string[]
           times?: string[]
           updated_at?: string
           user_id?: string
           visible?: boolean
+          years_experience?: number | null
         }
         Relationships: []
       }

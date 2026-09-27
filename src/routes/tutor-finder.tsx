@@ -25,7 +25,7 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TIMES = ["Morning", "Afternoon", "Evening"];
 const subjects: string[] = categories.map(c => c.name);
 
-type Tutor = { user_id: string; display_name: string; bio: string; subjects: string[]; days: string[]; times: string[]; location: string; online: boolean; visible: boolean };
+type Tutor = { user_id: string; display_name: string; headline?: string; years_experience?: number | null; bio: string; subjects: string[]; days: string[]; times: string[]; location: string; online: boolean; visible: boolean };
 
 function Chips({ options, value, onChange }: { options: string[]; value: string[]; onChange: (v: string[]) => void }) {
   return <div className="flex flex-wrap gap-2">{options.map(o => {
@@ -84,7 +84,7 @@ function TutorFinder() {
                 {t.bio && <p className="mt-3 text-sm leading-6">{t.bio}</p>}
                 <p className="mt-3 text-sm text-muted-foreground">{t.days.join(", ") || "Flexible days"} · {t.times.join(", ") || "Any time"}</p>
                 <p className="text-sm text-muted-foreground">{t.location}{t.online ? " · Online available" : ""}</p>
-                <Button asChild className="mt-4 rounded-full"><a href={`https://wa.me/6587182308?text=${encodeURIComponent(`Hi SOQ, I'd like to learn with ${t.display_name} (${subj.join(", ")}).`)}`}>Ask about this trainer</a></Button>
+                <Button asChild variant="outline" className="mt-4 mr-2 rounded-full"><Link to="/tutors/$id" params={{ id: t.user_id }}>View profile &amp; book</Link></Button><Button asChild className="mt-4 rounded-full"><a href={`https://wa.me/6587182308?text=${encodeURIComponent(`Hi SOQ, I'd like to learn with ${t.display_name} (${subj.join(", ")}).`)}`}>Ask about this trainer</a></Button>
               </li>))}</ul>}
           </div>
         )}
@@ -113,6 +113,7 @@ function TutorProfileEditor() {
       <h2 className="font-serif text-2xl text-primary">My trainer listing</h2>
       <div className="mt-4 grid gap-3">
         <Input placeholder="Display name" value={v.display_name} onChange={e => set({ display_name: e.target.value })} maxLength={80} />
+        <div className="grid gap-3 sm:grid-cols-[1fr_10rem]"><Input placeholder="Headline, e.g. Digital marketing coach" value={v.headline ?? ""} onChange={e => set({ headline: e.target.value })} maxLength={80} /><Input type="number" min={0} max={60} placeholder="Years experience" value={v.years_experience ?? ""} onChange={e => set({ years_experience: e.target.value ? Number(e.target.value) : null })} /></div>
         <Textarea placeholder="Short bio" value={v.bio} onChange={e => set({ bio: e.target.value })} maxLength={600} />
         <Chips options={subjects} value={v.subjects} onChange={s => set({ subjects: s })} />
         <Chips options={DAYS} value={v.days} onChange={s => set({ days: s })} />

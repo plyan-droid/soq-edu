@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, ClipboardCheck, FileText, LogOut, Settings } from "lucide-react";
+import { CalendarClock, ClipboardCheck, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
@@ -32,16 +32,9 @@ export function StudentDashboard({ userId, email, isAdmin }: { userId: string; e
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="font-script text-3xl text-brand-gold">Welcome back</p>
-          <h1 className="font-serif text-5xl text-primary">My learning</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-        </div>
-        <div className="flex gap-2">
-          {isAdmin && <Button asChild variant="outline" className="rounded-full"><Link to="/portal-admin"><Settings /> Staff admin</Link></Button>}
-          <Button variant="ghost" className="rounded-full" onClick={() => void supabase.auth.signOut()}><LogOut /> Sign out</Button>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">Signed in as {email}</p>
+        {isAdmin && <Button asChild variant="outline" className="rounded-full"><Link to="/portal-admin"><Settings /> Staff admin</Link></Button>}
       </div>
 
       {!isLoading && data && (
@@ -87,7 +80,7 @@ export function StudentDashboard({ userId, email, isAdmin }: { userId: string; e
                     <p className="font-serif text-4xl text-primary">{e.progress}%</p>
                   </div>
                   <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-brand-gold" style={{ width: `${e.progress}%` }} /></div>
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{t.filter(x => x.status === "done").length} of {t.length} items completed</p><Link to="/learn/$slug" params={{ slug: e.course_slug }} className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">Open lessons &amp; live classes</Link></div>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{t.length ? `${t.filter(x => x.status === "done").length} of ${t.length} items completed` : "No scheduled items yet"}</p><Link to="/learn/$slug" params={{ slug: e.course_slug }} className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">Open lessons &amp; live classes</Link></div>
                 </div>
               );
             })}

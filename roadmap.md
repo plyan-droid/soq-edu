@@ -12,7 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
-- [ ] Standardise user-facing English across the site and portals to British English.
+- [x] Standardise user-facing English across the site and portals to British English.
 - [x] Populate demo-only portal records for student, trainer, business, and staff workflows without presenting them as real credentials or qualifications. Sample applications, learning, scheduling, assessment, payments, funding, enquiries, and partner seats use demo accounts. Certificates are intentionally not issued; no real payment or grant was recorded.
 - [ ] Issue an eligible learner's certificate from the designer and check its PDF branding (verified-issuance control is ready; currently no completed learner or passed certificate quiz exists)
 - [x] Combine live classes and 1-to-1 slots in the trainer calendar

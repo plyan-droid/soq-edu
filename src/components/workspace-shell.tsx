@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +7,22 @@ export type WorkspaceSection = { name: string; items: { id: string; label: strin
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground";
 
 /** Grouped sidebar (desktop) + section/tool selectors (mobile), shared by role dashboards. */
-export function WorkspaceShell({ title, sections, active, onChange, top }: { title: string; sections: WorkspaceSection[]; active: string; onChange: (id: string) => void; top?: ReactNode }) {
+export function WorkspaceShell({ title, sections, active, onChange: setActive, top }: { title: string; sections: WorkspaceSection[]; active: string; onChange: (id: string) => void; top?: ReactNode }) {
+  const valid = (id: string | null) => !!id && sections.some(s => s.items.some(i => i.id === id));
+  // Keep the open page in the address bar (?tool=) so refresh, Back and shared links work.
+  useEffect(() => {
+    const sync = () => { const t = new URLSearchParams(window.location.search).get("tool"); if (valid(t)) setActive(t!); };
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const onChange = (id: string) => {
+    setActive(id);
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("tool") !== id) { url.searchParams.set("tool", id); window.history.pushState(window.history.state, "", url); }
+    window.scrollTo({ top: 0 });
+  };
   const current = sections.find(s => s.items.some(i => i.id === active)) ?? sections[0]!;
   const item = current.items.find(i => i.id === active) ?? current.items[0]!;
   return (

@@ -3,7 +3,7 @@ import { WorkspaceNav, WorkspaceTabs, useToolParam } from "@/components/workspac
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Trash2, Home, GraduationCap, BookOpen, Wallet, MessageSquare, Settings } from "lucide-react";
+import { Trash2, Home, GraduationCap, BookOpen, Wallet, MessageSquare, Settings, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +16,7 @@ import { StaffMessages } from "@/components/staff-messages";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
+import { LiveClassesOversight, TutorSlotsOversight, CommunityModeration, OrganisationsAdmin, EventsAdmin, LearningOversight } from "@/components/staff-oversight";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -37,11 +38,12 @@ const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 const adminSections = [
   { name: "Home", icon: Home, items: [["start", "Today"], ["reports", "Reports"]] },
-  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
-  { name: "Courses", icon: BookOpen, items: [["intakes", "Intakes"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
+  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
+  { name: "Courses", icon: BookOpen, items: [["intakes", "Intakes"], ["live-classes", "Live classes & 1-to-1"], ["events", "Events"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
-  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
-  { name: "Settings", icon: Settings, items: [["users", "Users & roles"], ["pages", "Pages"], ["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"], ["gov", "Gov & Xero links"], ["settings", "Settings"]] },
+  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community moderation"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Settings", icon: Settings, items: [["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"]] },
+  { name: "Owner", icon: Crown, items: [["users", "Users & roles"], ["pages", "Site pages"], ["gov", "Gov & Xero"], ["settings", "Settings"]] },
 ] as const;
 type AdminSection = (typeof adminSections)[number];
 type AdminTool = AdminSection["items"][number][0];

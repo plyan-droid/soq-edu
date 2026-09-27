@@ -242,6 +242,9 @@ export function SiteFooter() {
             <Link to="/funding">Funding</Link>
             <Link to="/about">About SOQ</Link>
             <Link to="/resources">Resources</Link>
+            <Link to="/tutors">Book a 1-to-1 tutor</Link>
+          </li>
+          <li>
             <Link to="/teach">Teach at SOQ</Link>
             <Link to="/verify-certificate">Verify a Certificate</Link>
             <Link to="/login">Portal Log in</Link>

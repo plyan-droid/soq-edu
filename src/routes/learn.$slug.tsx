@@ -1,3 +1,4 @@
+import { SessionBookButton } from "@/components/session-bookings";
 import { LessonNotes, CourseChatroom } from "@/components/student-extras";
 import { CourseNoticesList, StudentQuizzes, StudentAssignments } from "@/components/learner-tools";
 import { Lock } from "lucide-react";

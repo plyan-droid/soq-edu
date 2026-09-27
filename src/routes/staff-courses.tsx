@@ -1,3 +1,4 @@
+import { PageSkeleton, ListSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -34,7 +35,7 @@ function StaffCourses() {
   const [q, setQ] = useState("");
   const { data: overrides = [] } = useQuery(courseOverridesQuery);
 
-  if (loading) return <div className="mx-auto max-w-7xl px-5 py-24">Loading…</div>;
+  if (loading) return <PageSkeleton />;
   if (!isAdmin) return (
     <div className="mx-auto max-w-7xl px-5 py-24">
       <h1 className="font-serif text-4xl text-primary">Staff only</h1>

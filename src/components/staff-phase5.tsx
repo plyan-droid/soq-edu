@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -71,7 +72,7 @@ export function StudentOverview({ studentId }: { studentId: string }) {
       return { enr: e.data ?? [], orders: o.data ?? [], bank: b.data ?? [], inst: i.data ?? [] };
     },
   });
-  if (!data) return <p className="mt-6 text-muted-foreground">Loading…</p>;
+  if (!data) return <ListSkeleton />;
   const paid = data.orders.filter(x => x.status === "paid").reduce((s, x) => s + Number(x.total), 0) + data.bank.filter(x => x.status === "approved").reduce((s, x) => s + Number(x.total), 0);
   const owing = data.inst.filter(x => !x.paid).reduce((s, x) => s + Number(x.amount), 0);
   return (

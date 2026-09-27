@@ -49,12 +49,15 @@ type AdminSection = (typeof adminSections)[number];
 type AdminTool = AdminSection["items"][number][0];
 
 function Admin() {
-  const { isAdmin, loading, user } = useAuth();
+  const { isAdmin, isTopAdmin, loading, user } = useAuth();
   const [studentId, setStudentId] = useState<string>("");
   const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
   const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
-  const currentSection = adminSections.find(section => section.items.some(([id]) => id === activeTool)) ?? adminSections[0];
+  const ownerToolIds = new Set(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0]));
+  const visibleSections = isTopAdmin ? adminSections : adminSections.filter(s => s.name !== "Owner");
+  const ownerLocked = !isTopAdmin && ownerToolIds.has(activeTool as string);
+  const currentSection = visibleSections.find(section => section.items.some(([id]) => id === activeTool)) ?? visibleSections[0];
   const currentLabel = currentSection.items.find(([id]) => id === activeTool)?.[1] ?? "Reports";
   const { data: students = [] } = useQuery({
     queryKey: ["admin-students"], enabled: isAdmin,
@@ -66,7 +69,7 @@ function Admin() {
   return (
     <div className="mx-auto max-w-[92rem] px-5 pb-28 pt-6 lg:px-8 lg:py-10">
       <Tabs value={activeTool} onValueChange={value => setActiveTool(value as AdminTool)} className="grid min-w-0 gap-8 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10">
-        <WorkspaceNav title="Staff workspace" sections={adminSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
+        <WorkspaceNav title="Staff workspace" sections={visibleSections} section={currentSection.name} onChange={id => setActiveTool(id as AdminTool)} />
         <main className="min-w-0">
           <div>
             <p className="text-xs font-semibold uppercase text-muted-foreground">Staff workspace</p>

@@ -271,6 +271,7 @@ export function EventsAdmin() {
     await toastErr(error, "Event created"); if (!error) { setF({ ...f, title: "", description: "", starts: "" }); refresh(); }
   };
   const remove = async (id: string) => {
+    await supabase.from("event_signups").delete().eq("event_id", id);
     const { error } = await supabase.from("events").delete().eq("id", id);
     await toastErr(error, "Event deleted"); refresh();
   };
@@ -292,16 +293,22 @@ export function EventsAdmin() {
         <Button className="mt-4 rounded-full" onClick={() => void create()}>Create event</Button>
       </div>
       {events.length === 0 ? <p className="mt-6 text-muted-foreground">No events yet.</p> : (
-        <Table head={["Event", "When", "Location", "Sign-ups", ""]}>{events.map(ev => (
+        <Table head={["Event", "When", "Location", "Sign-ups", "Capacity", ""]}>{events.map(ev => (
           <tr key={ev.id} className="border-t border-border">
             <td className={td}>{ev.title}<div className="max-w-sm truncate text-xs text-muted-foreground">{ev.description}</div>{count(ev.id) > 0 && <div className="text-xs text-muted-foreground">{signups.filter(s => s.event_id === ev.id).map(s => s.name).join(", ")}</div>}</td>
             <td className={td}>{fmtDateTime(ev.starts_at)}</td>
             <td className={td}>{ev.location}</td>
-            <td className={td}>{count(ev.id)} / {ev.capacity}</td>
+            <td className={td}>{count(ev.id)}</td>
+            <td className={td}><Input className="h-8 w-20" type="number" min={1} defaultValue={ev.capacity} onBlur={e => { const v = Number(e.target.value); if (v !== ev.capacity) void updateCapacity(ev.id, v, refresh); }} aria-label="Capacity" /></td>
             <td className={td}><Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => void remove(ev.id)}>Delete</Button></td>
           </tr>))}</Table>)}
     </div>
   );
+}
+
+async function updateCapacity(id: string, capacity: number, refresh: () => void) {
+  const { error } = await supabase.from("events").update({ capacity }).eq("id", id);
+  await toastErr(error, "Capacity updated"); refresh();
 }
 
 /* ---------- Learning oversight ---------- */

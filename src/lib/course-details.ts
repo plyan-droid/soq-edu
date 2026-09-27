@@ -45,7 +45,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Stay ahead of the curve by learning how to integrate Generative AI into marketing, business, and everyday workflows.",
     "Turn ideas into reality using AI tools for design, storytelling, and digital campaigns.",
     "No tech background needed! Step-by-step guidance makes it beginner-friendly yet powerful for professionals.",
-    "Gain recognized certification and practical skills you can apply immediately in your work or business."
+    "Gain recognised certification and practical skills you can apply immediately in your work or business."
    ]
   },
   {
@@ -373,7 +373,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Improving lash retention",
     "Managing stickies and direction issues",
     "Troubleshooting client concerns",
-    "Module 7: Client Consultation & Customization",
+    "Module 7: Client Consultation & Customisation",
     "Conducting professional consultations",
     "Customising lash sets based on lifestyle and preferences",
     "Building client confidence and trust",
@@ -561,7 +561,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Aromatherapist in spas, wellness centres, and beauty salons",
     "Holistic therapist offering customised essential oil treatments",
     "Spa or wellness consultant for resorts and health retreats",
-    "Retail or product advisor in aromatherapy and natural skincare brands",
+    "Retail or product adviser in aromatherapy and natural skincare brands",
     "Trainer or educator in aromatherapy and holistic wellness",
     "Entrepreneur, starting their own aromatherapy studio, wellness brand, or home-based practise"
    ]

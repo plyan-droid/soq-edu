@@ -12,9 +12,9 @@ import { recommendCourses } from "@/lib/recommend.functions";
 export const Route = createFileRoute("/recommend")({
   head: () => ({
     meta: [
-      { title: "Find My Course — AI Course Advisor | SOQ International Academy" },
+      { title: "Find My Course — AI Course Adviser | SOQ International Academy" },
       { name: "description", content: "Describe your learning goals and get personalised SOQ course recommendations in seconds." },
-      { property: "og:title", content: "Find My Course — SOQ AI Course Advisor" },
+      { property: "og:title", content: "Find My Course — SOQ AI Course Adviser" },
       { property: "og:description", content: "Tell us your goals and get matched with the most relevant SOQ courses." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,7 +55,7 @@ function RecommendPage() {
 
   return (
     <>
-      <PageHero eyebrow="AI course advisor" title="Tell us your goals. We'll find your course." intro="Describe where you are today and where you want to go — our AI advisor matches you with the most relevant SOQ programmes." />
+      <PageHero eyebrow="AI course adviser" title="Tell us your goals. We'll find your course." intro="Describe where you are today and where you want to go — our AI adviser matches you with the most relevant SOQ programmes." />
       <section className="mx-auto max-w-4xl px-5 py-14 lg:px-8">
         <form onSubmit={submit} className="rounded-lg border border-border bg-card p-6">
           <label htmlFor="goals" className="font-serif text-2xl text-brand-navy">What do you want to learn or achieve?</label>

@@ -70,7 +70,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "AI Marketing & TikTok Affiliate Planning | Use AI to analyse audiences, evaluate marketing channels and develop targeted campaign plans incorporating TikTok affiliate marketing and product promotion strategies.",
     "AI Content, Image & Graphic Creation | Create promotional posters, AI-enhanced product images, social media graphics, captions and hashtags to support digital campaigns and TikTok affiliate promotions.",
     "AI Video & Reel Production | Produce product demonstrations, reviews, short promotional videos and Reels using AI-assisted scripting, storyboarding, voiceovers and video editing tools.",
-    "AI Posting & Campaign Management | Develop content calendars, prepare and schedule social media posts, and practice ad setup using AI-assisted planning and content tools.",
+    "AI Posting & Campaign Management | Develop content calendars, prepare and schedule social media posts, and practise ad setup using AI-assisted planning and content tools.",
     "Integrated Campaign Execution & Optimisation | Present a complete digital marketing campaign incorporating AI-generated visuals, videos and affiliate content. Use AI to review performance data and recommend improvements to content, posting schedules, engagement and sales conversion.",
     "Additional Notes:",
     "Eligible for Claim Period: 26 Dec 2023 - 25 Dec 2027",
@@ -92,7 +92,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "items": [
     "Tiktok Affiliate Marketing with Generative AI",
     "Learners will gain hands-on experience in planning and executing an integrated digital marketing campaign using Generative AI and TikTok affiliate marketing strategies. Participants will use AI to analyse target audiences, evaluate suitable marketing channels and develop targeted campaign plans for product and service promotion.",
-    "Learners will develop content calendars, prepare social media posts and practice basic campaign and advertisement setup using AI-assisted planning tools. As a final practical activity, participants will develop and present an integrated digital marketing campaign incorporating AI-generated content, visuals, videos and TikTok affiliate strategies, and use AI to review campaign performance and recommend improvements to engagement, content effectiveness and sales conversion."
+    "Learners will develop content calendars, prepare social media posts and practise basic campaign and advertisement setup using AI-assisted planning tools. As a final practical activity, participants will develop and present an integrated digital marketing campaign incorporating AI-generated content, visuals, videos and TikTok affiliate strategies, and use AI to review campaign performance and recommend improvements to engagement, content effectiveness and sales conversion."
    ]
   }
  ],
@@ -563,7 +563,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Spa or wellness consultant for resorts and health retreats",
     "Retail or product adviser in aromatherapy and natural skincare brands",
     "Trainer or educator in aromatherapy and holistic wellness",
-    "Entrepreneur, starting their own aromatherapy studio, wellness brand, or home-based practise"
+    "Entrepreneur, starting their own aromatherapy studio, wellness brand, or home-based practice"
    ]
   },
   {
@@ -637,7 +637,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Practical Hands-On Activities",
    "items": [
     "MODULE 1: Anatomy and Physiology",
-    "This module provides learners with a strong scientific foundation in understanding the human body. Students will explore the structure, function, and common pathologies of major body systems, including the skeletal, muscular, cardiovascular, lymphatic, respiratory, digestive, urinary, endocrine, neurological, reproductive, and integumentary systems. This knowledge helps learners understand how the body responds to essential oils and aromatherapy treatments, ensuring safe and effective practise.",
+    "This module provides learners with a strong scientific foundation in understanding the human body. Students will explore the structure, function, and common pathologies of major body systems, including the skeletal, muscular, cardiovascular, lymphatic, respiratory, digestive, urinary, endocrine, neurological, reproductive, and integumentary systems. This knowledge helps learners understand how the body responds to essential oils and aromatherapy treatments, ensuring safe and effective practice.",
     "Total: 80 hrs",
     "Classroom Learning: 30 hrs",
     "Asynchronous E-learning: 48 Hrs",
@@ -780,7 +780,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assessment: 2Hrs",
     "*Assessment will be included in classroom training",
     "MODULE 4: Sales Proposal and Negotiation",
-    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practice how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
+    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practise how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
     "Total: 64 Hrs",
     "Classroom Learning: 16 hrs",
     "Asynchronous E-learning: 48 Hrs",
@@ -911,7 +911,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assessment: 2Hrs",
     "*Assessment will be included in classroom training",
     "MODULE 4: Sales Proposal and Negotiation",
-    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practice how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
+    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practise how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
     "Total: 64 Hrs",
     "Classroom Learning: 16 hrs",
     "Asynchronous E-learning: 48 Hrs",
@@ -1232,7 +1232,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assess the physical, emotional and developmental needs of mothers and newborns and provide appropriate care.",
     "Promote infant health, nutrition, hygiene, safety and developmental wellbeing.",
     "Communicate effectively with families and healthcare professionals while maintaining professional ethics and standards.",
-    "Perform maternal and infant care responsibilities confidently in home-based, healthcare or childcare settings, or establish a professional maternal and infant care practise."
+    "Perform maternal and infant care responsibilities confidently in home-based, healthcare or childcare settings, or establish a professional maternal and infant care practice."
    ]
   },
   {
@@ -1387,7 +1387,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assess the physical, emotional and developmental needs of mothers and newborns and provide appropriate care.",
     "Promote infant health, nutrition, hygiene, safety and developmental wellbeing.",
     "Communicate effectively with families and healthcare professionals while maintaining professional ethics and standards.",
-    "Perform maternal and infant care responsibilities confidently in home-based, healthcare or childcare settings, or establish a professional maternal and infant care practise."
+    "Perform maternal and infant care responsibilities confidently in home-based, healthcare or childcare settings, or establish a professional maternal and infant care practice."
    ]
   },
   {
@@ -2132,7 +2132,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Practical Hands-On Activities",
    "items": [
     "Effective Communication with Five Elements Meridian Therapy",
-    "Participants will practise structured questioning and communication techniques to understand customer needs, identify areas of discomfort and recommend suitable wellness approaches. Through hands-on activities, learners will explore TCM-inspired herbal ingredients and essential oils, create their own Five Elements essential oil blend, and practice basic meridian massage techniques such as gliding, pressing and kneading.",
+    "Participants will practise structured questioning and communication techniques to understand customer needs, identify areas of discomfort and recommend suitable wellness approaches. Through hands-on activities, learners will explore TCM-inspired herbal ingredients and essential oils, create their own Five Elements essential oil blend, and practise basic meridian massage techniques such as gliding, pressing and kneading.",
     "The session integrates communication, consultation and practical wellness application, enabling learners to respond appropriately to customer needs while providing a personalised and engaging wellness experience. Learners will also understand essential safety considerations and precautions when applying essential oils and meridian relaxation techniques."
    ]
   }
@@ -2312,7 +2312,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "The Fundamental of Hand Massage course provides a holistic introduction to one of the most accessible and beneficial wellness practices. Learners will gain a solid understanding of hand anatomy, pressure points, and massage flow — alongside hands-on experience to develop confidence and professional touch.",
-    "Participants will also develop professional skills in client communication, hygiene, and aftercare, ensuring both safe and effective practise. Whether you’re caring for family members, supporting seniors, or enhancing your wellness service portfolio, this course equips you with the practical expertise to deliver meaningful, soothing hand therapy for stress relief and comfort."
+    "Participants will also develop professional skills in client communication, hygiene, and aftercare, ensuring both safe and effective practice. Whether you’re caring for family members, supporting seniors, or enhancing your wellness service portfolio, this course equips you with the practical expertise to deliver meaningful, soothing hand therapy for stress relief and comfort."
    ]
   },
   {

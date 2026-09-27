@@ -77,7 +77,7 @@ function Admin() {
             <WorkspaceTabs items={currentSection.items} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           </div>
           <div className="min-w-0 pt-3">
-            {ownerLocked && <div className="rounded-lg border border-border bg-card p-8"><h2 className="font-serif text-2xl text-primary">Owner only</h2><p className="mt-2 text-muted-foreground">This area is for SOQ owner accounts. Ask an admin if you need something here.</p></div>}
+            {ownerLocked ? <div className="rounded-lg border border-border bg-card p-8"><h2 className="font-serif text-2xl text-primary">Owner only</h2><p className="mt-2 text-muted-foreground">This area is for SOQ owner accounts. Ask an admin if you need something here.</p></div> : <>
         <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} onNavigate={id => setActiveTool(id as AdminTool)} greeting="Here's what needs your attention today. Anything urgent is shown first." /></TabsContent>
         <TabsContent value="reports"><Reports /></TabsContent>
         <TabsContent value="live-classes"><LiveClassesOversight /></TabsContent>

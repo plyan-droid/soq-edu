@@ -32,7 +32,7 @@ const baseCourses: Course[] = [
     price: "From $216",
     badge: "WSQ",
     image: aiImage,
-    outcomes: ["Step into the future of marketing with this hands-on, 2-day AI marketing course designed for modern creators and business owners", "Through interactive lessons and real-world practise, you’ll learn how to use latest Generative AI tools to create stunning and engaging content, images, music, and videos that capture attention and drive results"],
+    outcomes: ["Step into the future of marketing with this hands-on, 2-day AI marketing course designed for modern creators and business owners", "Through interactive lessons and real-world practice, you’ll learn how to use latest Generative AI tools to create stunning and engaging content, images, music, and videos that capture attention and drive results"],
   },
   {
     slug: "brand-management-and-storytelling",
@@ -104,7 +104,7 @@ const baseCourses: Course[] = [
     price: "From $734.87/mo",
     badge: "Diploma",
     image: diplomaImage,
-    outcomes: ["The Diploma in Aromatherapy offers learners the chance to master one of today’s most in-demand wellness skills — the art and science of using essential oils for healing, relaxation, and holistic care", "Through this course, learners will gain both hands-on practical skills and in-depth theoretical knowledge to deliver professional aromatherapy treatments, create personalised blends, and promote overall mind-body balance", "It’s the perfect path for those who wish to build a fulfilling career in the beauty and holistic wellness industry, or start their own wellness practise"],
+    outcomes: ["The Diploma in Aromatherapy offers learners the chance to master one of today’s most in-demand wellness skills — the art and science of using essential oils for healing, relaxation, and holistic care", "Through this course, learners will gain both hands-on practical skills and in-depth theoretical knowledge to deliver professional aromatherapy treatments, create personalised blends, and promote overall mind-body balance", "It’s the perfect path for those who wish to build a fulfilling career in the beauty and holistic wellness industry, or start their own wellness practice"],
   },
   {
     slug: "diploma-in-international-business-development",
@@ -278,13 +278,13 @@ const baseCourses: Course[] = [
     slug: "fundamental-of-hand-massage",
     title: "Fundamental of Hand massage",
     category: "Beauty & Wellness",
-    summary: "The Fundamental of Hand Massage course introduces learners to the art and science of therapeutic hand care — a simple yet powerful wellness practise that promotes relaxation, circu...",
+    summary: "The Fundamental of Hand Massage course introduces learners to the art and science of therapeutic hand care — a simple yet powerful wellness practice that promotes relaxation, circu...",
     duration: "4 Sessions",
     mode: "Classroom",
     price: "Enquire for details",
     badge: "Workshop",
     image: beautyImage,
-    outcomes: ["The Fundamental of Hand Massage course introduces learners to the art and science of therapeutic hand care — a simple yet powerful wellness practise that promotes relaxation, circulation, and emotional balance", "Through theory and guided practise, learners will explore the anatomy of the hand, key reflex zones, and effective massage techniques that ease muscle tension and enhance overall well-being"],
+    outcomes: ["The Fundamental of Hand Massage course introduces learners to the art and science of therapeutic hand care — a simple yet powerful wellness practice that promotes relaxation, circulation, and emotional balance", "Through theory and guided practice, learners will explore the anatomy of the hand, key reflex zones, and effective massage techniques that ease muscle tension and enhance overall well-being"],
   },
   {
     slug: "head-shoulder-meridian-bojin",
@@ -404,7 +404,7 @@ const baseCourses: Course[] = [
     price: "Enquire for details",
     badge: "Workshop",
     image: beautyImage,
-    outcomes: ["The Makeup Master Class is an advanced programme designed for those ready to take their artistry to a professional level", "Building on the fundamentals of personal makeup, this course equips learners with skills in client-ready day and evening looks, photography and stage makeup, creative hairstyling, and extensive live model practise"],
+    outcomes: ["The Makeup Master Class is an advanced programme designed for those ready to take their artistry to a professional level", "Building on the fundamentals of personal makeup, this course equips learners with skills in client-ready day and evening looks, photography and stage makeup, creative hairstyling, and extensive live model practice"],
   },
   {
     slug: "pelvic-wellness-care",
@@ -476,7 +476,7 @@ const baseCourses: Course[] = [
     price: "From $798.10/mo",
     badge: "VTCT",
     image: diplomaImage,
-    outcomes: ["The VTCT Skills (ITEC) Level 3 Diploma in Fashion, Theatre and Media Make-up equips learners with the practical skills, technical knowledge and professional competencies required to deliver fashion, theatrical and media make-up services, including an understanding of skin structure, common skin conditions, client consultation and safety, while developing essential workplace skills such as communication, teamwork, problem-solving and professional practise to pursue a successful career as a make-up artist"],
+    outcomes: ["The VTCT Skills (ITEC) Level 3 Diploma in Fashion, Theatre and Media Make-up equips learners with the practical skills, technical knowledge and professional competencies required to deliver fashion, theatrical and media make-up services, including an understanding of skin structure, common skin conditions, client consultation and safety, while developing essential workplace skills such as communication, teamwork, problem-solving and professional practice to pursue a successful career as a make-up artist"],
   },
   {
     slug: "vtct-skills-itec-level-3-diploma-in-fashion-theatre-and-media-make-up-mandarin",
@@ -488,7 +488,7 @@ const baseCourses: Course[] = [
     price: "From $798.10/mo",
     badge: "VTCT",
     image: diplomaImage,
-    outcomes: ["The VTCT Skills (ITEC) Level 3 Diploma in Fashion, Theatre and Media Make-up (Mandarin) equips learners with the practical skills, technical knowledge and professional competencies required to deliver fashion, theatrical and media make-up services, including an understanding of skin structure, common skin conditions, client consultation and safety, while developing essential workplace skills such as communication, teamwork, problem-solving and professional practise to pursue a successful career as a make-up artist"],
+    outcomes: ["The VTCT Skills (ITEC) Level 3 Diploma in Fashion, Theatre and Media Make-up (Mandarin) equips learners with the practical skills, technical knowledge and professional competencies required to deliver fashion, theatrical and media make-up services, including an understanding of skin structure, common skin conditions, client consultation and safety, while developing essential workplace skills such as communication, teamwork, problem-solving and professional practice to pursue a successful career as a make-up artist"],
   },
 ];
 

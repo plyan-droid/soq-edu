@@ -70,7 +70,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "AI Marketing & TikTok Affiliate Planning | Use AI to analyse audiences, evaluate marketing channels and develop targeted campaign plans incorporating TikTok affiliate marketing and product promotion strategies.",
     "AI Content, Image & Graphic Creation | Create promotional posters, AI-enhanced product images, social media graphics, captions and hashtags to support digital campaigns and TikTok affiliate promotions.",
     "AI Video & Reel Production | Produce product demonstrations, reviews, short promotional videos and Reels using AI-assisted scripting, storyboarding, voiceovers and video editing tools.",
-    "AI Posting & Campaign Management | Develop content calendars, prepare and schedule social media posts, and practise ad setup using AI-assisted planning and content tools.",
+    "AI Posting & Campaign Management | Develop content calendars, prepare and schedule social media posts, and practice ad setup using AI-assisted planning and content tools.",
     "Integrated Campaign Execution & Optimisation | Present a complete digital marketing campaign incorporating AI-generated visuals, videos and affiliate content. Use AI to review performance data and recommend improvements to content, posting schedules, engagement and sales conversion.",
     "Additional Notes:",
     "Eligible for Claim Period: 26 Dec 2023 - 25 Dec 2027",
@@ -92,7 +92,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "items": [
     "Tiktok Affiliate Marketing with Generative AI",
     "Learners will gain hands-on experience in planning and executing an integrated digital marketing campaign using Generative AI and TikTok affiliate marketing strategies. Participants will use AI to analyse target audiences, evaluate suitable marketing channels and develop targeted campaign plans for product and service promotion.",
-    "Learners will develop content calendars, prepare social media posts and practise basic campaign and advertisement setup using AI-assisted planning tools. As a final practical activity, participants will develop and present an integrated digital marketing campaign incorporating AI-generated content, visuals, videos and TikTok affiliate strategies, and use AI to review campaign performance and recommend improvements to engagement, content effectiveness and sales conversion."
+    "Learners will develop content calendars, prepare social media posts and practice basic campaign and advertisement setup using AI-assisted planning tools. As a final practical activity, participants will develop and present an integrated digital marketing campaign incorporating AI-generated content, visuals, videos and TikTok affiliate strategies, and use AI to review campaign performance and recommend improvements to engagement, content effectiveness and sales conversion."
    ]
   }
  ],
@@ -216,7 +216,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Additional Notes",
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
-    "Peer practise will be conducted among learners during the lesson.",
+    "Peer practice will be conducted among learners during the lesson.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 6 months from the course start date to complete their training.",
     "Course Fees are non-refundable, unless the academy cancels the class without an alternate commencement date.",
@@ -257,13 +257,13 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Introduction to Machine Ombre Brows",
     "Pixel point technique and shading principles",
     "Achieving smooth gradients and soft transitions",
-    "Demonstration and guided practise",
+    "Demonstration and guided practice",
     "Module 4: Skin & Pigment Science",
     "Understanding skin types and conditions",
     "Pigment selection and colour retention",
     "Healing process and aftercare essentials",
     "Managing expectations and client education",
-    "Module 5: Machine Ombre Brows – Hands-on Practise",
+    "Module 5: Machine Ombre Brows – Hands-on Practice",
     "Step-by-step ombre brow procedure",
     "Creating soft front and shaded tail effects",
     "Working on latex skins and live models",
@@ -279,7 +279,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Understanding client preferences and expectations",
     "Providing appropriate aftercare and follow-up advice",
     "Module 8: Practical Training",
-    "Mannequin practise sessions",
+    "Mannequin practice sessions",
     "Live model application",
     "Trainer feedback and guidance",
     "Continuous learning and skills enhancement opportunities"
@@ -317,7 +317,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Additional Notes",
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
-    "Peer practise will be conducted among learners during the lesson.",
+    "Peer practice will be conducted among learners during the lesson.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 6 months from the course start date to complete their training.",
     "Course Fees are non-refundable, unless the academy cancels the class without an alternate commencement date.",
@@ -378,8 +378,8 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Customising lash sets based on lifestyle and preferences",
     "Building client confidence and trust",
     "Module 8: Practical Training",
-    "Mannequin practise sessions",
-    "Live model application (Peer Practise)",
+    "Mannequin practice sessions",
+    "Live model application (Peer Practice)",
     "Trainer feedback and guidance",
     "Continuous learning and skills enhancement opportunities"
    ]
@@ -570,7 +570,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "The Diploma in Aromatherapy is a comprehensive professional programme that combines scientific knowledge with holistic wellness practices — perfect for those who wish to master the healing power of essential oils and build a career in the growing wellness and beauty industry.",
-    "Learners will gain a deep understanding of the human body systems through Anatomy and Physiology, explore the chemistry and blending of essential oils, and learn how to perform safe, effective aromatherapy treatments tailored to clients’ needs. The course also develops professional conduct and business awareness, empowering graduates to work confidently in spas, wellness centres, or start their own holistic practise."
+    "Learners will gain a deep understanding of the human body systems through Anatomy and Physiology, explore the chemistry and blending of essential oils, and learn how to perform safe, effective aromatherapy treatments tailored to clients’ needs. The course also develops professional conduct and business awareness, empowering graduates to work confidently in spas, wellness centres, or start their own holistic practice."
    ]
   },
   {
@@ -616,7 +616,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Be able to carry out aromatherapy treatment",
     "Be able to evaluate aromatherapy treatment and advise on appropriate after and home care",
     "MODULE 3: Professional conduct and business awareness",
-    "Know the principles of ethical practise",
+    "Know the principles of ethical practice",
     "Know the requirements for health, safety, and hygiene",
     "Know the importance of communication",
     "Know the principles of finance and costing",
@@ -643,14 +643,14 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Asynchronous E-learning: 48 Hrs",
     "Assessment: 2 Hr",
     "MODULE 2: Provide Aromatherapy Treatment",
-    "In this module, learners will gain a comprehensive understanding of the principles and practise of aromatherapy. They will study the history and theories behind aromatherapy, the structure and function of plants, and the chemistry of essential and carrier oils. Learners will also explore product quality, blending techniques, consultation procedures, and contraindications to treatment. Practical sessions will allow students to prepare, perform, and evaluate aromatherapy treatments, while providing aftercare and home-care advice tailored to individual client needs.",
+    "In this module, learners will gain a comprehensive understanding of the principles and practice of aromatherapy. They will study the history and theories behind aromatherapy, the structure and function of plants, and the chemistry of essential and carrier oils. Learners will also explore product quality, blending techniques, consultation procedures, and contraindications to treatment. Practical sessions will allow students to prepare, perform, and evaluate aromatherapy treatments, while providing aftercare and home-care advice tailored to individual client needs.",
     "Total: 80 hrs",
     "Classroom Learning: 64hrs",
     "Asynchronous E-learning: 14 Hrs",
     "Assessment: 2 Hr",
     "Portfolio of Evidence: 5 Models x 4",
     "MODULE 3: Professional Conduct and Business Awareness",
-    "This module equips learners with the professional and business skills needed to succeed in the wellness and beauty industry. Students will understand the importance of ethical practise, health and safety standards, and effective communication. They will also learn the fundamentals of finance, retail, sales, and marketing, empowering them to confidently manage or promote their own aromatherapy or wellness business while upholding professional integrity.",
+    "This module equips learners with the professional and business skills needed to succeed in the wellness and beauty industry. Students will understand the importance of ethical practice, health and safety standards, and effective communication. They will also learn the fundamentals of finance, retail, sales, and marketing, empowering them to confidently manage or promote their own aromatherapy or wellness business while upholding professional integrity.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
     "Asynchronous E-learning: 22 Hrs",
@@ -780,7 +780,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assessment: 2Hrs",
     "*Assessment will be included in classroom training",
     "MODULE 4: Sales Proposal and Negotiation",
-    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practise how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
+    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practice how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
     "Total: 64 Hrs",
     "Classroom Learning: 16 hrs",
     "Asynchronous E-learning: 48 Hrs",
@@ -911,7 +911,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Assessment: 2Hrs",
     "*Assessment will be included in classroom training",
     "MODULE 4: Sales Proposal and Negotiation",
-    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practise how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
+    "This modules will shows the different proposal stage and how to negotiate with customers. The students will learn and practice how to do a sales proposal, presentation and different negotiation skills. They will benefits with the practices in classes and learn with valuable feedbacks.",
     "Total: 64 Hrs",
     "Classroom Learning: 16 hrs",
     "Asynchronous E-learning: 48 Hrs",
@@ -1497,7 +1497,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Key Areas Covered In This Course",
    "items": [
-    "MODULE 1: Health and safety practise in the salon",
+    "MODULE 1: Health and safety practice in the salon",
     "MODULE 2: Provide Eyelash Extension",
     "MODULE 3: Professional conduct and business awareness"
    ]
@@ -1552,7 +1552,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "*MODULE 3: Professional Conduct and Business Awareness",
     "Understand the key steps in establishing an eyelash business",
     "Create an eyelash service menu based on treatment types, styles, and customer needs",
-    "Understand ethical practise, professional conduct, and effective communication in beauty services",
+    "Understand ethical practice, professional conduct, and effective communication in beauty services",
     "Apply standard health, safety, and hygiene requirements in daily service operations",
     "Understand basic finance, costing, retail, sales, and marketing principles to support business operations",
     "Total Training Duration",
@@ -1583,7 +1583,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Practical Hands-On Activities",
    "items": [
-    "MODULE 1: Health and Safety Practise in the Salon",
+    "MODULE 1: Health and Safety Practice in the Salon",
     "Learn the principles of health and safety, emergency procedures, and hygiene management to maintain a safe, professional, and compliant salon environment.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
@@ -1609,7 +1609,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Key Areas Covered In This Course",
    "items": [
-    "MODULE 1: Health and safety practise in the salon",
+    "MODULE 1: Health and safety practice in the salon",
     "MODULE 2: Provide Eyelash Extension",
     "MODULE 3: Professional conduct and business awareness"
    ]
@@ -1664,7 +1664,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "*MODULE 3: Professional Conduct and Business Awareness",
     "Understand the key steps in establishing an eyelash business",
     "Create an eyelash service menu based on treatment types, styles, and customer needs",
-    "Understand ethical practise, professional conduct, and effective communication in beauty services",
+    "Understand ethical practice, professional conduct, and effective communication in beauty services",
     "Apply standard health, safety, and hygiene requirements in daily service operations",
     "Understand basic finance, costing, retail, sales, and marketing principles to support business operations",
     "Total Training Duration",
@@ -1695,7 +1695,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Practical Hands-On Activities",
    "items": [
-    "MODULE 1: Health and Safety Practise in the Salon",
+    "MODULE 1: Health and Safety Practice in the Salon",
     "Learn the principles of health and safety, emergency procedures, and hygiene management to maintain a safe, professional, and compliant salon environment.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
@@ -1721,7 +1721,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Key Areas Covered In This Course",
    "items": [
-    "MODULE 1: Health and safety practise in the salon",
+    "MODULE 1: Health and safety practice in the salon",
     "MODULE 2: Provide Professional Make Up",
     "MODULE 3: Professional conduct and business awareness"
    ]
@@ -1779,7 +1779,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Create a complete image through coordinated make-up, hairstyling, and overall presentation",
     "MODULE 3: Professional Conduct and Business Awareness",
     "Understand the key steps in establishing and managing a professional beauty business",
-    "Understand ethical practise, professional conduct, and service responsibility in beauty services",
+    "Understand ethical practice, professional conduct, and service responsibility in beauty services",
     "Apply effective communication skills when interacting with clients and providing services",
     "Understand basic finance, costing, retail, sales, and marketing principles to support business operations",
     "Apply effective sales and marketing techniques to promote beauty services and business growth",
@@ -1811,14 +1811,14 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Practical Hands-On Activities",
    "items": [
-    "MODULE 1: Health and Safety Practise in the Salon",
+    "MODULE 1: Health and Safety Practice in the Salon",
     "This module introduces learners to essential health, safety, and hygiene standards within a salon environment. Students will learn how to maintain a clean and safe workspace, handle tools and products correctly, and follow proper sanitation and infection control procedures — ensuring the well-being of both clients and professionals.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
     "Asynchronous E-learning: 22 hrs",
     "Assessment: 2 hrs",
     "MODULE 2: Provide Professional Makeup",
-    "Learners will develop the technical and creative skills needed to perform a wide range of professional makeup applications — including day, evening, bridal, and fashion looks. The module covers facial analysis, colour theory, product selection, and makeup for different skin tones and occasions, with hands-on practise on live models to build real-world confidence.",
+    "Learners will develop the technical and creative skills needed to perform a wide range of professional makeup applications — including day, evening, bridal, and fashion looks. The module covers facial analysis, colour theory, product selection, and makeup for different skin tones and occasions, with hands-on practice on live models to build real-world confidence.",
     "Total: 120 hrs",
     "Classroom Learning: 80 hrs",
     "Asynchronous E-learning: 38 Hrs",
@@ -1837,7 +1837,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Key Areas Covered In This Course",
    "items": [
-    "MODULE 1: Health and safety practise in the salon",
+    "MODULE 1: Health and safety practice in the salon",
     "MODULE 2: Semi-Permanent Embroidery",
     "MODULE 3: Professional conduct and business awareness"
    ]
@@ -1891,7 +1891,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Perform 3D Lip Embroidery for fuller and contoured lip effects using manual and PMU methods",
     "Provide aftercare and home care advice, and update client records where required",
     "MODULE 3: Professional Conduct and Business Awareness",
-    "Understand the principles of ethical practise, professional conduct, and service responsibility",
+    "Understand the principles of ethical practice, professional conduct, and service responsibility",
     "Apply consultation techniques to understand client needs, treatment suitability, contra-indications, referral procedures, possible contra-actions, aftercare, and home care advice",
     "Apply effective communication skills when advising clients before, during, and after semi-permanent embroidery treatments",
     "Understand basic finance, costing, retail, sales, and marketing principles to support beauty service operations",
@@ -1923,7 +1923,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Practical Hands-On Activities",
    "items": [
-    "MODULE 1: Health and Safety Practise in the Salon",
+    "MODULE 1: Health and Safety Practice in the Salon",
     "Learn to maintain a safe and hygienic working environment by understanding health and safety principles, emergency procedures, and the role of a safety supervisor in a professional salon.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
@@ -1949,7 +1949,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Key Areas Covered In This Course",
    "items": [
-    "MODULE 1: Health and safety practise in the salon",
+    "MODULE 1: Health and safety practice in the salon",
     "MODULE 2: Semi-Permanent Embroidery",
     "MODULE 3: Professional conduct and business awareness"
    ]
@@ -2003,7 +2003,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Perform 3D Lip Embroidery for fuller and contoured lip effects using manual and PMU methods",
     "Provide aftercare and home care advice, and update client records where required",
     "MODULE 3: Professional Conduct and Business Awareness",
-    "Understand the principles of ethical practise, professional conduct, and service responsibility",
+    "Understand the principles of ethical practice, professional conduct, and service responsibility",
     "Apply consultation techniques to understand client needs, treatment suitability, contra-indications, referral procedures, possible contra-actions, aftercare, and home care advice",
     "Apply effective communication skills when advising clients before, during, and after semi-permanent embroidery treatments",
     "Understand basic finance, costing, retail, sales, and marketing principles to support beauty service operations",
@@ -2035,7 +2035,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Practical Hands-On Activities",
    "items": [
-    "MODULE 1: Health and Safety Practise in the Salon",
+    "MODULE 1: Health and Safety Practice in the Salon",
     "Learn to maintain a safe and hygienic working environment by understanding health and safety principles, emergency procedures, and the role of a safety supervisor in a professional salon.",
     "Total: 48 hrs",
     "Classroom Learning: 24 hrs",
@@ -2088,7 +2088,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Build Real Communication Confidence",
     "Improve Cross-Cultural Understanding",
     "Enhance Customer Satisfaction",
-    "Hands-On Practise & Roleplay",
+    "Hands-On Practice & Roleplay",
     "Boost Career & Workplace Performance",
     "Learn from Industry Professionals"
    ]
@@ -2132,7 +2132,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Practical Hands-On Activities",
    "items": [
     "Effective Communication with Five Elements Meridian Therapy",
-    "Participants will practise structured questioning and communication techniques to understand customer needs, identify areas of discomfort and recommend suitable wellness approaches. Through hands-on activities, learners will explore TCM-inspired herbal ingredients and essential oils, create their own Five Elements essential oil blend, and practise basic meridian massage techniques such as gliding, pressing and kneading.",
+    "Participants will practise structured questioning and communication techniques to understand customer needs, identify areas of discomfort and recommend suitable wellness approaches. Through hands-on activities, learners will explore TCM-inspired herbal ingredients and essential oils, create their own Five Elements essential oil blend, and practice basic meridian massage techniques such as gliding, pressing and kneading.",
     "The session integrates communication, consultation and practical wellness application, enabling learners to respond appropriately to customer needs while providing a personalised and engaging wellness experience. Learners will also understand essential safety considerations and precautions when applying essential oils and meridian relaxation techniques."
    ]
   }
@@ -2166,7 +2166,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "Learn practical product demonstration and customer engagement techniques",
-    "Hands-On Practise & Live Demonstration",
+    "Hands-On Practice & Live Demonstration",
     "Build Sales & Communication Confidence",
     "Learn From Industry Experts",
     "Career-Ready Skills for Retail Success"
@@ -2242,7 +2242,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2293,7 +2293,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Advisory and Practical Assessment",
     "Providing post-massage advice and aftercare",
     "Role-play in professional communication",
-    "Hands-on guided practise and evaluation"
+    "Hands-on guided practice and evaluation"
    ]
   }
  ],
@@ -2325,7 +2325,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2369,7 +2369,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Hand Massage Techniques and Sequences",
     "Step-by-step demonstration of massage movements: effleurage, kneading, circular thumb strokes, and pressure holds",
     "Safe application of techniques for different hand conditions",
-    "Developing rhythm, flow, and relaxation through consistent practise",
+    "Developing rhythm, flow, and relaxation through consistent practice",
     "Hygiene, Safety, and Contraindications",
     "Maintaining hygiene, cleanliness, and comfort for clients",
     "Recognising when not to perform massage (e.g., wounds, inflammation, fractures)",
@@ -2379,7 +2379,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Aromatherapy principles for hand relaxation",
     "Towel preparation and client care",
     "Practical Application and Advisory Skills",
-    "Hands-on guided practise sessions",
+    "Hands-on guided practice sessions",
     "Role-play on consultation and aftercare recommendations",
     "Professional presentation and service techniques"
    ]
@@ -2398,8 +2398,8 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Why Choose This Course",
    "items": [
-    "The Healthy Head & Shoulder Meridian (Bojin) course combines the best of traditional meridian therapy and modern wellness practise. It’s ideal for those who want to deliver deeply relaxing and results-driven treatments that support both physical and emotional health.",
-    "Learners will gain hands-on experience through peer and self practise, building confidence in applying wellness techniques safely and effectively. This course equips you with professional knowledge and practical skills to relieve tension, promote energy flow, and enhance overall client satisfaction — making it a valuable addition to any wellness or beauty career."
+    "The Healthy Head & Shoulder Meridian (Bojin) course combines the best of traditional meridian therapy and modern wellness practice. It’s ideal for those who want to deliver deeply relaxing and results-driven treatments that support both physical and emotional health.",
+    "Learners will gain hands-on experience through peer and self practice, building confidence in applying wellness techniques safely and effectively. This course equips you with professional knowledge and practical skills to relieve tension, promote energy flow, and enhance overall client satisfaction — making it a valuable addition to any wellness or beauty career."
    ]
   },
   {
@@ -2412,7 +2412,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2428,7 +2428,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Facial Acupoints and Their Effects",
     "Facial Meridian Channels and Their Functions",
     "Step-by-Step Bojin Procedures",
-    "Peer and Self Hands-On Practise",
+    "Peer and Self Hands-On Practice",
     "Tools, Mediums & Application Techniques",
     "Aftercare & Maintenance Guidance",
     "Client Consultation & Professional Ethics",
@@ -2454,7 +2454,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Acupoints and Their Effects – Identify essential acupoints on the head, neck, and shoulders and understand their influence on relaxation, circulation, and stress relief.",
     "Meridian Channels and Their Functions – Explore how energy flows through the head and shoulder meridian pathways to restore balance and relieve tension.",
     "Step-by-Step Bojin Procedures – Learn the complete sequence of professional head and shoulder Bojin techniques for optimal results.",
-    "Peer and Self Hands-On Practise – Gain confidence through guided practise sessions to apply learned skills safely and effectively.",
+    "Peer and Self Hands-On Practice – Gain confidence through guided practice sessions to apply learned skills safely and effectively.",
     "Tools, Mediums & Application Techniques – Discover the proper use of Bojin tools, oils, and mediums to enhance treatment comfort and results.",
     "Aftercare & Maintenance Guidance – Learn post-therapy care, lifestyle habits, and home relaxation routines to sustain wellness effects.",
     "Client Consultation & Professional Ethics – Develop communication and assessment skills to ensure professional, personalised client care.",
@@ -2476,7 +2476,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "The Body Meridian (Bojin) course offers an in-depth understanding of full-body energy balance, combining ancient meridian knowledge with modern therapeutic practices. It provides hands-on experience across the hands, legs, back, and tummy — empowering learners with versatile skills to relieve fatigue, support detoxification, and enhance total body wellness.",
-    "Through guided practise and trainer supervision, you’ll gain the confidence and techniques to deliver professional treatments that promote harmony, vitality, and deep relaxation — a valuable addition to any beauty or wellness service portfolio."
+    "Through guided practice and trainer supervision, you’ll gain the confidence and techniques to deliver professional treatments that promote harmony, vitality, and deep relaxation — a valuable addition to any beauty or wellness service portfolio."
    ]
   },
   {
@@ -2489,7 +2489,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2505,8 +2505,8 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Acupoints and Their Functions",
     "Meridian Channels and Body Functions",
     "Step-by-Step Bojin Techniques",
-    "Peer and Self Hands-On Practise",
-    "Tools, Mediums & Hygiene Practise",
+    "Peer and Self Hands-On Practice",
+    "Tools, Mediums & Hygiene Practice",
     "Aftercare & Maintenance Guidance",
     "Client Assessment & Consultation",
     "Holistic Wellness & Energy Flow Awareness",
@@ -2531,8 +2531,8 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Acupoints and Their Functions – Identify important acupoints across the hands, legs, back, and abdomen and their therapeutic effects.",
     "Meridian Channels and Body Functions – Understand the 12 major meridians and how they relate to body wellness and energy balance.",
     "Step-by-Step Bojin Techniques – Learn structured body Bojin sequences for different body areas to promote circulation and relief.",
-    "Peer and Self Hands-On Practise – Apply techniques through guided practical sessions to enhance accuracy and confidence.",
-    "Tools, Mediums & Hygiene Practise – Understand the correct use and care of Bojin tools, oils, and mediums for professional application.",
+    "Peer and Self Hands-On Practice – Apply techniques through guided practical sessions to enhance accuracy and confidence.",
+    "Tools, Mediums & Hygiene Practice – Understand the correct use and care of Bojin tools, oils, and mediums for professional application.",
     "Aftercare & Maintenance Guidance – Learn how to support post-treatment recovery and long-term body balance.",
     "Client Assessment & Consultation – Build communication and consultation skills for safe, customised body treatments.",
     "Holistic Wellness & Energy Flow Awareness – Explore how physical, emotional, and mental well-being are interconnected through meridian balance."
@@ -2552,7 +2552,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
   {
    "title": "Why Choose This Course",
    "items": [
-    "The Healthy Face Meridian (Bojin) course offers a unique blend of traditional meridian therapy and modern wellness techniques, providing learners with holistic skills that go beyond surface skincare. Through hands-on practise, you’ll master facial, eye, and neck Bojin methods that stimulate the 14 facial meridians and 19 acupoints to enhance circulation, relieve tension, and restore natural radiance.",
+    "The Healthy Face Meridian (Bojin) course offers a unique blend of traditional meridian therapy and modern wellness techniques, providing learners with holistic skills that go beyond surface skincare. Through hands-on practice, you’ll master facial, eye, and neck Bojin methods that stimulate the 14 facial meridians and 19 acupoints to enhance circulation, relieve tension, and restore natural radiance.",
     "This course is perfect for those who want to integrate holistic healing into beauty care, offering clients visible improvements in skin vitality and overall wellness. Backed by both ancient wisdom and scientific understanding, it equips you with practical techniques that elevate your professional services and set you apart in the fast-growing wellness and aesthetic industry."
    ]
   },
@@ -2566,7 +2566,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2582,7 +2582,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Facial Acupoints and Their Effects",
     "Facial Meridian Channels and Their Functions",
     "Step-by-Step Bojin Procedures",
-    "DIY Practise and Model Training",
+    "DIY Practice and Model Training",
     "Tools, Mediums & Application Techniques",
     "Aftercare & Maintenance Guidance",
     "Client Consultation & Professional Ethics",
@@ -2608,7 +2608,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Key Facial Acupoints and Their Effects – Identify and stimulate important acupoints for beauty, wellness, and stress relief.",
     "Facial Meridian Channels and Their Functions – Understand the 14 meridian pathways and how they connect the body’s internal organs to facial appearance.",
     "Step-by-Step Bojin Procedures – Master practical techniques for performing facial, eye, and neck Bojin with proper rhythm, direction, and pressure.",
-    "DIY Practise and Model Training – Hands-on guided practise on yourself and models to develop skill accuracy and confidence.",
+    "DIY Practice and Model Training – Hands-on guided practice on yourself and models to develop skill accuracy and confidence.",
     "Tools, Mediums & Application Techniques – Learn how to use Bojin tools safely, choose suitable oils or mediums, and maintain professional hygiene standards.",
     "Aftercare & Maintenance Guidance – Learn post-treatment care, home routines, and holistic lifestyle tips for long-term skin wellness.",
     "Client Consultation & Professional Ethics – Understand how to assess client needs, communicate effectively, and maintain trust and professionalism.",
@@ -2645,7 +2645,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2659,7 +2659,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Colour & Style Mastery",
     "Professional Etiquette & Communication",
     "Personal Branding & Grooming",
-    "Consulting Practise & Portfolio Development",
+    "Consulting Practice & Portfolio Development",
     "Practical Training",
     "Total Training Duration: 12 Sessions",
     "Timing: 9.30am - 12.30pm or 1.30pm - 5.30pm",
@@ -2683,7 +2683,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Train clients in social, business, and cross-cultural etiquette to project confidence and credibility.",
     "Personal Branding & Grooming",
     "Guide individuals in aligning appearance, behaviour, and communication with their personal or corporate brand.",
-    "Consulting Practise & Portfolio Development",
+    "Consulting Practice & Portfolio Development",
     "Gain hands-on experience, case studies, and portfolio building to launch or grow a professional image consulting career.",
     "Practical Training",
     "Extensive 4 live model applications."
@@ -2808,7 +2808,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "items": [
     "Understanding and Infant Wellness",
     "Infant Massage and Developmental Touch",
-    "Advisory and Professional Practise",
+    "Advisory and Professional Practice",
     "Demonstration roleplay on infant massage",
     "Total Training Duration: 2 Sessions",
     "Timing: 9.30am - 12.30pm or 1.30pm - 5.30pm",
@@ -2833,8 +2833,8 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Benefits and contraindications of infant massage",
     "Step-by-step practical application and positioning",
     "Reading infant cues and ensuring comfort",
-    "Hands-on demonstration and practise sessions",
-    "Advisory and Professional Practise",
+    "Hands-on demonstration and practice sessions",
+    "Advisory and Professional Practice",
     "Communicating effectively with mothers and caregivers",
     "Providing practical guidance on home care routines",
     "Demonstration roleplay on infant massage",
@@ -2869,7 +2869,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2885,7 +2885,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Benefits and Precautions",
     "Facial Acupoints and Muscle Functions",
     "Step-by-Step Lifting Procedures",
-    "Peer and Self Hands-On Practise",
+    "Peer and Self Hands-On Practice",
     "Tools, Mediums & Hygiene Practices",
     "Aftercare & Maintenance Guidance",
     "Client Assessment & Consultation Skills",
@@ -2911,7 +2911,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Benefits and Precautions – Explore the benefits of Japanese face lifting and learn the safety measures and contraindications to ensure client well-being.",
     "Facial Acupoints and Muscle Functions – Identify key acupoints and muscle groups that affect facial firmness, tension, and overall appearance.",
     "Step-by-Step Lifting Procedures – Master the structured Korugi and Kogao techniques for effective, natural face-lifting results.",
-    "Peer and Self Hands-On Practise – Gain practical experience through guided self and peer sessions to build accuracy and confidence.",
+    "Peer and Self Hands-On Practice – Gain practical experience through guided self and peer sessions to build accuracy and confidence.",
     "Tools, Mediums & Hygiene Practices – Learn the correct use of tools, products, and hygiene standards for professional facial application.",
     "Aftercare & Maintenance Guidance – Understand post-treatment care and recommend daily routines to maintain lifting results.",
     "Client Assessment & Consultation Skills – Develop communication and consultation skills to customise treatments based on facial type and client goals.",
@@ -2946,7 +2946,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class level under the Eyelash Extension series.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -2962,7 +2962,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Lash Anatomy & Growth Cycle",
     "Product Knowledge & Tools",
     "Step-by-Step Lash Lift Procedure",
-    "Peer and Self Hands-On Practise",
+    "Peer and Self Hands-On Practice",
     "Aftercare & Maintenance",
     "Client Consultation & Professional Etiquette",
     "Total Training Duration: 2 Sessions",
@@ -2986,7 +2986,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Lash Anatomy & Growth Cycle – Understand how natural lashes grow, shed, and respond to treatments.",
     "Product Knowledge & Tools – Familiarise yourself with lifting lotions, keratin serums, and lash shields for precise application.",
     "Step-by-Step Lash Lift Procedure – Master the full lash lifting process, from preparation to curl setting and keratin infusion.",
-    "Peer and Self Hands-On Practise – Participate in guided practise sessions for real-time skill development and feedback.",
+    "Peer and Self Hands-On Practice – Participate in guided practice sessions for real-time skill development and feedback.",
     "Aftercare & Maintenance – Learn essential lash care routines and client advice for maintaining long-lasting results.",
     "Client Consultation & Professional Etiquette – Develop confidence in performing assessments and communicating effectively with clients."
    ]
@@ -3019,7 +3019,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -3035,7 +3035,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Facial Acupoints and Reflex Zones",
     "Lymphatic Pathways and Their Functions",
     "Step-by-Step Guasha Techniques",
-    "Peer and Self Hands-On Practise",
+    "Peer and Self Hands-On Practice",
     "Tools, Mediums & Application Techniques",
     "Aftercare & Maintenance Guidance",
     "Client Consultation & Professional Ethics",
@@ -3061,7 +3061,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Facial Acupoints and Reflex Zones – Identify the acupoints connected to the lymphatic system and their effects on circulation and detoxification.",
     "Lymphatic Pathways and Their Functions – Understand how the facial and body lymph channels operate to eliminate toxins and reduce swelling.",
     "Step-by-Step Guasha Techniques – Master the structured flow of lymph detoxification using precise and gentle Guasha movements.",
-    "Peer and Self Hands-On Practise – Engage in guided practical sessions to apply the techniques safely and effectively.",
+    "Peer and Self Hands-On Practice – Engage in guided practical sessions to apply the techniques safely and effectively.",
     "Tools, Mediums & Application Methods – Learn the correct use of Guasha tools, oils, and mediums to optimise results and maintain hygiene.",
     "Aftercare & Home Maintenance – Understand post-treatment care and simple self-drainage routines for sustained skin wellness.",
     "Client Consultation & Professional Etiquette – Develop skills to assess client needs, explain treatment benefits, and maintain professional communication.",
@@ -3076,7 +3076,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Aspiring makeup artists who have completed foundational training and want to advance their skills to a professional level.",
     "Existing beauty practitioners seeking to refine their techniques in day, evening, photography, and stage makeup applications.",
     "Freelance stylists or salon professionals aiming to expand their service offerings with professional makeup and hairstyling skills.",
-    "Individuals passionate about makeup artistry who wish to gain real-world experience through hands-on model practise and guided mentorship.",
+    "Individuals passionate about makeup artistry who wish to gain real-world experience through hands-on model practice and guided mentorship.",
     "Content creators or influencers who want to master camera-ready makeup and build a polished, professional image for social or media appearances."
    ]
   },
@@ -3098,7 +3098,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -3138,7 +3138,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Day-to-Evening Makeup",
     "Step-by-step techniques to transform a natural daytime look into a polished evening style with ease.",
     "Special Occasion Makeup (Self)",
-    "Tips and practise for creating elegant, event-ready looks for parties, dinners, and celebrations.",
+    "Tips and practice for creating elegant, event-ready looks for parties, dinners, and celebrations.",
     "Professional Artist Readiness",
     "Build the mindset, discipline, and preparation habits of a successful makeup artist.",
     "Day & Evening Glam for Clients",
@@ -3167,7 +3167,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "The Pelvic Wellness Care course offers an integrated approach to women’s health that goes beyond aesthetic care. It equips learners with the ability to identify, support, and enhance pelvic wellness through practical, gentle, and effective techniques.",
-    "Learners will gain hands-on experience in consultation, pre- and post-treatment activities, and learn how to maintain professional service standards and client care excellence. Whether for professional practise or personal understanding, this course provides valuable insight into the foundation of female health and long-term vitality."
+    "Learners will gain hands-on experience in consultation, pre- and post-treatment activities, and learn how to maintain professional service standards and client care excellence. Whether for professional practice or personal understanding, this course provides valuable insight into the foundation of female health and long-term vitality."
    ]
   },
   {
@@ -3180,7 +3180,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -3195,7 +3195,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Anatomy & Physiology of the Female Pelvic Floor – Study the structure and functions of the pelvic muscles, ligaments, and organs, including their role in posture, stability, and reproductive health.",
     "Hormonal and Postnatal Changes – Learn how childbirth, hormonal fluctuations, and aging affect pelvic floor strength and body alignment.",
     "Pelvic Health Awareness & Common Disorders – Identify signs, symptoms, and causes of pelvic discomfort, muscle weakness, and imbalance.",
-    "Benefits and Precautions – Explore the benefits of pelvic wellness care and understand safety considerations, contraindications, and ethical practise.",
+    "Benefits and Precautions – Explore the benefits of pelvic wellness care and understand safety considerations, contraindications, and ethical practice.",
     "Pre-Treatment Preparation – Understand hygiene, setup, and professional boundaries when performing pelvic wellness sessions.",
     "Step-by-Step Pelvic Wellness Procedures – Learn guided techniques to improve circulation, strengthen pelvic floor muscles, and promote relaxation.",
     "Post-Treatment & Aftercare Guidance – Understand post-session recommendations, lifestyle adjustments, and wellness tips for long-term results.",
@@ -3219,7 +3219,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Anatomy & Physiology of the Female Pelvic Floor – Study the structure and functions of the pelvic muscles, ligaments, and organs, including their role in posture, stability, and reproductive health.",
     "Hormonal and Postnatal Changes – Learn how childbirth, hormonal fluctuations, and aging affect pelvic floor strength and body alignment.",
     "Pelvic Health Awareness & Common Disorders – Identify signs, symptoms, and causes of pelvic discomfort, muscle weakness, and imbalance.",
-    "Benefits and Precautions – Explore the benefits of pelvic wellness care and understand safety considerations, contraindications, and ethical practise.",
+    "Benefits and Precautions – Explore the benefits of pelvic wellness care and understand safety considerations, contraindications, and ethical practice.",
     "Pre-Treatment Preparation – Understand hygiene, setup, and professional boundaries when performing pelvic wellness sessions.",
     "Step-by-Step Pelvic Wellness Procedures – Learn guided techniques to improve circulation, strengthen pelvic floor muscles, and promote relaxation.",
     "Post-Treatment & Aftercare Guidance – Understand post-session recommendations, lifestyle adjustments, and wellness tips for long-term results."
@@ -3251,7 +3251,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "This is a hands-on workshop, and participants will receive a Certificate of Completion upon finishing the course.",
     "All training materials are included.",
     "Each session runs approximately 3–4 hours, depending on the schedule and class progress.",
-    "Model practise (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
+    "Model practice (if applicable) will be arranged by SOQ International Academy. Learners who wish to request additional models may do so at a rate of $80 per model.",
     "On-Job Training (OJT) is available only for the Master Class and/or Diploma level.",
     "Examination dates (if applicable) will be announced during the course.",
     "Learners have up to 12 months from the course start date to complete their training.",
@@ -3286,7 +3286,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Day-to-Evening Makeup",
     "Step-by-step techniques to transform a natural daytime look into a polished evening style with ease.",
     "Special Occasion Makeup (Self)",
-    "Tips and practise for creating elegant, event-ready looks for parties, dinners, and celebrations."
+    "Tips and practice for creating elegant, event-ready looks for parties, dinners, and celebrations."
    ]
   }
  ],
@@ -3330,7 +3330,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Understanding Postnatal Changes and Recovery",
     "Postnatal Care Techniques",
     "Nutrition for Postnatal Wellness",
-    "Professional Practise and Advisory Skills",
+    "Professional Practice and Advisory Skills",
     "Total Training Duration: 2 Sessions",
     "Timing: 9.30am - 12.30pm or 1.30pm - 5.30pm",
     "Classroom face-to-face theory & practical training",
@@ -3357,7 +3357,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
     "Nutrition for Postnatal Wellness",
     "Nutritional needs for lactation and energy restoration",
     "Common dietary myths and recovery foods",
-    "Professional Practise and Advisory Skills",
+    "Professional Practice and Advisory Skills",
     "Understanding client needs and offering suitable advice",
     "Taking care of emotional aspects of new mothers"
    ]
@@ -3467,7 +3467,7 @@ export const courseDetails: Record<string, CourseSection[]> = {
    "title": "Why Choose This Course",
    "items": [
     "Understand beauty care products across cosmetics, face care, and body care, and how to recommend them effectively.",
-    "Product advisory skills with Face & Head Meridian (Bojin) hands on for real-world practise.",
+    "Product advisory skills with Face & Head Meridian (Bojin) hands on for real-world practice.",
     "Learn how to analyse customer needs, recommend suitable products, and deliver effective advice.",
     "Practise demonstrating and introducing products professionally to build customer trust.",
     "Develop advisory and sales closure techniques through interactive role play sessions.",

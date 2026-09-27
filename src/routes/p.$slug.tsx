@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/p/$slug")({
 function SitePage() {
   const { slug } = Route.useParams();
   const { data, isLoading } = useQuery({ queryKey: ["site-page", slug], queryFn: async () => (await supabase.from("site_pages").select("title,body,published").eq("slug", slug).maybeSingle()).data });
-  if (isLoading) return <div className="mx-auto max-w-3xl px-5 py-20 text-muted-foreground">Loading…</div>;
+  if (isLoading) return <DetailSkeleton />;
   if (!data) return <div className="mx-auto max-w-3xl px-5 py-20"><h1 className="font-serif text-4xl text-primary">Page not found</h1><Link to="/" className="mt-4 inline-block underline">Go home</Link></div>;
   return (
     <article className="mx-auto max-w-3xl px-5 py-16">

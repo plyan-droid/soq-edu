@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ function StreamPage() {
   const [host, setHost] = useState("");
   useEffect(() => setHost(window.location.hostname), []);
   const { data: s, isLoading } = useQuery({ queryKey: ["livestream", id], queryFn: async () => (await supabase.from("community_livestreams").select("*").eq("id", id).maybeSingle()).data as Livestream | null });
-  if (isLoading) return <div className="mx-auto max-w-6xl px-5 py-10 text-muted-foreground">Loading…</div>;
+  if (isLoading) return <DetailSkeleton />;
   if (!s) return <div className="mx-auto max-w-6xl px-5 py-10"><p>This livestream doesn't exist.</p><Link to="/community/live" className="underline">All livestreams</Link></div>;
   const vid = youtubeId(s.video_url);
   const setStatus = async (status: string) => { await supabase.from("community_livestreams").update({ status }).eq("id", s.id); void qc.invalidateQueries({ queryKey: ["livestream", id] }); void qc.invalidateQueries({ queryKey: ["livestreams"] }); };

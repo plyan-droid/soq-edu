@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { SessionBookButton, SessionRequests } from "@/components/session-bookings";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -60,7 +61,7 @@ function LiveClassesPage() {
       <PageHero eyebrow="Live classes" title="Learn live with your trainer" intro="Trainers schedule sessions with a Zoom or Whereby link. Enrolled students see them here and join in one click, from 15 minutes before the start." />
       <div className="mx-auto max-w-6xl px-5 py-10">
         {room && <WherebyRoom s={room} onClose={() => setRoom(null)} />}
-        {loading ? <p className="text-muted-foreground">Loading…</p> : !user ? (
+        {loading ? <ListSkeleton /> : !user ? (
           <div className="rounded-xl border border-border bg-card p-8 text-center">
             <Video className="mx-auto size-8 text-brand-gold" />
             <p className="mt-3 text-lg">Sign in to see your live classes.</p>
@@ -116,7 +117,7 @@ function SessionList({ userId, canHost, isAdmin, onOpenRoom }: { userId: string;
   const cancel = async (id: string) => { await supabase.from("live_sessions").update({ status: "cancelled" }).eq("id", id); void qc.invalidateQueries({ queryKey: ["live-classes"] }); };
   const upcoming = data.filter(s => ["open", "soon"].includes(phase(s, now)));
   const past = data.filter(s => ["ended", "cancelled"].includes(phase(s, now))).reverse();
-  if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
+  if (isLoading) return <ListSkeleton />;
   return (
     <div>
       <h2 className="font-serif text-2xl text-brand-navy">Upcoming classes</h2>

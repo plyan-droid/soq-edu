@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, MemberBadge, PostCard } from "@/components/community-ui";
@@ -30,7 +31,7 @@ function ProfilePage() {
       return { profile: profile as CommunityProfile, posts: (posts ?? []) as unknown as PostRow[] };
     },
   });
-  if (isLoading) return <div className="mx-auto max-w-3xl px-5 py-24 text-muted-foreground">Loading…</div>;
+  if (isLoading) return <DetailSkeleton />;
   if (!data) return <div className="mx-auto max-w-3xl px-5 py-24"><h1 className="font-serif text-4xl text-primary">Member not found</h1><Button asChild className="mt-5 rounded-full"><Link to="/community">Back to community</Link></Button></div>;
   const { profile, posts } = data;
   return (

@@ -1,3 +1,4 @@
+import { ListSkeleton } from "@/components/start-here";
 import { SessionBookButton } from "@/components/session-bookings";
 import { LessonNotes, CourseChatroom } from "@/components/student-extras";
 import { CourseNoticesList, StudentQuizzes, StudentAssignments } from "@/components/learner-tools";
@@ -47,7 +48,7 @@ function LearnPage() {
     },
   });
 
-  if (loading) return <Shell><p className="text-muted-foreground">Loading…</p></Shell>;
+  if (loading) return <Shell><ListSkeleton /></Shell>;
   if (!user) return <Shell><p className="text-muted-foreground">Please <Link to="/login" className="underline">log in</Link> to open your lessons.</p></Shell>;
 
   const lessons = data?.lessons ?? [];

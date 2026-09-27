@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { NewsletterSignup } from "@/components/newsletter-signup";
 import { CartLink } from "@/components/add-to-cart";
 import { SiteSettingsLayer } from "@/components/site-settings";
@@ -296,7 +297,7 @@ function CommunityGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (!pathname.startsWith("/community")) return <>{children}</>;
   if (loading)
-    return <div className="mx-auto max-w-7xl px-5 py-24 text-muted-foreground">Loading…</div>;
+    return <DetailSkeleton />;
   if (user) return <>{children}</>;
   return (
     <section className="bg-secondary">

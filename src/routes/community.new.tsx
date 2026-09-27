@@ -1,3 +1,4 @@
+import { DetailSkeleton } from "@/components/start-here";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ function NewPost() {
   const postTypes = [{ tag: "question", label: "Question" }, { tag: "showcase", label: "Showcase" }, { tag: "jobs", label: "Job" }, { tag: "story", label: "Story" }, { tag: "tech", label: "Guide" }];
   const [err, setErr] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
-  if (loading || (user && isLoading)) return <div className="mx-auto max-w-3xl px-5 py-24 text-muted-foreground">Loading…</div>;
+  if (loading || (user && isLoading)) return <DetailSkeleton />;
   if (!user) return (
     <div className="mx-auto max-w-lg px-5 py-24 text-center">
       <h1 className="font-serif text-4xl text-primary">Sign in to post</h1>

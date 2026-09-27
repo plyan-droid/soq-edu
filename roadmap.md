@@ -85,3 +85,10 @@
 - [x] WhatsApp reminders
 - [x] CRM leads import
 - [x] Placeholders: TPGateway, grant checks, Singpass, Xero
+### Phase 5 — Oversight & roles
+- [x] Owner-only section (Users & roles, Site pages, Gov & Xero, Settings) for admins; staff see day-to-day groups only
+- [x] Live classes & 1-to-1 oversight (seat bookings, tutor slots, tutor listing visibility)
+- [x] Community moderation (posts, comments, verified badges)
+- [x] Organisations (business packages, seats, expiry)
+- [x] Events (create, capacity, sign-up lists)
+- [x] Learning oversight (assignments + grading, quizzes and attempts, attendance)

@@ -88,41 +88,9 @@ function TutorFinder() {
               </li>))}</ul>}
           </div>
         )}
-        {user && (isTrainer || isAdmin) && <TutorProfileEditor />}
+        {user && (isTrainer || isAdmin) && <p className="mt-10 text-center text-sm text-muted-foreground">Want to change your listing? Open <Link to="/trainer" search={{ tool: "profile" } as never} className="underline">Trainer workspace → Profile</Link>.</p>}
         {!user && <p className="mt-10 text-center text-sm text-muted-foreground">Are you an SOQ trainer? <Link to="/login" className="underline">Log in</Link> to list yourself here.</p>}
       </section>
     </>
-  );
-}
-
-function TutorProfileEditor() {
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  const { data } = useQuery({ queryKey: ["my-tutor", user?.id], enabled: !!user, queryFn: async () => (await supabase.from("tutor_profiles").select("*").eq("user_id", user!.id).maybeSingle()).data as Tutor | null });
-  const [f, setF] = useState<Tutor | null>(null);
-  const v: Tutor = f ?? data ?? { user_id: user!.id, display_name: "", bio: "", subjects: [], days: [], times: [], location: "Anson Road campus", online: true, visible: true };
-  const set = (p: Partial<Tutor>) => setF({ ...v, ...p });
-  const save = async () => {
-    if (!v.display_name.trim()) { toast.error("Add your display name"); return; }
-    const { error } = await supabase.from("tutor_profiles").upsert({ ...v, user_id: user!.id, updated_at: new Date().toISOString() });
-    if (error) { toast.error("Couldn't save"); return; }
-    toast.success("Your trainer listing is saved"); void qc.invalidateQueries({ queryKey: ["tutors"] });
-  };
-  return (
-    <div className="mt-14 rounded-lg border border-brand-gold/40 bg-secondary p-6">
-      <h2 className="font-serif text-2xl text-primary">My trainer listing</h2>
-      <div className="mt-4 grid gap-3">
-        <Input placeholder="Display name" value={v.display_name} onChange={e => set({ display_name: e.target.value })} maxLength={80} />
-        <div className="grid gap-3 sm:grid-cols-[1fr_10rem]"><Input placeholder="Headline, e.g. Digital marketing coach" value={v.headline ?? ""} onChange={e => set({ headline: e.target.value })} maxLength={80} /><Input type="number" min={0} max={60} placeholder="Years experience" value={v.years_experience ?? ""} onChange={e => set({ years_experience: e.target.value ? Number(e.target.value) : null })} /></div>
-        <Textarea placeholder="Short bio" value={v.bio} onChange={e => set({ bio: e.target.value })} maxLength={600} />
-        <Chips options={subjects} value={v.subjects} onChange={s => set({ subjects: s })} />
-        <Chips options={DAYS} value={v.days} onChange={s => set({ days: s })} />
-        <Chips options={TIMES} value={v.times} onChange={s => set({ times: s })} />
-        <Input placeholder="Location" value={v.location} onChange={e => set({ location: e.target.value })} maxLength={100} />
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={v.online} onChange={e => set({ online: e.target.checked })} /> I also teach online</label>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={v.visible} onChange={e => set({ visible: e.target.checked })} /> Show me in Tutor Finder</label>
-        <Button className="justify-self-start rounded-full" onClick={() => void save()}>Save listing</Button>
-      </div>
-    </div>
   );
 }

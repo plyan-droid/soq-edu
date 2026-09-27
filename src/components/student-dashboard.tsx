@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, ClipboardCheck, FileText, LogOut, Settings } from "lucide-react";
+import { CalendarClock, ClipboardCheck, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";

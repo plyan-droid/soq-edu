@@ -53,7 +53,7 @@ async function load(role: StartRole, uid: string): Promise<Home> {
   }
   if (role === "student") {
     const [enr, certs, sfc, inst, prof, org] = await Promise.all([
-      supabase.from("enrollments").select("course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
+      supabase.from("enrollments").select("id,course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
       n(supabase.from("certificates").select("id", head).eq("student_id", uid).eq("status", "valid")),
       n(supabase.from("sfc_claims").select("id", head).eq("user_id", uid)),
       supabase.from("instalments").select("amount,due_date").eq("user_id", uid).eq("paid", false).order("due_date").limit(1),

@@ -12,7 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
-- [ ] Populate affiliate, store and employer previews with clearly labelled, read-only mock records and sample metrics; do not imply live partner integrations.
+- [x] Populate affiliate, store and employer previews with clearly labelled, read-only mock records and sample metrics; do not imply live partner integrations.
 - [x] Build screenshot-informed dashboard summaries for admin, trainer, learner and organisation using existing authorised records; partner commerce/hiring data remains unavailable pending PM contracts.
 - [x] Redesign role Home summaries with real queues, learner tasks/classes, trainer sessions, organisation progress and distinct admin access requests; keep working tool links.
 - [x] Add three explicitly non-operational affiliate, store and employer design previews plus a PM integration handoff.

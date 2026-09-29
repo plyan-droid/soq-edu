@@ -45,7 +45,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
         { tool: "assignments", title: "Review submissions", text: pending.length ? `${plural(pending.length, "submission")} to grade.` : "No submissions waiting for grading.", count: pending.length },
         { tool: "lessons", title: "Add a lesson", text: "Notes, a video or materials for one of your courses." },
       ],
-      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Upcoming classes", value: String(upcoming.data?.length ?? 0) }, { label: "Submissions to grade", value: String(pending.length) }],
+      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Next classes", value: String(upcoming.data?.length ?? 0) }, { label: "Submissions to grade", value: String(pending.length) }],
       highlights: (upcoming.data ?? []).map(s => ({ title: s.title, detail: `Live class · ${day(s.starts_at)}`, tool: "live" })),
       breakdown: { title: "Students by course", items: courseCounts },
       panels: [{ title: "Assignments to review", empty: "No submissions waiting for grading.", items: pending.slice(0, 4) }],
@@ -100,7 +100,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       ],
        panels: [
          { title: "My course progress", empty: "No courses linked yet.", items: progress },
-         { title: "Upcoming assignments", empty: "No assignments due soon.", items: (assignments.data ?? []).map(a => ({ label: a.title, detail: `${title(a.course_slug)} · due ${day(a.due_at)}`, tool: "courses" })) },
+         { title: "Upcoming assignments", empty: "No assignments due soon.", items: (assignments.data ?? []).map(a => ({ label: a.title, detail: `${title(a.course_slug)} · due ${a.due_at ? day(a.due_at) : "date pending"}`, tool: "courses" })) },
          { title: "Quizzes", empty: "No quizzes available yet.", items: (quizzes.data ?? []).slice(0, 4).map(q => ({ label: q.title, detail: title(q.course_slug), tool: "courses" })) },
        ],
       steps: [
@@ -166,8 +166,8 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
       ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
-    metrics: [{ label: "Paid orders", value: String(paid.length) }, { label: "Recorded order total", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { maximumFractionDigits: 0 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
-    breakdown: { title: "Paid orders · last six months", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
+    metrics: [{ label: "Paid orders · latest 500", value: String(paid.length) }, { label: "Order total · latest 500", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { maximumFractionDigits: 0 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
+    breakdown: { title: "Paid orders · last six months (latest 500)", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
     panels: [
       { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox" })) },
       { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation" })) },

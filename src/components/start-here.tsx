@@ -134,25 +134,49 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     };
   }
   if (role === "business") {
-    const [members, pkg, roster] = await Promise.all([
+    const [members, pkg, roster, notices, events, sessions] = await Promise.all([
       supabase.from("org_members").select("member_email,member_role").eq("org_id", uid),
-      supabase.from("org_packages").select("student_seats").eq("org_id", uid).maybeSingle(),
+      supabase.from("org_packages").select("name,student_seats,instructor_seats,expires_on").eq("org_id", uid).maybeSingle(),
       supabase.rpc("org_roster"),
+      supabase.from("site_notices").select("title,body,created_at").order("pinned", { ascending: false }).order("created_at", { ascending: false }).limit(4),
+      supabase.from("events").select("title,starts_at,location").gte("starts_at", now).order("starts_at").limit(4),
+      supabase.from("live_sessions").select("title,course_slug,starts_at").neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(5),
     ]);
-    const students = (members.data ?? []).filter(m => m.member_role === "student").length;
+    const memberRows = members.data ?? [];
+    const students = memberRows.filter(m => m.member_role === "student").length;
+    const instructors = memberRows.filter(m => m.member_role === "instructor").length;
     const left = Math.max(0, (pkg.data?.student_seats ?? 0) - students);
     const linked = (roster.data ?? []).filter(r => r.course_slug);
     const lagging = linked.filter(r => (r.progress ?? 0) < 30 && r.status !== "completed");
+    const completed = linked.filter(r => r.status === "completed" || (r.progress ?? 0) >= 100).length;
+    const average = linked.length ? Math.round(linked.reduce((sum, r) => sum + (r.progress ?? 0), 0) / linked.length) : 0;
     const byCourse = [...new Set(linked.map(r => r.course_slug).filter((slug): slug is string => !!slug))].map(slug => ({ label: title(slug), count: linked.filter(r => r.course_slug === slug).length }));
+    const linkedSlugs = new Set(byCourse.map(row => row.label));
+    const relevantSessions = (sessions.data ?? []).filter(session => linkedSlugs.has(title(session.course_slug))).slice(0, 4);
+    const expiry = pkg.data?.expires_on ? new Date(`${pkg.data.expires_on}T12:00:00`).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" }) : "No expiry date";
     return {
       cards: [
         { tool: "members", title: "Add employees", text: pkg.data ? `${plural(left, "seat")} left on your package.` : "Give your staff a place on SOQ training.", count: students === 0 ? 1 : 0, badge: pkg.data ? `${left} left` : undefined },
         { tool: "progress", title: "See who's behind", text: lagging.length ? `${plural(lagging.length, "course enrolment")} below 30% progress.` : "Course progress for everyone on your team.", count: lagging.length },
         { tool: "certificates", title: "Team certificates", text: "Verify and download certificates your team has earned." },
+        { tool: "instructors", title: "Manage instructors", text: instructors ? `${plural(instructors, "instructor")} linked to your organisation.` : "Add an in-house instructor to your package." },
+        { tool: "package", title: pkg.data?.name ?? "Set up your package", text: pkg.data ? `${students} of ${pkg.data.student_seats} learner seats used · ${expiry}.` : "Ask SOQ to assign seats for your team." },
       ],
-      metrics: [{ label: "Learners", value: String(students) }, { label: "Instructors", value: String((members.data ?? []).filter(m => m.member_role === "instructor").length) }, { label: "Course enrolments", value: String(linked.length) }],
-      highlights: linked.slice(0, 3).map(r => ({ title: r.full_name || r.member_email, detail: `${title(r.course_slug ?? "")} · ${r.progress ?? 0}%`, tool: "progress" })),
+      metrics: [{ label: "Learners", value: String(students) }, { label: "Instructors", value: String(instructors) }, { label: "Course enrolments", value: String(linked.length) }, { label: "Average progress", value: linked.length ? `${average}%` : "—" }, { label: "Completed enrolments", value: String(completed) }, { label: "Upcoming classes", value: String(relevantSessions.length) }],
+      highlights: [
+        ...relevantSessions.map(s => ({ title: s.title, detail: `${title(s.course_slug)} · live class · ${day(s.starts_at)}`, tool: "progress" })),
+        ...linked.slice(0, 4).map(r => ({ title: r.full_name || r.member_email, detail: `${title(r.course_slug ?? "")} · ${r.progress ?? 0}% complete`, tool: "progress" })),
+      ].slice(0, 6),
       breakdown: { title: "Team course overview", items: byCourse },
+      panels: [
+        { title: "Learner progress", empty: "No learners are linked to courses yet.", items: linked.slice(0, 5).map(r => ({ label: r.full_name || r.member_email, detail: `${title(r.course_slug ?? "")} · ${r.progress ?? 0}% · ${r.status ?? "active"}`, tool: "progress" })) },
+        { title: "Noticeboard", empty: "No notices at the moment.", items: (notices.data ?? []).map(notice => ({ label: notice.title, detail: notice.body.slice(0, 100), tool: "start" })) },
+        { title: "Upcoming events", empty: "No upcoming events.", items: (events.data ?? []).map(event => ({ label: event.title, detail: `${day(event.starts_at)} · ${event.location}`, tool: "start" })) },
+        { title: "Package & seats", empty: "No package has been assigned.", items: pkg.data ? [
+          { label: pkg.data.name, detail: `${students}/${pkg.data.student_seats} learner seats · ${instructors}/${pkg.data.instructor_seats} instructor seats`, tool: "package" },
+          { label: "Package validity", detail: expiry, tool: "package" },
+        ] : [] },
+      ],
       steps: [
         { label: "Check your package and seats", done: !!pkg.data, tool: "package" },
         { label: "Add your first employee", done: students > 0, tool: "members" },

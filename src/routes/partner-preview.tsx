@@ -24,6 +24,7 @@ type Preview = {
   stats: { value: string; label: string }[];
   primary: { title: string; intro: string; entries: Sample[] };
   secondary: { title: string; intro: string; entries: Sample[] };
+  panels: { title: string; intro: string; entries: Sample[] }[];
   note: string;
 };
 const previews: Record<"affiliate" | "store" | "jobs", Preview> = {
@@ -40,6 +41,18 @@ const previews: Record<"affiliate" | "store" | "jobs", Preview> = {
       { label: "Conversions", detail: "Subject to agreed attribution and verified enrolment", status: "Pending" },
       { label: "Payouts", detail: "No earnings or payments have been recorded", status: "None" },
     ] },
+    panels: [
+      { title: "Learning overview", intro: "Sample learning services available to a partner account.", entries: [
+        { label: "Partner onboarding", detail: "Illustrative course · 35% progress", status: "Sample" },
+        { label: "Upcoming live session", detail: "Referral essentials · 8 Oct, 2:00 pm", status: "Preview" },
+        { label: "Assignments & quizzes", detail: "No outstanding learning tasks", status: "None" },
+      ] },
+      { title: "Calendar & notices", intro: "Example dates and announcements, not confirmed bookings.", entries: [
+        { label: "Partner briefing", detail: "15 Oct · Online", status: "Sample" },
+        { label: "New campaign materials", detail: "Example notice · 20 Sep", status: "Notice" },
+      ] },
+      { title: "Support", intro: "A live partner support channel has not been connected.", entries: [{ label: "Partner help desk", detail: "No open support conversations", status: "Offline" }] },
+    ],
     note: "A working referral link and earnings need an agreed partner contract and attribution rules.",
   },
   store: {
@@ -54,6 +67,22 @@ const previews: Record<"affiliate" | "store" | "jobs", Preview> = {
       { label: "Practice kit", detail: "Example price S$48 · 7 in stock", status: "Sample" },
       { label: "Learning journal", detail: "Example price S$16 · draft listing", status: "Draft" },
     ] },
+    panels: [
+      { title: "Sales overview", intro: "Illustrative store activity; no money has been received.", entries: [
+        { label: "Sample gross sales", detail: "S$72 across two fictional orders", status: "Sample" },
+        { label: "Items awaiting fulfilment", detail: "One fictional workbook order", status: "1 sample" },
+      ] },
+      { title: "Team & learning", intro: "Example organisation tools shown in the reference workspace.", entries: [
+        { label: "Instructors", detail: "1 of 2 sample seats used", status: "Sample" },
+        { label: "Learners", detail: "3 of 10 sample seats used", status: "Sample" },
+        { label: "Course progress", detail: "Illustrative average · 42%", status: "Sample" },
+      ] },
+      { title: "Calendar, notices & support", intro: "Example dates only; no meeting or support integration is active.", entries: [
+        { label: "Product demonstration workshop", detail: "18 Oct · showroom", status: "Sample" },
+        { label: "Catalogue review", detail: "Example notice · 22 Sep", status: "Notice" },
+        { label: "Support conversations", detail: "No connected conversations", status: "Offline" },
+      ] },
+    ],
     note: "Publishing, checkout and fulfilment need a seller catalogue, order ownership and refund rules.",
   },
   jobs: {
@@ -68,6 +97,21 @@ const previews: Record<"affiliate" | "store" | "jobs", Preview> = {
       { label: "Shortlist", detail: "Illustrative application stage", status: "2 sample" },
       { label: "Interview planned", detail: "Illustrative interview stage · no meeting scheduled", status: "1 sample" },
     ] },
+    panels: [
+      { title: "Team development", intro: "Illustrative employer training activity.", entries: [
+        { label: "Service excellence", detail: "4 sample learners · 58% average progress", status: "Sample" },
+        { label: "Workplace communication", detail: "2 sample learners · starts 21 Oct", status: "Upcoming" },
+        { label: "Certificates", detail: "No verified certificates", status: "None" },
+      ] },
+      { title: "Meetings & events", intro: "Example dates only; no interviews or classes are booked.", entries: [
+        { label: "Hiring manager briefing", detail: "10 Oct · Online", status: "Sample" },
+        { label: "Employer networking evening", detail: "24 Oct · SOQ Academy", status: "Sample" },
+      ] },
+      { title: "Notices & support", intro: "A live employer support channel has not been connected.", entries: [
+        { label: "Candidate privacy reminder", detail: "Example notice · 19 Sep", status: "Notice" },
+        { label: "Support conversations", detail: "No connected conversations", status: "Offline" },
+      ] },
+    ],
     note: "Live hiring needs verified employers, owned vacancies, applicant consent and recruiter permissions.",
   },
 };
@@ -94,7 +138,7 @@ function PartnerPreview() {
     <div className="mt-7 flex flex-wrap gap-2" role="tablist" aria-label="Partner type">{(Object.keys(previews) as Kind[]).map(key => <Button role="tab" aria-selected={selected === key} key={key} onClick={() => setSelected(key)} variant={selected === key ? "default" : "outline"}>{previews[key].title}</Button>)}</div>
     <div className="mt-9 flex items-start gap-4 border-b border-border pb-6"><Icon className="mt-1 size-7 shrink-0 text-brand-gold" /><div><p className="text-xs font-semibold uppercase text-muted-foreground">{item.subtitle}</p><h2 className="mt-1 font-serif text-4xl text-primary">{item.title}</h2></div></div>
     <div className="grid grid-cols-2 gap-x-5 gap-y-6 border-b border-border py-7 sm:grid-cols-4" aria-label="Sample figures">{item.stats.map(stat => <div key={stat.label} className="border-l-2 border-brand-gold pl-4"><p className="font-serif text-3xl text-primary">{stat.value}</p><p className="text-xs text-muted-foreground">{stat.label}</p></div>)}</div>
-    <div className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2"><SampleList group={item.primary} /><SampleList group={item.secondary} /></div>
+    <div className="mt-8 grid gap-x-10 gap-y-8 md:grid-cols-2"><SampleList group={item.primary} /><SampleList group={item.secondary} />{item.panels.map(group => <SampleList key={group.title} group={group} />)}</div>
     <div className="mt-8 border-t border-border pt-5"><p className="text-sm text-muted-foreground">{item.note}</p><Button asChild variant="link" className="mt-3 px-0"><Link to="/contact">Ask about partnering <ArrowRight className="size-4" /></Link></Button></div>
   </main>;
 }

@@ -1,0 +1,20 @@
+# Redesign the SOQ role portals using the PM references
+
+## Direction
+Keep SOQ’s approved cream, navy, gold and white styling, Cormorant Garamond and DM Sans, and the existing compact desktop/mobile navigation. Use the screenshots to identify the information people need, **not** as a layout to copy: avoid long side menus, three crowded columns, giant empty charts, irrelevant learner widgets on partner pages, and repeated zero-value panels. Keep all existing working tasks and direct links.
+
+## What people will see
+1. **Student:** one prominent Continue learning action, then due assignments/quizzes, upcoming confirmed classes and meetings, progress and notices; payments remain secondary. An organisation-linked student sees the same learner experience with the organisation name and genuinely assigned courses/notices when that relationship is available, never an organisation administrator view.
+2. **Instructor:** teaching work requiring action first (seat requests, grading where available), then upcoming classes/meetings, course and student health. Show sales only when genuinely attributable data exists; never fabricate a balance, visitor total or payout.
+3. **Course/academy partner:** evolve the existing organisation workspace around student and instructor seats, course progress, upcoming activity and package status. Keep its working team, progress, certificates and package tasks.
+4. **Affiliate, Store and Jobs partners:** make three *distinct design-ready preview experiences*, each with the right priorities: referral links/conversions; orders/products; vacancies/applicants. Show clear unavailable/empty states for actions and figures without connected data rather than fake earnings, stock or applications. Do not present these previews as live operational accounts or give them invented permissions. Their eventual signed-in access and transactions belong to the tech-team integration.
+5. **Admin and staff:** retain the existing Owner-only boundary. Admin home leads with approval/support queues and available platform totals; staff home leads with daily operational queues. Use compact lists, small meaningful totals and links into existing tools rather than copying the PM’s oversized sales blocks. The brief’s nine specialised staff jobs become a documented future permissions requirement, not cosmetic access switches that could leak data.
+
+## Delivery and handoff
+- Audit each existing data source and expose only role-scoped, reliable figures. Preserve the existing demo-record markings and certificate/funding safeguards. No invented payments, learning minutes, commissions or charts.
+- Build reusable summary, action queue, upcoming item and empty/loading patterns within the current portal shell. On phones, show the next action first and stack the rest; keep all existing tools visible and reachable.
+- Provide the tech team with a concise handoff for each role: first-screen order, data fields and source, empty/loading states, action destination, permission gate, and what cannot work until their code is integrated. Define separate contracts for affiliate links/commissions, seller products/orders, jobs/applications and specialised staff permissions; avoid changing SOQ’s existing role/security tables until those contracts are agreed.
+- Test the signed-in student, instructor, organisation, admin and staff journeys on desktop and phone, plus the three preview partner views. Verify actions lead to the right existing tools and refresh/back behaviour remains intact.
+
+## Technical notes
+Current login routes to `/student-portal`, `/trainer`, `/business-portal` or `/portal-admin`. The existing organisation account manages `org_members` and `org_packages`; an employee linked by email does not currently receive a distinct organisation-student view. There is no authenticated affiliate, store or employer role/data model here, and admin/staff currently have two effective permission levels rather than nine job-specific ones. The handoff will keep those gaps explicit rather than implying that screenshots or demo figures are connected to live records.

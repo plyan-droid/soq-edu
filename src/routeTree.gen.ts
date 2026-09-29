@@ -34,6 +34,7 @@ import { Route as JoinUsRouteImport } from './routes/join-us'
 import { Route as LiveClassesRouteImport } from './routes/live-classes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NoticeboardRouteImport } from './routes/noticeboard'
+import { Route as PartnerPreviewRouteImport } from './routes/partner-preview'
 import { Route as PeiProfileRouteImport } from './routes/pei-profile'
 import { Route as PortalRouteImport } from './routes/portal'
 import { Route as PortalAdminRouteImport } from './routes/portal-admin'
@@ -193,6 +194,11 @@ const LoginRoute = LoginRouteImport.update({
 const NoticeboardRoute = NoticeboardRouteImport.update({
   id: '/noticeboard',
   path: '/noticeboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnerPreviewRoute = PartnerPreviewRouteImport.update({
+  id: '/partner-preview',
+  path: '/partner-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PeiProfileRoute = PeiProfileRouteImport.update({
@@ -397,6 +403,7 @@ export interface FileRoutesByFullPath {
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
+  '/partner-preview': typeof PartnerPreviewRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -458,6 +465,7 @@ export interface FileRoutesByTo {
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
+  '/partner-preview': typeof PartnerPreviewRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -521,6 +529,7 @@ export interface FileRoutesById {
   '/live-classes': typeof LiveClassesRoute
   '/login': typeof LoginRoute
   '/noticeboard': typeof NoticeboardRoute
+  '/partner-preview': typeof PartnerPreviewRoute
   '/pei-profile': typeof PeiProfileRoute
   '/portal': typeof PortalRoute
   '/portal-admin': typeof PortalAdminRoute
@@ -585,6 +594,7 @@ export interface FileRouteTypes {
     | '/live-classes'
     | '/login'
     | '/noticeboard'
+    | '/partner-preview'
     | '/pei-profile'
     | '/portal'
     | '/portal-admin'
@@ -646,6 +656,7 @@ export interface FileRouteTypes {
     | '/live-classes'
     | '/login'
     | '/noticeboard'
+    | '/partner-preview'
     | '/pei-profile'
     | '/portal'
     | '/portal-admin'
@@ -708,6 +719,7 @@ export interface FileRouteTypes {
     | '/live-classes'
     | '/login'
     | '/noticeboard'
+    | '/partner-preview'
     | '/pei-profile'
     | '/portal'
     | '/portal-admin'
@@ -771,6 +783,7 @@ export interface RootRouteChildren {
   LiveClassesRoute: typeof LiveClassesRoute
   LoginRoute: typeof LoginRoute
   NoticeboardRoute: typeof NoticeboardRoute
+  PartnerPreviewRoute: typeof PartnerPreviewRoute
   PeiProfileRoute: typeof PeiProfileRoute
   PortalRoute: typeof PortalRoute
   PortalAdminRoute: typeof PortalAdminRoute
@@ -980,6 +993,13 @@ declare module '@tanstack/react-router' {
       path: '/noticeboard'
       fullPath: '/noticeboard'
       preLoaderRoute: typeof NoticeboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partner-preview': {
+      id: '/partner-preview'
+      path: '/partner-preview'
+      fullPath: '/partner-preview'
+      preLoaderRoute: typeof PartnerPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pei-profile': {
@@ -1280,6 +1300,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveClassesRoute: LiveClassesRoute,
   LoginRoute: LoginRoute,
   NoticeboardRoute: NoticeboardRoute,
+  PartnerPreviewRoute: PartnerPreviewRoute,
   PeiProfileRoute: PeiProfileRoute,
   PortalRoute: PortalRoute,
   PortalAdminRoute: PortalAdminRoute,

@@ -52,13 +52,12 @@ async function load(role: StartRole, uid: string): Promise<Home> {
     };
   }
   if (role === "student") {
-    const [enr, certs, sfc, inst, prof, org] = await Promise.all([
+    const [enr, certs, sfc, inst, prof] = await Promise.all([
       supabase.from("enrollments").select("id,course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
       n(supabase.from("certificates").select("id", head).eq("student_id", uid).eq("status", "valid")),
       n(supabase.from("sfc_claims").select("id", head).eq("user_id", uid)),
       supabase.from("instalments").select("amount,due_date").eq("user_id", uid).eq("paid", false).order("due_date").limit(1),
       supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
-      supabase.rpc("my_learning_organisation" as never),
     ]);
     const rows = (enr.data ?? []) as { course_slug: string; progress: number; status: string }[];
     const current = rows.find(r => r.status !== "completed" && r.progress < 100) ?? rows[0];
@@ -78,7 +77,6 @@ async function load(role: StartRole, uid: string): Promise<Home> {
         { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
         { tool: "certs", title: "Get your certificate", text: certs ? `You have ${plural(certs, "certificate")} ready to download.` : "Finish a course and pass its quiz to earn one." },
       ],
-      identity: (org.data as unknown as { organisation_name: string }[] | null)?.[0]?.organisation_name,
       metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }],
       highlights: [
         ...(taskRows.data ?? []).map(t => ({ title: t.title, detail: `${t.kind} · due ${day(t.due_at)}`, tool: "courses" })),

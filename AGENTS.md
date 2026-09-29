@@ -18,4 +18,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Role portals use WorkspaceShell: 4–6 main areas, visible tool tabs, urgent-first Home cards and a dismissible checklist; keeps tasks obvious on desktop and phones.
 - Staff Messages shows live Contact tickets alongside explicitly DEMO-only WhatsApp conversations; private WhatsApp tables remain empty until a verified Business connection and receiver exist, preventing mock chats from being mistaken for customer messages.
 - Partner previews are read-only designs, not operational accounts; activation needs PM data contracts and permission rules to avoid invented transactions.
-- Learners may read only their email-linked organisation name, not the manager's tools; narrow membership policies keep roles separate.
+- Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.

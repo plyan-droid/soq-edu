@@ -17,5 +17,5 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Demo portal records are linked only to demo accounts and visibly marked DEMO; never seed genuine certificate validation or confirmed funding because those imply verified achievements or entitlements.
 - Role portals use WorkspaceShell: 4–6 main areas, visible tool tabs, urgent-first Home cards and a dismissible checklist; keeps tasks obvious on desktop and phones.
 - Staff Messages shows live Contact tickets alongside explicitly DEMO-only WhatsApp conversations; private WhatsApp tables remain empty until a verified Business connection and receiver exist, preventing mock chats from being mistaken for customer messages.
-- Partner previews are read-only designs, not operational accounts; activation needs PM data contracts and permission rules to avoid invented transactions.
+- Partner previews are detailed read-only samples; signed-in organisations use account-linked learning records, while sample commerce, referral and hiring figures never imply real transactions.
 - Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.

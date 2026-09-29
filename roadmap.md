@@ -12,6 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Expand the organisation Home with package, seats, team progress, notices, events and upcoming classes; enrich affiliate, store and employer previews with clearly labelled sample learning, calendar, support and performance information.
 - [x] Expand admin and instructor Home with recorded sales windows, review queues, registrations, events, course progress, assessments, questions, meetings and notices; mark instructor earnings/visitors unavailable rather than inventing figures.
 - [x] Show learner-scoped courses, assessments, notices, dates, meetings, live classes, events and credit status on student Home.
 - [x] Populate affiliate, store and employer previews with clearly labelled, read-only mock records and sample metrics; do not imply live partner integrations.

@@ -10,7 +10,7 @@ import { useWorkspaceNavigate } from "@/components/workspace-shell";
 export type StartRole = "student" | "trainer" | "business" | "staff";
 type Card = { tool: string; title: string; text: string; count?: number | undefined; badge?: string | undefined };
 type Step = { label: string; done: boolean; tool: string };
-type Home = { cards: Card[]; steps: Step[] };
+type Home = { cards: Card[]; steps: Step[]; highlights?: { title: string; detail: string; tool: string }[]; metrics?: { label: string; value: string }[]; identity?: string | undefined };
 
 const head = { count: "exact" as const, head: true };
 const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
@@ -18,7 +18,7 @@ const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slu
 const day = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short" });
 const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
 
-async function load(role: StartRole, uid: string): Promise<Home> {
+async function load(role: StartRole, uid: string, email = "", owner = false): Promise<Home> {
   const now = new Date().toISOString();
   if (role === "trainer") {
     const [reqs, live, slots, profile, lessons, drafts, courseRows] = await Promise.all([
@@ -31,6 +31,7 @@ async function load(role: StartRole, uid: string): Promise<Home> {
       n(supabase.from("trainer_courses").select("course_slug", head).eq("trainer_id", uid)),
     ]);
     const roster = ((await supabase.rpc("trainer_roster" as never)).data ?? []) as unknown as { progress: number; status: string }[];
+    const upcoming = await supabase.from("live_sessions").select("title,starts_at").eq("trainer_id", uid).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(3);
     const behind = roster.filter(r => r.status !== "completed" && r.progress < 30).length;
     return {
       cards: [
@@ -39,6 +40,8 @@ async function load(role: StartRole, uid: string): Promise<Home> {
         { tool: "students", title: "Check students", text: behind ? `${plural(behind, "student")} under 30% progress.` : "See everyone's progress at a glance.", count: behind },
         { tool: "lessons", title: "Add a lesson", text: "Notes, a video or materials for one of your courses." },
       ],
+      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Upcoming classes", value: String(upcoming.data?.length ?? 0) }],
+      highlights: (upcoming.data ?? []).map(s => ({ title: s.title, detail: `Live class · ${day(s.starts_at)}`, tool: "live" })),
       steps: [
         { label: "Fill in your public tutor profile", done: profile > 0, tool: "profile" },
         { label: "Get a course assigned or propose one", done: courseRows + drafts > 0, tool: "drafts" },
@@ -49,24 +52,39 @@ async function load(role: StartRole, uid: string): Promise<Home> {
     };
   }
   if (role === "student") {
-    const [enr, certs, sfc, inst, prof] = await Promise.all([
-      supabase.from("enrollments").select("course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
+    const [enr, certs, sfc, inst, prof, org] = await Promise.all([
+      supabase.from("enrollments").select("id,course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
       n(supabase.from("certificates").select("id", head).eq("student_id", uid).eq("status", "valid")),
       n(supabase.from("sfc_claims").select("id", head).eq("user_id", uid)),
       supabase.from("instalments").select("amount,due_date").eq("user_id", uid).eq("paid", false).order("due_date").limit(1),
       supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
+      email ? supabase.from("org_members").select("org_id").eq("member_role", "student").ilike("member_email", email).limit(1) : Promise.resolve({ data: [] }),
     ]);
+    const orgId = org.data?.[0]?.org_id;
+    const orgName = orgId ? (await supabase.from("profiles").select("full_name,email").eq("id", orgId).maybeSingle()).data : null;
     const rows = (enr.data ?? []) as { course_slug: string; progress: number; status: string }[];
     const current = rows.find(r => r.status !== "completed" && r.progress < 100) ?? rows[0];
     const slugs = rows.map(r => r.course_slug);
-    const next = slugs.length ? (await supabase.from("live_sessions").select("title,starts_at").in("course_slug", slugs).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(1)).data?.[0] : undefined;
+    const [taskRows, bookingRows] = await Promise.all([
+      rows.length ? supabase.from("course_tasks").select("title,kind,due_at,enrollment_id,status").in("enrollment_id", (enr.data ?? []).map(r => r.id)).eq("status", "upcoming").gte("due_at", now).order("due_at").limit(3) : Promise.resolve({ data: [] }),
+      supabase.from("session_bookings").select("session_id").eq("student_id", uid).eq("status", "confirmed"),
+    ]);
+    const bookingIds = (bookingRows.data ?? []).map(b => b.session_id);
+    const nextSessions = bookingIds.length ? (await supabase.from("live_sessions").select("title,starts_at").in("id", bookingIds).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(3)).data ?? [] : [];
+    const next = nextSessions[0];
     const due = inst.data?.[0];
     return {
       cards: [
         current ? { tool: "courses", title: `Continue ${title(current.course_slug)}`, text: `You're ${current.progress}% through.`, badge: `${current.progress}%` } : { tool: "courses", title: "Find your course", text: "You're not enrolled yet. See your applications here." },
-        { tool: "courses", title: next ? `Join next class on ${day(next.starts_at)}` : "Live classes", text: next ? next.title : "No live classes booked yet. Request a seat from a lesson page." },
-        { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
+        { tool: "courses", title: next ? `Next booked class · ${day(next.starts_at)}` : "Live classes", text: next ? next.title : "No confirmed class yet. Request a seat from a lesson page." },
         { tool: "certs", title: "Get your certificate", text: certs ? `You have ${plural(certs, "certificate")} ready to download.` : "Finish a course and pass its quiz to earn one." },
+        { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
+      ],
+      identity: orgName?.full_name || orgName?.email,
+      metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }],
+      highlights: [
+        ...(taskRows.data ?? []).map(t => ({ title: t.title, detail: `${t.kind} · due ${day(t.due_at)}`, tool: "courses" })),
+        ...nextSessions.map(s => ({ title: s.title, detail: `Confirmed class · ${day(s.starts_at)}`, tool: "courses" })),
       ],
       steps: [
         { label: "Add your full name to your profile", done: !!prof.data?.full_name, tool: "courses" },
@@ -76,18 +94,23 @@ async function load(role: StartRole, uid: string): Promise<Home> {
     };
   }
   if (role === "business") {
-    const [members, pkg] = await Promise.all([
+    const [members, pkg, roster] = await Promise.all([
       supabase.from("org_members").select("member_email,member_role").eq("org_id", uid),
       supabase.from("org_packages").select("student_seats").eq("org_id", uid).maybeSingle(),
+      supabase.rpc("org_roster"),
     ]);
     const students = (members.data ?? []).filter(m => m.member_role === "student").length;
     const left = Math.max(0, (pkg.data?.student_seats ?? 0) - students);
+    const linked = (roster.data ?? []).filter(r => r.course_slug);
+    const lagging = linked.filter(r => (r.progress ?? 0) < 30 && r.status !== "completed");
     return {
       cards: [
         { tool: "members", title: "Add employees", text: pkg.data ? `${plural(left, "seat")} left on your package.` : "Give your staff a place on SOQ training.", count: students === 0 ? 1 : 0, badge: pkg.data ? `${left} left` : undefined },
-        { tool: "progress", title: "See who's behind", text: "Course progress for everyone on your team." },
+        { tool: "progress", title: "See who's behind", text: lagging.length ? `${plural(lagging.length, "course enrolment")} below 30% progress.` : "Course progress for everyone on your team.", count: lagging.length },
         { tool: "certificates", title: "Team certificates", text: "Verify and download certificates your team has earned." },
       ],
+      metrics: [{ label: "Learners", value: String(students) }, { label: "Instructors", value: String((members.data ?? []).filter(m => m.member_role === "instructor").length) }, { label: "Course enrolments", value: String(linked.length) }],
+      highlights: linked.slice(0, 3).map(r => ({ title: r.full_name || r.member_email, detail: `${title(r.course_slug ?? "")} · ${r.progress ?? 0}%`, tool: "progress" })),
       steps: [
         { label: "Check your package and seats", done: !!pkg.data, tool: "package" },
         { label: "Add your first employee", done: students > 0, tool: "members" },
@@ -95,31 +118,37 @@ async function load(role: StartRole, uid: string): Promise<Home> {
       ],
     };
   }
-  const [apps, pays, sfc] = await Promise.all([
+  const [apps, pays, sfc, tickets, trainers, ownerRequests] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
     n(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
+    n(supabase.from("support_tickets").select("id", head).eq("status", "open")),
+    n(supabase.from("trainer_applications").select("id", head).eq("status", "pending")),
+    owner ? n(supabase.from("staff_requests").select("id", head).eq("status", "pending")) : Promise.resolve(0),
   ]);
   return {
     cards: [
       { tool: "applications", title: "Approve applications", text: apps ? `${plural(apps, "new application")} to review.` : "All caught up.", count: apps },
       { tool: "payments", title: "Confirm payments", text: pays ? `${plural(pays, "PayNow or bank payment")} to check.` : "No payments waiting.", count: pays },
       { tool: "sfc", title: "Check SkillsFuture claims", text: sfc ? `${plural(sfc, "claim")} waiting for review.` : "No claims waiting.", count: sfc },
-      { tool: "notices", title: "Post a notice", text: "Send an announcement every student will see." },
+      { tool: "inbox", title: "Reply to enquiries", text: tickets ? `${plural(tickets, "open enquiry")} to review.` : "No enquiries waiting.", count: tickets },
+      { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
+      ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
+    metrics: [{ label: "Course applications", value: String(apps) }, { label: "Payment checks", value: String(pays) }, { label: owner ? "Access requests" : "Open enquiries", value: String(owner ? ownerRequests : tickets) }],
     steps: [],
   };
 }
 
-export function StartHere({ role, userId, greeting, onNavigate: fallback, stats }: { role: StartRole; userId: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode }) {
+export function StartHere({ role, userId, email, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; email?: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
   const onNavigate = useWorkspaceNavigate() ?? fallback;
-  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId], queryFn: () => load(role, userId) });
+  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId, email, owner], queryFn: () => load(role, userId, email, owner) });
   const key = `soq-checklist-hidden:${role}:${userId}`;
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
   const hide = (v: boolean) => { setHidden(v); if (v) localStorage.setItem(key, "1"); else localStorage.removeItem(key); };
   // Urgent cards (with a count) come first.
-  const cards = data ? [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
+  const cards = data ? role === "student" ? data.cards : [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
   const steps = data?.steps ?? [];
   const done = steps.filter(s => s.done).length;
   const allDone = steps.length > 0 && done === steps.length;
@@ -141,13 +170,13 @@ export function StartHere({ role, userId, greeting, onNavigate: fallback, stats 
   );
   return (
     <div className="mt-2 space-y-6">
-      <p className="max-w-2xl text-muted-foreground">{greeting}</p>
-      {checklist}
-      <section aria-label="What do you want to do?">
-        <h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">What do you want to do?</h2>
+      <div className="border-b border-border pb-5"><p className="text-xs font-semibold uppercase text-brand-gold">{data?.identity ? `Learning with ${data.identity}` : owner ? "Owner overview" : role === "business" ? "Team learning" : role === "trainer" ? "Teaching today" : role === "student" ? "Your learning" : "Daily operations"}</p><p className="mt-2 max-w-2xl text-muted-foreground">{greeting}</p></div>
+      {data?.metrics && <div className="grid grid-cols-2 gap-3 border-b border-border pb-6 sm:grid-cols-3" aria-label="At a glance">{data.metrics.map(m => <div key={m.label} className="border-l-2 border-brand-gold pl-4"><p className="font-serif text-3xl text-primary">{m.value}</p><p className="text-xs text-muted-foreground">{m.label}</p></div>)}</div>}
+      <section aria-label="Next actions">
+        <h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">{cards.some(c => c.count) ? "Needs your attention" : "Next steps"}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-xl" />) : cards.map(c => (
-            <button key={c.title} type="button" onClick={() => onNavigate(c.tool)} className={`group grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 rounded-xl border bg-card p-5 text-left transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${c.count ? "border-accent" : "border-border hover:border-accent"}`}>
+          {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-md" />) : cards.map(c => (
+            <Button key={c.title} variant="outline" type="button" onClick={() => onNavigate(c.tool)} className={`group grid h-auto min-h-28 w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 whitespace-normal rounded-md p-5 text-left transition hover:border-accent ${c.count ? "border-accent" : "border-border"}`}>
               <span className="min-w-0">
                 <span className="block font-serif text-2xl font-semibold leading-tight text-primary">{c.title}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">{c.text}</span>
@@ -155,10 +184,12 @@ export function StartHere({ role, userId, greeting, onNavigate: fallback, stats 
               {c.count ? <span className="grid min-w-8 place-items-center rounded-full bg-accent px-2 py-1 text-sm font-bold text-accent-foreground">{c.count}</span>
                 : c.badge ? <span className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-primary">{c.badge}</span>
                 : <ArrowRight className="mt-1 size-5 text-muted-foreground transition group-hover:translate-x-1" aria-hidden="true" />}
-            </button>
+            </Button>
           ))}
         </div>
       </section>
+      {data?.highlights && <section className="border-t border-border pt-5" aria-label="Coming up"><h2 className="font-serif text-2xl text-primary">{role === "business" ? "Team progress" : role === "student" ? "Tasks & booked classes" : "Upcoming classes"}</h2>{data.highlights.length ? <ul className="mt-3 divide-y divide-border">{data.highlights.map((h, i) => <li key={`${h.title}-${i}`}><Button variant="ghost" onClick={() => onNavigate(h.tool)} className="flex h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left"><span className="min-w-0 whitespace-normal"><strong className="block font-medium">{h.title}</strong><span className="text-xs text-muted-foreground">{h.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{role === "business" ? "No linked course enrolments yet. Add team members, then ask SOQ to enrol them." : role === "trainer" ? "No upcoming classes. Schedule one from Classes." : "No tasks or confirmed classes coming up. Open a course to see what’s next."}</p>}</section>}
+      {checklist}
       {steps.length > 0 && !showList && <Button variant="link" className="h-auto p-0 text-sm" onClick={() => hide(false)}>{allDone ? "All set-up steps done ✓" : "Show getting-started checklist"}</Button>}
       {stats && <section aria-label="At a glance"><h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">At a glance</h2>{stats}</section>}
     </div>

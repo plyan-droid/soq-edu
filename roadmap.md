@@ -12,6 +12,9 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Redesign role Home summaries with real queues, learner tasks/classes, trainer sessions, organisation progress and distinct admin access requests; keep working tool links.
+- [x] Add three explicitly non-operational affiliate, store and employer design previews plus a PM integration handoff.
+- [ ] Connect PM-built affiliate, store, jobs and specialised staff systems (blocked: their data contracts, permissions and access have not been supplied).
 - [x] Show clearly marked demo WhatsApp conversations beside live Contact enquiries, with empty staff-only storage and a not-connected setup notice.
 - [ ] Connect WhatsApp Business and deploy a verified message receiver before enabling live chats or replies (blocked: SOQ connection was declined; requires account setup and incoming-message destination).
 - [x] Standardise user-facing English across the site and portals to British English.

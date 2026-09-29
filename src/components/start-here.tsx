@@ -10,7 +10,7 @@ import { useWorkspaceNavigate } from "@/components/workspace-shell";
 export type StartRole = "student" | "trainer" | "business" | "staff";
 type Card = { tool: string; title: string; text: string; count?: number | undefined; badge?: string | undefined };
 type Step = { label: string; done: boolean; tool: string };
-type Home = { cards: Card[]; steps: Step[]; highlights?: { title: string; detail: string; tool: string }[]; metrics?: { label: string; value: string }[]; identity?: string | undefined };
+type Home = { cards: Card[]; steps: Step[]; highlights?: { title: string; detail: string; tool: string }[]; metrics?: { label: string; value: string }[]; identity?: string | undefined; panels?: { title: string; empty: string; items: { label: string; detail: string; tool: string }[] }[]; breakdown?: { title: string; items: { label: string; count: number }[] } };
 
 const head = { count: "exact" as const, head: true };
 const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
@@ -32,16 +32,23 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     ]);
     const roster = ((await supabase.rpc("trainer_roster" as never)).data ?? []) as unknown as { progress: number; status: string }[];
     const upcoming = await supabase.from("live_sessions").select("title,starts_at").eq("trainer_id", uid).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(3);
+    const slugs = (await supabase.from("trainer_courses").select("course_slug").eq("trainer_id", uid)).data?.map(r => r.course_slug) ?? [];
+    const assignments = slugs.length ? (await supabase.from("assignments").select("id,title,course_slug,due_at,assignment_submissions(id,status)").in("course_slug", slugs).order("created_at", { ascending: false }).limit(20)).data ?? [] : [];
+    const pending = assignments.flatMap(a => (a.assignment_submissions ?? []).filter(s => s.status !== "graded").map(() => ({ label: a.title, detail: title(a.course_slug), tool: "assignments" })));
+    const courseCounts = slugs.map(slug => ({ label: title(slug), count: roster.filter(r => (r as { course_slug?: string }).course_slug === slug).length }));
     const behind = roster.filter(r => r.status !== "completed" && r.progress < 30).length;
     return {
       cards: [
         { tool: "live", title: "Confirm seat requests", text: reqs ? "Students are waiting to hear back about a class." : "No one is waiting right now.", count: reqs },
         { tool: "live", title: "Add a class", text: "Schedule a live class with a date, time and meeting link." },
         { tool: "students", title: "Check students", text: behind ? `${plural(behind, "student")} under 30% progress.` : "See everyone's progress at a glance.", count: behind },
+        { tool: "assignments", title: "Review submissions", text: pending.length ? `${plural(pending.length, "submission")} to grade.` : "No submissions waiting for grading.", count: pending.length },
         { tool: "lessons", title: "Add a lesson", text: "Notes, a video or materials for one of your courses." },
       ],
-      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Upcoming classes", value: String(upcoming.data?.length ?? 0) }],
+      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Upcoming classes", value: String(upcoming.data?.length ?? 0) }, { label: "Submissions to grade", value: String(pending.length) }],
       highlights: (upcoming.data ?? []).map(s => ({ title: s.title, detail: `Live class · ${day(s.starts_at)}`, tool: "live" })),
+      breakdown: { title: "Students by course", items: courseCounts },
+      panels: [{ title: "Assignments to review", empty: "No submissions waiting for grading.", items: pending.slice(0, 4) }],
       steps: [
         { label: "Fill in your public tutor profile", done: profile > 0, tool: "profile" },
         { label: "Get a course assigned or propose one", done: courseRows + drafts > 0, tool: "drafts" },
@@ -73,6 +80,11 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     const nextSessions = bookingIds.length ? (await supabase.from("live_sessions").select("title,starts_at").in("id", bookingIds).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(3)).data ?? [] : [];
     const next = nextSessions[0];
     const due = inst.data?.[0];
+    const [assignments, quizzes] = await Promise.all([
+      slugs.length ? supabase.from("assignments").select("title,course_slug,due_at").in("course_slug", slugs).gte("due_at", now).order("due_at").limit(4) : Promise.resolve({ data: [] }),
+      slugs.length ? supabase.from("quizzes").select("id,title,course_slug").in("course_slug", slugs).limit(30) : Promise.resolve({ data: [] }),
+    ]);
+    const progress = rows.filter(r => r.status !== "withdrawn").slice(0, 4).map(r => ({ label: title(r.course_slug), detail: `${r.progress}% complete`, tool: "courses" }));
     return {
       cards: [
         current ? { tool: "courses", title: `Continue ${title(current.course_slug)}`, text: `You're ${current.progress}% through.`, badge: `${current.progress}%` } : { tool: "courses", title: "Find your course", text: "You're not enrolled yet. See your applications here." },
@@ -81,11 +93,16 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
         { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
       ],
       identity: orgName?.full_name || orgName?.email,
-      metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }],
+       metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }, { label: "Available quizzes", value: String(quizzes.data?.length ?? 0) }],
       highlights: [
         ...(taskRows.data ?? []).map(t => ({ title: t.title, detail: `${t.kind} · due ${day(t.due_at)}`, tool: "courses" })),
         ...nextSessions.map(s => ({ title: s.title, detail: `Confirmed class · ${day(s.starts_at)}`, tool: "courses" })),
       ],
+       panels: [
+         { title: "My course progress", empty: "No courses linked yet.", items: progress },
+         { title: "Upcoming assignments", empty: "No assignments due soon.", items: (assignments.data ?? []).map(a => ({ label: a.title, detail: `${title(a.course_slug)} · due ${day(a.due_at)}`, tool: "courses" })) },
+         { title: "Quizzes", empty: "No quizzes available yet.", items: (quizzes.data ?? []).slice(0, 4).map(q => ({ label: q.title, detail: title(q.course_slug), tool: "courses" })) },
+       ],
       steps: [
         { label: "Add your full name to your profile", done: !!prof.data?.full_name, tool: "courses" },
         { label: "Open your first lesson", done: rows.some(r => r.progress > 0), tool: "courses" },
@@ -103,6 +120,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     const left = Math.max(0, (pkg.data?.student_seats ?? 0) - students);
     const linked = (roster.data ?? []).filter(r => r.course_slug);
     const lagging = linked.filter(r => (r.progress ?? 0) < 30 && r.status !== "completed");
+    const byCourse = [...new Set(linked.map(r => r.course_slug).filter((slug): slug is string => !!slug))].map(slug => ({ label: title(slug), count: linked.filter(r => r.course_slug === slug).length }));
     return {
       cards: [
         { tool: "members", title: "Add employees", text: pkg.data ? `${plural(left, "seat")} left on your package.` : "Give your staff a place on SOQ training.", count: students === 0 ? 1 : 0, badge: pkg.data ? `${left} left` : undefined },
@@ -111,6 +129,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       ],
       metrics: [{ label: "Learners", value: String(students) }, { label: "Instructors", value: String((members.data ?? []).filter(m => m.member_role === "instructor").length) }, { label: "Course enrolments", value: String(linked.length) }],
       highlights: linked.slice(0, 3).map(r => ({ title: r.full_name || r.member_email, detail: `${title(r.course_slug ?? "")} · ${r.progress ?? 0}%`, tool: "progress" })),
+      breakdown: { title: "Team course overview", items: byCourse },
       steps: [
         { label: "Check your package and seats", done: !!pkg.data, tool: "package" },
         { label: "Add your first employee", done: students > 0, tool: "members" },
@@ -118,14 +137,25 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       ],
     };
   }
-  const [apps, pays, sfc, tickets, trainers, ownerRequests] = await Promise.all([
+  const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
     n(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
     n(supabase.from("support_tickets").select("id", head).eq("status", "open")),
     n(supabase.from("trainer_applications").select("id", head).eq("status", "pending")),
     owner ? n(supabase.from("staff_requests").select("id", head).eq("status", "pending")) : Promise.resolve(0),
+    n(supabase.from("course_reviews").select("id", head)),
+    n(supabase.from("post_comments").select("id", head).eq("hidden", false)),
+    n(supabase.from("profiles").select("id", head)),
+    supabase.from("orders").select("total,status,created_at,items").order("created_at", { ascending: false }).limit(500),
+    supabase.from("support_tickets").select("topic,created_at,status").order("created_at", { ascending: false }).limit(4),
+    supabase.from("course_drafts").select("title,status,created_at").order("created_at", { ascending: false }).limit(4),
+    supabase.from("live_sessions").select("title,starts_at").gte("starts_at", now).neq("status", "cancelled").order("starts_at").limit(4),
   ]);
+  const paid = (orders.data ?? []).filter(o => o.status === "paid");
+  const byMonth = new Map<string, number>();
+  paid.forEach(o => { const key = o.created_at.slice(0, 7); byMonth.set(key, (byMonth.get(key) ?? 0) + Number(o.total)); });
+  const months = Array.from({ length: 6 }, (_, i) => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - (5 - i)); return { key: d.toISOString().slice(0, 7), label: d.toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) }; });
   return {
     cards: [
       { tool: "applications", title: "Approve applications", text: apps ? `${plural(apps, "new application")} to review.` : "All caught up.", count: apps },
@@ -135,7 +165,13 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
       ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
-    metrics: [{ label: "Course applications", value: String(apps) }, { label: "Payment checks", value: String(pays) }, { label: owner ? "Access requests" : "Open enquiries", value: String(owner ? ownerRequests : tickets) }],
+    metrics: [{ label: "Paid orders", value: String(paid.length) }, { label: "Recorded order total", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { maximumFractionDigits: 0 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
+    breakdown: { title: "Paid orders · last six months", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
+    panels: [
+      { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox" })) },
+      { title: "Recent course proposals", empty: "No course proposals yet.", items: (recentCourses.data ?? []).map(c => ({ label: c.title, detail: `${c.status} · ${day(c.created_at)}`, tool: "drafts" })) },
+      { title: "Upcoming live classes", empty: "No live classes scheduled.", items: (sessions.data ?? []).map(s => ({ label: s.title, detail: day(s.starts_at), tool: "live-classes" })) },
+    ],
     steps: [],
   };
 }
@@ -189,6 +225,8 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
         </div>
       </section>
       {data?.highlights && <section className="border-t border-border pt-5" aria-label="Coming up"><h2 className="font-serif text-2xl text-primary">{role === "business" ? "Team progress" : role === "student" ? "Tasks & booked classes" : "Upcoming classes"}</h2>{data.highlights.length ? <ul className="mt-3 divide-y divide-border">{data.highlights.map((h, i) => <li key={`${h.title}-${i}`}><Button variant="ghost" onClick={() => onNavigate(h.tool)} className="flex h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left"><span className="min-w-0 whitespace-normal"><strong className="block font-medium">{h.title}</strong><span className="text-xs text-muted-foreground">{h.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{role === "business" ? "No linked course enrolments yet. Add team members, then ask SOQ to enrol them." : role === "trainer" ? "No upcoming classes. Schedule one from Classes." : "No tasks or confirmed classes coming up. Open a course to see what’s next."}</p>}</section>}
+      {data?.breakdown && <section className="border-t border-border pt-5"><h2 className="font-serif text-2xl text-primary">{data.breakdown.title}</h2>{data.breakdown.items.length ? <div className="mt-4 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...data.breakdown!.items.map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,10rem)_1fr_auto] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-3 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="w-12 text-right tabular-nums">{role === "staff" ? `S$${item.count.toLocaleString("en-SG")}` : item.count}</span></div>; })}</div> : <p className="mt-2 text-sm text-muted-foreground">No records yet.</p>}</section>}
+      {data?.panels && <div className="grid gap-x-10 gap-y-7 border-t border-border pt-5 lg:grid-cols-2">{data.panels.map(panel => <section key={panel.title}><h2 className="font-serif text-2xl text-primary">{panel.title}</h2>{panel.items.length ? <ul className="mt-2 divide-y divide-border">{panel.items.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium">{item.label}</span><span className="block text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{panel.empty}</p>}</section>)}</div>}
       {checklist}
       {steps.length > 0 && !showList && <Button variant="link" className="h-auto p-0 text-sm" onClick={() => hide(false)}>{allDone ? "All set-up steps done ✓" : "Show getting-started checklist"}</Button>}
       {stats && <section aria-label="At a glance"><h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">At a glance</h2>{stats}</section>}

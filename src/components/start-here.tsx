@@ -77,8 +77,8 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       cards: [
         current ? { tool: "courses", title: `Continue ${title(current.course_slug)}`, text: `You're ${current.progress}% through.`, badge: `${current.progress}%` } : { tool: "courses", title: "Find your course", text: "You're not enrolled yet. See your applications here." },
         { tool: "courses", title: next ? `Next booked class · ${day(next.starts_at)}` : "Live classes", text: next ? next.title : "No confirmed class yet. Request a seat from a lesson page." },
-        { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
         { tool: "certs", title: "Get your certificate", text: certs ? `You have ${plural(certs, "certificate")} ready to download.` : "Finish a course and pass its quiz to earn one." },
+        { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
       ],
       identity: orgName?.full_name || orgName?.email,
       metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }],
@@ -148,7 +148,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
   const hide = (v: boolean) => { setHidden(v); if (v) localStorage.setItem(key, "1"); else localStorage.removeItem(key); };
   // Urgent cards (with a count) come first.
-  const cards = data ? [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
+  const cards = data ? role === "student" ? data.cards : [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
   const steps = data?.steps ?? [];
   const done = steps.filter(s => s.done).length;
   const allDone = steps.length > 0 && done === steps.length;

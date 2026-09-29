@@ -30,12 +30,23 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       n(supabase.from("course_drafts").select("id", head).eq("trainer_id", uid)),
       n(supabase.from("trainer_courses").select("course_slug", head).eq("trainer_id", uid)),
     ]);
-    const roster = ((await supabase.rpc("trainer_roster" as never)).data ?? []) as unknown as { progress: number; status: string }[];
+    const roster = ((await supabase.rpc("trainer_roster" as never)).data ?? []) as unknown as { progress: number; status: string; course_slug: string }[];
     const upcoming = await supabase.from("live_sessions").select("title,starts_at").eq("trainer_id", uid).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(3);
     const slugs = (await supabase.from("trainer_courses").select("course_slug").eq("trainer_id", uid)).data?.map(r => r.course_slug) ?? [];
-    const assignments = slugs.length ? (await supabase.from("assignments").select("id,title,course_slug,due_at,assignment_submissions(id,status)").in("course_slug", slugs).order("created_at", { ascending: false }).limit(20)).data ?? [] : [];
-    const pending = assignments.flatMap(a => (a.assignment_submissions ?? []).filter(s => s.status !== "graded").map(() => ({ label: a.title, detail: title(a.course_slug), tool: "assignments" })));
-    const courseCounts = slugs.map(slug => ({ label: title(slug), count: roster.filter(r => (r as { course_slug?: string }).course_slug === slug).length }));
+    const [assignmentResult, questionResult, quizResult, meetingResult, noticeResult, eventResult, sessionsResult] = await Promise.all([
+      slugs.length ? supabase.from("assignments").select("id,title,course_slug,due_at,assignment_submissions(id,status,student_name)").in("course_slug", slugs).order("created_at", { ascending: false }).limit(30) : Promise.resolve({ data: [] }),
+      slugs.length ? supabase.from("course_questions").select("id,body,author_name,course_slug,created_at,course_answers(id)").in("course_slug", slugs).order("created_at", { ascending: false }).limit(30) : Promise.resolve({ data: [] }),
+      slugs.length ? supabase.from("quizzes").select("id,title,course_slug,quiz_attempts(score,passed)").in("course_slug", slugs).limit(40) : Promise.resolve({ data: [] }),
+      supabase.from("meeting_slots").select("topic,starts_at,booked_name").eq("trainer_id", uid).not("booked_by", "is", null).gte("starts_at", now).order("starts_at").limit(4),
+      supabase.from("site_notices").select("title,body,created_at").order("created_at", { ascending: false }).limit(3),
+      supabase.from("events").select("title,starts_at").gte("starts_at", now).order("starts_at").limit(4),
+      supabase.from("live_sessions").select("title,starts_at,course_slug").eq("trainer_id", uid).neq("status", "cancelled").gte("starts_at", now).order("starts_at").limit(5),
+    ]);
+    const assignments = assignmentResult.data ?? [];
+    const pending = assignments.flatMap(a => (a.assignment_submissions ?? []).filter(s => s.status !== "graded").map(s => ({ label: a.title, detail: `${s.student_name} · ${title(a.course_slug)}`, tool: "assignments" })));
+    const questions = (questionResult.data ?? []).filter(q => !(q.course_answers ?? []).length);
+    const quizAttempts = (quizResult.data ?? []).flatMap(q => (q.quiz_attempts ?? []).map(a => ({ ...a, title: q.title, slug: q.course_slug })));
+    const courseCounts = slugs.map(slug => ({ label: title(slug), count: roster.filter(r => r.course_slug === slug).length }));
     const behind = roster.filter(r => r.status !== "completed" && r.progress < 30).length;
     return {
       cards: [
@@ -43,12 +54,23 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
         { tool: "live", title: "Add a class", text: "Schedule a live class with a date, time and meeting link." },
         { tool: "students", title: "Check students", text: behind ? `${plural(behind, "student")} under 30% progress.` : "See everyone's progress at a glance.", count: behind },
         { tool: "assignments", title: "Review submissions", text: pending.length ? `${plural(pending.length, "submission")} to grade.` : "No submissions waiting for grading.", count: pending.length },
+        { tool: "overview", title: "Course questions", text: questions.length ? `${plural(questions.length, "question")} without an answer.` : "No unanswered questions in your courses.", count: questions.length },
         { tool: "lessons", title: "Add a lesson", text: "Notes, a video or materials for one of your courses." },
       ],
-      metrics: [{ label: "Courses", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Next classes", value: String(upcoming.data?.length ?? 0) }, { label: "Submissions to grade", value: String(pending.length) }],
-      highlights: (upcoming.data ?? []).map(s => ({ title: s.title, detail: `Live class · ${day(s.starts_at)}`, tool: "live" })),
+      metrics: [{ label: "Courses I teach", value: String(courseRows) }, { label: "Students", value: String(roster.length) }, { label: "Upcoming live classes", value: String(upcoming.data?.length ?? 0) }, { label: "Booked 1-to-1 meetings", value: String(meetingResult.data?.length ?? 0) }, { label: "Submissions to grade", value: String(pending.length) }, { label: "Quiz attempts", value: String(quizAttempts.length) }],
+      highlights: [
+        ...(sessionsResult.data ?? []).map(s => ({ title: s.title, detail: `${title(s.course_slug)} · live class · ${day(s.starts_at)}`, tool: "calendar" })),
+        ...(meetingResult.data ?? []).map(s => ({ title: s.topic, detail: `1-to-1 with ${s.booked_name || "learner"} · ${day(s.starts_at)}`, tool: "calendar" })),
+      ].sort((a, b) => a.detail.localeCompare(b.detail)).slice(0, 6),
       breakdown: { title: "Students by course", items: courseCounts },
-      panels: [{ title: "Assignments to review", empty: "No submissions waiting for grading.", items: pending.slice(0, 4) }],
+      panels: [
+        { title: "My courses", empty: "No courses assigned yet.", items: slugs.slice(0, 5).map(slug => ({ label: title(slug), detail: `${roster.filter(r => r.course_slug === slug).length} students · ${roster.filter(r => r.course_slug === slug).length ? Math.round(roster.filter(r => r.course_slug === slug).reduce((sum, r) => sum + r.progress, 0) / roster.filter(r => r.course_slug === slug).length) : 0}% average progress`, tool: "overview" })) },
+        { title: "Assignments to review", empty: "No submissions waiting for grading.", items: pending.slice(0, 4) },
+        { title: "Course questions", empty: "No unanswered questions.", items: questions.slice(0, 4).map(q => ({ label: q.body.slice(0, 90), detail: `${q.author_name} · ${title(q.course_slug)}`, tool: "overview" })) },
+        { title: "Student quiz results", empty: "No quiz attempts yet.", items: quizAttempts.slice(0, 4).map(a => ({ label: a.title, detail: `${title(a.slug)} · ${a.score}% · ${a.passed ? "passed" : "not passed"}`, tool: "quizzes" })) },
+        { title: "Noticeboard", empty: "No notices yet.", items: (noticeResult.data ?? []).map(x => ({ label: x.title, detail: x.body.slice(0, 90), tool: "notices" })) },
+        { title: "Upcoming events", empty: "No upcoming events.", items: (eventResult.data ?? []).map(x => ({ label: x.title, detail: day(x.starts_at), tool: "calendar" })) },
+      ],
       steps: [
         { label: "Fill in your public tutor profile", done: profile > 0, tool: "profile" },
         { label: "Get a course assigned or propose one", done: courseRows + drafts > 0, tool: "drafts" },
@@ -137,7 +159,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       ],
     };
   }
-  const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions, recentComments] = await Promise.all([
+  const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions, recentComments, bookings, recentUsers, events] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
     n(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
@@ -152,27 +174,36 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     supabase.from("course_drafts").select("title,status,created_at").order("created_at", { ascending: false }).limit(4),
     supabase.from("live_sessions").select("title,starts_at").gte("starts_at", now).neq("status", "cancelled").order("starts_at").limit(4),
     supabase.from("post_comments").select("body,created_at").eq("hidden", false).order("created_at", { ascending: false }).limit(4),
+    n(supabase.from("session_bookings").select("id", head).eq("status", "requested")),
+    supabase.from("profiles").select("full_name,created_at").order("created_at", { ascending: false }).limit(4),
+    supabase.from("events").select("title,starts_at").gte("starts_at", now).order("starts_at").limit(4),
   ]);
   const paid = (orders.data ?? []).filter(o => o.status === "paid");
   const byMonth = new Map<string, number>();
   paid.forEach(o => { const key = o.created_at.slice(0, 7); byMonth.set(key, (byMonth.get(key) ?? 0) + Number(o.total)); });
   const months = Array.from({ length: 6 }, (_, i) => { const d = new Date(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() - (5 - i)); return { key: d.toISOString().slice(0, 7), label: d.toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) }; });
+  const money = (rows: typeof paid) => `S$${rows.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const today = now.slice(0, 10);
+  const weekStart = new Date(); weekStart.setUTCDate(weekStart.getUTCDate() - 7);
   return {
     cards: [
       { tool: "applications", title: "Approve applications", text: apps ? `${plural(apps, "new application")} to review.` : "All caught up.", count: apps },
       { tool: "payments", title: "Confirm payments", text: pays ? `${plural(pays, "PayNow or bank payment")} to check.` : "No payments waiting.", count: pays },
       { tool: "sfc", title: "Check SkillsFuture claims", text: sfc ? `${plural(sfc, "claim")} waiting for review.` : "No claims waiting.", count: sfc },
       { tool: "inbox", title: "Reply to enquiries", text: tickets ? `${plural(tickets, "open enquiry")} to review.` : "No enquiries waiting.", count: tickets },
+      { tool: "live-classes", title: "Live-class seat requests", text: bookings ? `${plural(bookings, "request")} awaiting a trainer.` : "No seat requests waiting.", count: bookings },
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
       ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
-    metrics: [{ label: "Recorded paid orders · latest 500", value: String(paid.length) }, { label: "Recorded order total · latest 500", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
+    metrics: [{ label: "Paid orders · today (latest 500)", value: String(paid.filter(o => o.created_at.slice(0, 10) === today).length) }, { label: "Paid orders · last 7 days (latest 500)", value: String(paid.filter(o => new Date(o.created_at) >= weekStart).length) }, { label: "Recorded sales · today (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 10) === today)) }, { label: "Recorded sales · this month (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 7) === today.slice(0, 7))) }, { label: "Recorded sales · this year (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 4) === today.slice(0, 4))) }, { label: "Recorded paid orders · latest 500", value: String(paid.length) }, { label: "Recorded order total · latest 500", value: money(paid) }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
     breakdown: { title: "Recorded paid orders · last six months (latest 500)", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
     panels: [
       { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox" })) },
       { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation" })) },
       { title: "Recent course proposals", empty: "No course proposals yet.", items: (recentCourses.data ?? []).map(c => ({ label: c.title, detail: `${c.status} · ${day(c.created_at)}`, tool: "drafts" })) },
       { title: "Upcoming live classes", empty: "No live classes scheduled.", items: (sessions.data ?? []).map(s => ({ label: s.title, detail: day(s.starts_at), tool: "live-classes" })) },
+      { title: "Recent registrations", empty: "No accounts registered yet.", items: (recentUsers.data ?? []).map(u => ({ label: u.full_name || "New learner", detail: day(u.created_at), tool: "students" })) },
+      { title: "Upcoming events", empty: "No events scheduled.", items: (events.data ?? []).map(e => ({ label: e.title, detail: day(e.starts_at), tool: "events" })) },
     ],
     steps: [],
   };

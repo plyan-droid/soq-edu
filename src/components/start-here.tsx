@@ -16,7 +16,7 @@ const head = { count: "exact" as const, head: true };
 const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
 const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const day = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short" });
-const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : w === "enquiry" ? "enquiries" : "s"}`;
+const plural = (k: number, w: string) => `${k} ${k === 1 ? w : w.endsWith("enquiry") ? `${w.slice(0, -7)}enquiries` : `${w}s`}`;
 
 async function load(role: StartRole, uid: string, email = "", owner = false): Promise<Home> {
   const now = new Date().toISOString();

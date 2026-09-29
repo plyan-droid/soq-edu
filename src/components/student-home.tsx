@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, CalendarDays, CheckCircle2, ClipboardList, GraduationCap, Megaphone, Video } from "lucide-react";
+import { ArrowRight, CalendarDays, CheckCircle2, ClipboardList, GraduationCap, Megaphone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +82,6 @@ export function StudentHome({ userId, email }: { userId: string; email: string }
   if (error || !data) return <p className="mt-8 text-sm text-destructive">Your learning overview could not be loaded. Please refresh and try again.</p>;
   const current = data.rows.find(r => r.status === "active") ?? data.rows.find(r => r.status !== "completed") ?? data.rows[0];
   const firstName = data.name?.split(" ")[0];
-  const doneLessonIds = new Set(data.progress.map(p => p.lesson_id));
   const enrolled = data.rows.filter(r => r.status !== "withdrawn");
   const upcoming = data.agenda.slice(0, 5);
   const month = new Date(); month.setDate(1); month.setMonth(month.getMonth() + monthOffset);
@@ -137,5 +136,6 @@ export function StudentHome({ userId, email }: { userId: string; email: string }
         <section className={section}><h3 className="font-serif text-2xl text-primary">Upcoming events</h3>{data.events.length ? <ul className="mt-2 divide-y divide-border">{data.events.slice(0, 3).map(e => <li key={e.id} className="py-3 text-sm"><p className="font-medium">{e.title}</p><p className="text-xs text-muted-foreground">{dateText(e.starts_at)} · {e.location}</p></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No events booked yet.</p>}<Button asChild variant="link" className="px-0"><Link to="/events">Explore events <ArrowRight className="size-4" /></Link></Button></section>
         <section className={section}><h3 className="font-serif text-2xl text-primary">SkillsFuture Credit</h3><p className="mt-2 text-sm text-muted-foreground">{data.credit === null ? "No balance added yet." : `Your self-reported balance: S$${Number(data.credit).toLocaleString("en-SG", { minimumFractionDigits: 2 })}. This is not a verified government balance.`}</p><Button variant="link" className="px-0" onClick={() => navigate?.("sfc")}>View credit & claims <ArrowRight className="size-4" /></Button></section>
       </aside>
-    </div>;
+    </div>
+  </div>;
 }

@@ -16,7 +16,7 @@ const head = { count: "exact" as const, head: true };
 const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
 const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const day = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short" });
-const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
+const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : w === "enquiry" ? "enquiries" : "s"}`;
 
 async function load(role: StartRole, uid: string, email = "", owner = false): Promise<Home> {
   const now = new Date().toISOString();
@@ -98,11 +98,11 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
         ...(taskRows.data ?? []).map(t => ({ title: t.title, detail: `${t.kind} · due ${day(t.due_at)}`, tool: "courses" })),
         ...nextSessions.map(s => ({ title: s.title, detail: `Confirmed class · ${day(s.starts_at)}`, tool: "courses" })),
       ],
-       panels: [
-         { title: "My course progress", empty: "No courses linked yet.", items: progress },
-         { title: "Upcoming assignments", empty: "No assignments due soon.", items: (assignments.data ?? []).map(a => ({ label: a.title, detail: `${title(a.course_slug)} · due ${a.due_at ? day(a.due_at) : "date pending"}`, tool: "courses" })) },
-         { title: "Quizzes", empty: "No quizzes available yet.", items: (quizzes.data ?? []).slice(0, 4).map(q => ({ label: q.title, detail: title(q.course_slug), tool: "courses" })) },
-       ],
+      panels: [
+        { title: "My course progress", empty: "No courses linked yet.", items: progress },
+        { title: "Upcoming assignments", empty: "No assignments due soon.", items: (assignments.data ?? []).map(a => ({ label: a.title, detail: `${title(a.course_slug ?? "")} · due ${a.due_at ? day(a.due_at) : "date pending"}`, tool: "courses" })) },
+        { title: "Quizzes", empty: "No quizzes available yet.", items: (quizzes.data ?? []).slice(0, 4).map(q => ({ label: q.title, detail: title(q.course_slug), tool: "courses" })) },
+      ],
       steps: [
         { label: "Add your full name to your profile", done: !!prof.data?.full_name, tool: "courses" },
         { label: "Open your first lesson", done: rows.some(r => r.progress > 0), tool: "courses" },
@@ -166,8 +166,8 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
       ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
-    metrics: [{ label: "Paid orders · latest 500", value: String(paid.length) }, { label: "Order total · latest 500", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { maximumFractionDigits: 0 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
-    breakdown: { title: "Paid orders · last six months (latest 500)", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
+    metrics: [{ label: "Recorded paid orders · latest 500", value: String(paid.length) }, { label: "Recorded order total · latest 500", value: `S$${paid.reduce((sum, o) => sum + Number(o.total), 0).toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` }, { label: "Open enquiries", value: String(tickets) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
+    breakdown: { title: "Recorded paid orders · last six months (latest 500)", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
     panels: [
       { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox" })) },
       { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation" })) },
@@ -227,7 +227,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
         </div>
       </section>
       {data?.highlights && <section className="border-t border-border pt-5" aria-label="Coming up"><h2 className="font-serif text-2xl text-primary">{role === "business" ? "Team progress" : role === "student" ? "Tasks & booked classes" : "Upcoming classes"}</h2>{data.highlights.length ? <ul className="mt-3 divide-y divide-border">{data.highlights.map((h, i) => <li key={`${h.title}-${i}`}><Button variant="ghost" onClick={() => onNavigate(h.tool)} className="flex h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left"><span className="min-w-0 whitespace-normal"><strong className="block font-medium">{h.title}</strong><span className="text-xs text-muted-foreground">{h.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{role === "business" ? "No linked course enrolments yet. Add team members, then ask SOQ to enrol them." : role === "trainer" ? "No upcoming classes. Schedule one from Classes." : "No tasks or confirmed classes coming up. Open a course to see what’s next."}</p>}</section>}
-      {data?.breakdown && <section className="border-t border-border pt-5"><h2 className="font-serif text-2xl text-primary">{data.breakdown.title}</h2>{data.breakdown.items.length ? <div className="mt-4 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...(data.breakdown?.items ?? []).map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,10rem)_1fr_auto] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-3 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="min-w-12 text-right tabular-nums">{role === "staff" ? `S$${item.count.toLocaleString("en-SG")}` : item.count}</span></div>; })}</div> : <p className="mt-2 text-sm text-muted-foreground">No records yet.</p>}</section>}
+      {data?.breakdown && <section className="border-t border-border pt-5"><h2 className="font-serif text-2xl text-primary">{data.breakdown.title}</h2>{data.breakdown.items.length ? <div className="mt-4 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...(data.breakdown?.items ?? []).map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,10rem)_1fr_auto] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-3 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="min-w-12 text-right tabular-nums">{role === "staff" ? `S$${item.count.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : item.count}</span></div>; })}</div> : <p className="mt-2 text-sm text-muted-foreground">No records yet.</p>}</section>}
       {data?.panels && <div className="grid gap-x-10 gap-y-7 border-t border-border pt-5 lg:grid-cols-2">{data.panels.map(panel => <section key={panel.title}><h2 className="font-serif text-2xl text-primary">{panel.title}</h2>{panel.items.length ? <ul className="mt-2 divide-y divide-border">{panel.items.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium">{item.label}</span><span className="block text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{panel.empty}</p>}</section>)}</div>}
       {checklist}
       {steps.length > 0 && !showList && <Button variant="link" className="h-auto p-0 text-sm" onClick={() => hide(false)}>{allDone ? "All set-up steps done ✓" : "Show getting-started checklist"}</Button>}

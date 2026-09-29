@@ -12,7 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
-- [ ] Build screenshot-informed dashboard summaries for admin, trainer, learner and organisation using existing authorised records; distinguish unavailable partner commerce/hiring data.
+- [x] Build screenshot-informed dashboard summaries for admin, trainer, learner and organisation using existing authorised records; partner commerce/hiring data remains unavailable pending PM contracts.
 - [x] Redesign role Home summaries with real queues, learner tasks/classes, trainer sessions, organisation progress and distinct admin access requests; keep working tool links.
 - [x] Add three explicitly non-operational affiliate, store and employer design previews plus a PM integration handoff.
 - [ ] Connect PM-built affiliate, store, jobs and specialised staff systems (blocked: their data contracts, permissions and access have not been supplied).

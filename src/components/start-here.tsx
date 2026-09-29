@@ -18,7 +18,7 @@ const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slu
 const day = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short" });
 const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
 
-async function load(role: StartRole, uid: string, email = ""): Promise<Home> {
+async function load(role: StartRole, uid: string, email = "", owner = false): Promise<Home> {
   const now = new Date().toISOString();
   if (role === "trainer") {
     const [reqs, live, slots, profile, lessons, drafts, courseRows] = await Promise.all([
@@ -118,12 +118,13 @@ async function load(role: StartRole, uid: string, email = ""): Promise<Home> {
       ],
     };
   }
-  const [apps, pays, sfc, tickets, trainers] = await Promise.all([
+  const [apps, pays, sfc, tickets, trainers, ownerRequests] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
     n(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
     n(supabase.from("support_tickets").select("id", head).eq("status", "open")),
     n(supabase.from("trainer_applications").select("id", head).eq("status", "pending")),
+    owner ? n(supabase.from("staff_requests").select("id", head).eq("status", "pending")) : Promise.resolve(0),
   ]);
   return {
     cards: [
@@ -132,15 +133,16 @@ async function load(role: StartRole, uid: string, email = ""): Promise<Home> {
       { tool: "sfc", title: "Check SkillsFuture claims", text: sfc ? `${plural(sfc, "claim")} waiting for review.` : "No claims waiting.", count: sfc },
       { tool: "inbox", title: "Reply to enquiries", text: tickets ? `${plural(tickets, "open enquiry")} to review.` : "No enquiries waiting.", count: tickets },
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
+      ...(owner ? [{ tool: "users", title: "Review staff access", text: ownerRequests ? `${plural(ownerRequests, "access request")} waiting.` : "Manage owner-only accounts and permissions.", count: ownerRequests }] : []),
     ],
-    metrics: [{ label: "Course applications", value: String(apps) }, { label: "Payment checks", value: String(pays) }, { label: "Open enquiries", value: String(tickets) }],
+    metrics: [{ label: "Course applications", value: String(apps) }, { label: "Payment checks", value: String(pays) }, { label: owner ? "Access requests" : "Open enquiries", value: String(owner ? ownerRequests : tickets) }],
     steps: [],
   };
 }
 
 export function StartHere({ role, userId, email, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; email?: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
   const onNavigate = useWorkspaceNavigate() ?? fallback;
-  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId, email], queryFn: () => load(role, userId, email) });
+  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId, email, owner], queryFn: () => load(role, userId, email, owner) });
   const key = `soq-checklist-hidden:${role}:${userId}`;
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
@@ -171,7 +173,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
       <div className="border-b border-border pb-5"><p className="text-xs font-semibold uppercase text-brand-gold">{data?.identity ? `Learning with ${data.identity}` : owner ? "Owner overview" : role === "business" ? "Team learning" : role === "trainer" ? "Teaching today" : role === "student" ? "Your learning" : "Daily operations"}</p><p className="mt-2 max-w-2xl text-muted-foreground">{greeting}</p></div>
       {data?.metrics && <div className="grid grid-cols-2 gap-3 border-b border-border pb-6 sm:grid-cols-3" aria-label="At a glance">{data.metrics.map(m => <div key={m.label} className="border-l-2 border-brand-gold pl-4"><p className="font-serif text-3xl text-primary">{m.value}</p><p className="text-xs text-muted-foreground">{m.label}</p></div>)}</div>}
       <section aria-label="Next actions">
-        <h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Needs your attention</h2>
+        <h2 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">{cards.some(c => c.count) ? "Needs your attention" : "Next steps"}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-md" />) : cards.map(c => (
             <Button key={c.title} variant="outline" type="button" onClick={() => onNavigate(c.tool)} className={`group grid h-auto min-h-28 w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-3 whitespace-normal rounded-md p-5 text-left transition hover:border-accent ${c.count ? "border-accent" : "border-border"}`}>

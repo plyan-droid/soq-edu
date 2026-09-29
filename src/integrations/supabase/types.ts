@@ -2274,12 +2274,6 @@ export type Database = {
         Args: { _course_slug: string; _student_id: string }
         Returns: Json
       }
-      my_learning_organisation: {
-        Args: never
-        Returns: {
-          organisation_name: string
-        }[]
-      }
       org_add_member: {
         Args: { _email: string; _role: string }
         Returns: string

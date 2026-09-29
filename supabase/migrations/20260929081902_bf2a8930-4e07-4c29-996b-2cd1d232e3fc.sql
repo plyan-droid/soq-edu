@@ -1,0 +1,3 @@
+DROP FUNCTION public.my_learning_organisation();
+CREATE POLICY "Learner reads own organisation membership" ON public.org_members FOR SELECT TO authenticated USING (member_role = 'student' AND lower(member_email) = lower(auth.jwt() ->> 'email'));
+CREATE POLICY "Learner reads linked organisation name" ON public.profiles FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.org_members m WHERE m.org_id = profiles.id AND m.member_role = 'student' AND lower(m.member_email) = lower(auth.jwt() ->> 'email')));

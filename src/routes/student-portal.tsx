@@ -39,7 +39,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
     { name: "Home", icon: Home, items: [
-      { id: "start", label: "Home", content: <StartHere role="student" userId={userId} onNavigate={setActive} greeting="Welcome back. Pick up where you left off." /> },
+      { id: "start", label: "Home", content: <StartHere role="student" userId={userId} email={email} onNavigate={setActive} greeting="Welcome back. Pick up where you left off." /> },
     ] },
     { name: "My courses", icon: BookOpen, items: [
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },

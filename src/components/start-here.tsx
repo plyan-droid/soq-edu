@@ -18,7 +18,7 @@ const title = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slu
 const day = (d: string) => new Date(d).toLocaleDateString("en-SG", { day: "numeric", month: "short" });
 const plural = (k: number, w: string) => `${k} ${w}${k === 1 ? "" : "s"}`;
 
-async function load(role: StartRole, uid: string): Promise<Home> {
+async function load(role: StartRole, uid: string, email = ""): Promise<Home> {
   const now = new Date().toISOString();
   if (role === "trainer") {
     const [reqs, live, slots, profile, lessons, drafts, courseRows] = await Promise.all([
@@ -52,13 +52,16 @@ async function load(role: StartRole, uid: string): Promise<Home> {
     };
   }
   if (role === "student") {
-    const [enr, certs, sfc, inst, prof] = await Promise.all([
+    const [enr, certs, sfc, inst, prof, org] = await Promise.all([
       supabase.from("enrollments").select("id,course_slug,progress,status").eq("student_id", uid).order("progress", { ascending: false }),
       n(supabase.from("certificates").select("id", head).eq("student_id", uid).eq("status", "valid")),
       n(supabase.from("sfc_claims").select("id", head).eq("user_id", uid)),
       supabase.from("instalments").select("amount,due_date").eq("user_id", uid).eq("paid", false).order("due_date").limit(1),
       supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
+      email ? supabase.from("org_members").select("org_id").eq("member_role", "student").ilike("member_email", email).limit(1) : Promise.resolve({ data: [] }),
     ]);
+    const orgId = org.data?.[0]?.org_id;
+    const orgName = orgId ? (await supabase.from("profiles").select("full_name,email").eq("id", orgId).maybeSingle()).data : null;
     const rows = (enr.data ?? []) as { course_slug: string; progress: number; status: string }[];
     const current = rows.find(r => r.status !== "completed" && r.progress < 100) ?? rows[0];
     const slugs = rows.map(r => r.course_slug);
@@ -77,6 +80,7 @@ async function load(role: StartRole, uid: string): Promise<Home> {
         { tool: "pay", title: due ? `Pay instalment due ${day(due.due_date)}` : "Payments", text: due ? `S$${due.amount} by PayNow or bank transfer.` : "Nothing due right now.", count: due ? 1 : 0 },
         { tool: "certs", title: "Get your certificate", text: certs ? `You have ${plural(certs, "certificate")} ready to download.` : "Finish a course and pass its quiz to earn one." },
       ],
+      identity: orgName?.full_name || orgName?.email,
       metrics: [{ label: "My courses", value: String(rows.length) }, { label: "Tasks due", value: String((taskRows.data ?? []).length) }, { label: "Certificates", value: String(certs) }],
       highlights: [
         ...(taskRows.data ?? []).map(t => ({ title: t.title, detail: `${t.kind} · due ${day(t.due_at)}`, tool: "courses" })),
@@ -134,9 +138,9 @@ async function load(role: StartRole, uid: string): Promise<Home> {
   };
 }
 
-export function StartHere({ role, userId, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
+export function StartHere({ role, userId, email, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; email?: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
   const onNavigate = useWorkspaceNavigate() ?? fallback;
-  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId], queryFn: () => load(role, userId) });
+  const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId, email], queryFn: () => load(role, userId, email) });
   const key = `soq-checklist-hidden:${role}:${userId}`;
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);

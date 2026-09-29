@@ -14,7 +14,7 @@ type AgendaItem = { id: string; date: string; title: string; detail: string; kin
 
 async function loadStudentHome(userId: string, email: string) {
   const now = new Date().toISOString();
-  const [enrolments, profile, org, certificates, meetings, bookings, signups, notices, credit] = await Promise.all([
+  const [enrolments, profile, org, certificates, meetings, bookings, signups, notices, credit, instalments] = await Promise.all([
     supabase.from("enrollments").select("id,course_slug,progress,status").eq("student_id", userId).order("created_at", { ascending: false }),
     supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
     email ? supabase.from("org_members").select("org_id").eq("member_role", "student").ilike("member_email", email).limit(1) : Promise.resolve({ data: [] as { org_id: string }[] }),
@@ -24,6 +24,7 @@ async function loadStudentHome(userId: string, email: string) {
     supabase.from("event_signups").select("event_id").eq("user_id", userId),
     supabase.from("site_notices").select("id,title,body,ends_on").order("created_at", { ascending: false }).limit(12),
     supabase.from("sfc_balances").select("balance").eq("user_id", userId).maybeSingle(),
+    supabase.from("instalments").select("amount,due_date").eq("user_id", userId).eq("paid", false).order("due_date").limit(20),
   ]);
   if (enrolments.error) throw enrolments.error;
   const rows = enrolments.data ?? [];
@@ -63,6 +64,7 @@ async function loadStudentHome(userId: string, email: string) {
     submissions: submissions.data ?? [], quizzes: quizzes.data ?? [], attempts: attempts.data ?? [],
     notices: (notices.data ?? []).filter(n => !n.ends_on || n.ends_on >= now.slice(0, 10)),
     courseNotices: courseNotices.data ?? [], lessons: lessons.data ?? [], progress: progress.data ?? [], agenda,
+    instalments: instalments.data ?? [],
     credit: credit.data?.balance ?? null,
   };
 }
@@ -82,6 +84,8 @@ export function StudentHome({ userId, email }: { userId: string; email: string }
   if (error || !data) return <p className="mt-8 text-sm text-destructive">Your learning overview could not be loaded. Please refresh and try again.</p>;
   const current = data.rows.find(r => r.status === "active") ?? data.rows.find(r => r.status !== "completed") ?? data.rows[0];
   const firstName = data.name?.split(" ")[0];
+  const lessonIds = new Set(data.lessons.map(l => l.id));
+  const completedLessons = data.progress.filter(p => lessonIds.has(p.lesson_id)).length;
   const enrolled = data.rows.filter(r => r.status !== "withdrawn");
   const upcoming = data.agenda.slice(0, 5);
   const month = new Date(); month.setDate(1); month.setMonth(month.getMonth() + monthOffset);
@@ -105,7 +109,7 @@ export function StudentHome({ userId, email }: { userId: string; email: string }
         {courses.find(c => c.slug === current.course_slug)?.image && <img src={courses.find(c => c.slug === current.course_slug)?.image} alt="" className="hidden size-24 shrink-0 rounded-md object-cover sm:block" />}
         <div className="min-w-0 flex-1"><p className="font-semibold text-primary">{courseName(current.course_slug)}</p><p className="mt-1 text-sm text-muted-foreground">{current.progress}% complete · {current.status}</p><div className="mt-3 h-1.5 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.min(100, Math.max(0, current.progress))}%` }} /></div><Button asChild className="mt-4"><Link to="/learn/$slug" params={{ slug: current.course_slug }}>Continue course <ArrowRight className="size-4" /></Link></Button></div>
       </div> : <div className="mt-4"><p className="text-sm text-muted-foreground">No course is linked to your account yet.</p><Button asChild className="mt-4"><Link to="/courses">Explore courses <ArrowRight className="size-4" /></Link></Button></div>}</div>
-      <div className="border-l-2 border-brand-gold pl-5"><h3 className="font-serif text-2xl text-primary">Learning activity</h3><p className="mt-3 text-sm text-muted-foreground">{data.progress.length ? `${data.progress.length} lessons marked complete across your courses.` : "No lessons completed yet."}</p><p className="mt-2 text-sm text-muted-foreground">{data.lessons.length ? `${data.lessons.length} lessons available in your enrolled courses.` : "Lessons will appear when your trainer adds them."}</p><Button variant="link" className="mt-2 px-0" onClick={() => navigate?.("courses")}>My courses <ArrowRight className="size-4" /></Button></div>
+      <div className="border-l-2 border-brand-gold pl-5"><h3 className="font-serif text-2xl text-primary">Learning activity</h3><p className="mt-3 text-sm text-muted-foreground">{completedLessons ? `${completedLessons} lessons marked complete across your courses.` : "No lessons completed yet."}</p><p className="mt-2 text-sm text-muted-foreground">{data.lessons.length ? `${data.lessons.length} lessons available in your enrolled courses.` : "Lessons will appear when your trainer adds them."}</p><Button variant="link" className="mt-2 px-0" onClick={() => navigate?.("courses")}>My courses <ArrowRight className="size-4" /></Button></div>
     </section>
 
     <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.85fr)]">
@@ -135,6 +139,7 @@ export function StudentHome({ userId, email }: { userId: string; email: string }
         </section>
         <section className={section}><h3 className="font-serif text-2xl text-primary">Upcoming events</h3>{data.events.length ? <ul className="mt-2 divide-y divide-border">{data.events.slice(0, 3).map(e => <li key={e.id} className="py-3 text-sm"><p className="font-medium">{e.title}</p><p className="text-xs text-muted-foreground">{dateText(e.starts_at)} · {e.location}</p></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No events booked yet.</p>}<Button asChild variant="link" className="px-0"><Link to="/events">Explore events <ArrowRight className="size-4" /></Link></Button></section>
         <section className={section}><h3 className="font-serif text-2xl text-primary">SkillsFuture Credit</h3><p className="mt-2 text-sm text-muted-foreground">{data.credit === null ? "No balance added yet." : `Your self-reported balance: S$${Number(data.credit).toLocaleString("en-SG", { minimumFractionDigits: 2 })}. This is not a verified government balance.`}</p><Button variant="link" className="px-0" onClick={() => navigate?.("sfc")}>View credit & claims <ArrowRight className="size-4" /></Button></section>
+        <section className={section}><h3 className="font-serif text-2xl text-primary">Payments</h3><p className="mt-2 text-sm text-muted-foreground">{data.instalments.length ? `${data.instalments.length} unpaid instalment${data.instalments.length === 1 ? "" : "s"}. Next due ${new Date(`${data.instalments[0].due_date}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}: S$${Number(data.instalments[0].amount).toLocaleString("en-SG", { minimumFractionDigits: 2 })}.` : "No unpaid instalments recorded."}</p><Button variant="link" className="px-0" onClick={() => navigate?.("instalments")}>View payments <ArrowRight className="size-4" /></Button></section>
       </aside>
     </div>
   </div>;

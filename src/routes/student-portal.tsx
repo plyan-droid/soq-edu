@@ -1,5 +1,6 @@
 import { Home, BookOpen, Award, Wallet } from "lucide-react";
-import { StartHere, PageSkeleton } from "@/components/start-here";
+import { PageSkeleton } from "@/components/start-here";
+import { StudentHome } from "@/components/student-home";
 import { RequestStaffAccess } from "@/components/staff-phase5";
 import { useState } from "react";
 import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
@@ -39,7 +40,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
     { name: "Home", icon: Home, items: [
-      { id: "start", label: "Home", content: <StartHere role="student" userId={userId} email={email} onNavigate={setActive} greeting="Welcome back. Pick up where you left off." /> },
+       { id: "start", label: "Home", content: <StudentHome userId={userId} email={email} /> },
     ] },
     { name: "My courses", icon: BookOpen, items: [
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },

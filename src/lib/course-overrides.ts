@@ -20,6 +20,7 @@ export function mergeCourse(course: Course, o?: CourseOverride): Course {
     mode: o.mode || course.mode,
     badge: o.badge || course.badge,
     outcomes: o.outcomes?.length ? o.outcomes : course.outcomes,
+    image: (o.image_key && baseCourses.find(c => c.slug === o.image_key)?.image) || course.image,
   };
 }
 
@@ -35,7 +36,7 @@ export function useMergedCourse(course: Course): Course {
 /** A staff-created course built from its override row. */
 export function customToCourse(o: CourseOverride): Course {
   const cat = (o.category || "AI & Business") as CourseCategory;
-  const img = baseCourses.find(c => c.category === cat)?.image ?? baseCourses[0]!.image;
+  const img = (o.image_key && baseCourses.find(c => c.slug === o.image_key)?.image) || (baseCourses.find(c => c.category === cat)?.image ?? baseCourses[0]!.image);
   return { slug: o.slug, title: o.title || "New course", category: cat, summary: o.summary || "", duration: o.duration || "To be confirmed", mode: o.mode || "Classroom", price: o.price || "Enquire for details", badge: o.badge || "Course", image: img, outcomes: o.outcomes ?? [] };
 }
 

@@ -295,6 +295,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
   const hide = (v: boolean) => { setHidden(v); if (v) localStorage.setItem(key, "1"); else localStorage.removeItem(key); };
+  if (role === "staff") return <StaffOperationsHome data={data} isPending={isPending} greeting={greeting} onNavigate={onNavigate} />;
   // Urgent cards (with a count) come first.
   const cards = data ? role === "student" ? data.cards : [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
   const steps = data?.steps ?? [];

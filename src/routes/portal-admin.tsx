@@ -1,4 +1,4 @@
-import { StartHere, PageSkeleton } from "@/components/start-here";
+import { StartHere, StaffOperationsReport, PageSkeleton } from "@/components/start-here";
 import { WorkspaceNav, WorkspaceTabs, useToolParam } from "@/components/workspace-shell";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,13 +74,13 @@ function Admin() {
         <main className="min-w-0">
           <div>
             <p className="text-xs font-semibold uppercase text-muted-foreground">{dashboardTitle}</p>
-            <h1 className="mt-1 font-serif text-4xl font-semibold text-primary sm:text-5xl">{currentSection.name}</h1>
+            <h1 className="mt-1 font-workspace text-3xl font-semibold text-primary sm:text-4xl">{currentSection.name}</h1>
             <WorkspaceTabs items={currentSection.items} active={activeTool} onChange={id => setActiveTool(id as AdminTool)} />
           </div>
           <div className="min-w-0 pt-3">
             {ownerLocked ? <div className="rounded-lg border border-border bg-card p-8"><h2 className="font-serif text-2xl text-primary">Owner only</h2><p className="mt-2 text-muted-foreground">This area is for SOQ owner accounts. Ask an admin if you need something here.</p></div> : (<div className="contents">
         <TabsContent value="start"><StartHere role="staff" userId={user?.id ?? ""} owner={isTopAdmin} onNavigate={id => setActiveTool(id as AdminTool)} greeting={isTopAdmin ? "Review the work awaiting a decision across SOQ." : "Start with the work awaiting your team today."} /></TabsContent>
-        <TabsContent value="reports"><Reports /></TabsContent>
+        <TabsContent value="reports"><Reports /><StaffOperationsReport userId={user?.id ?? ""} owner={isTopAdmin} /></TabsContent>
         <TabsContent value="live-classes"><LiveClassesOversight /></TabsContent>
         <TabsContent value="events"><EventsAdmin /></TabsContent>
         <TabsContent value="students">

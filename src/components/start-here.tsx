@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CheckCircle2, Circle, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, X, Clock3, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { useWorkspaceNavigate } from "@/components/workspace-shell";
 export type StartRole = "student" | "trainer" | "business" | "staff";
 type Card = { tool: string; title: string; text: string; count?: number | undefined; badge?: string | undefined };
 type Step = { label: string; done: boolean; tool: string };
-type Home = { cards: Card[]; steps: Step[]; highlights?: { title: string; detail: string; tool: string }[]; metrics?: { label: string; value: string }[]; identity?: string | undefined; panels?: { title: string; empty: string; items: { label: string; detail: string; tool: string }[] }[]; breakdown?: { title: string; items: { label: string; count: number }[] }; unavailable?: string };
+type Home = { cards: Card[]; steps: Step[]; highlights?: { title: string; detail: string; tool: string }[]; metrics?: { label: string; value: string }[]; identity?: string | undefined; panels?: { title: string; empty: string; items: { label: string; detail: string; tool: string; at?: string }[] }[]; breakdown?: { title: string; items: { label: string; count: number }[] }; unavailable?: string };
 
 const head = { count: "exact" as const, head: true };
 const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
@@ -225,15 +225,67 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     metrics: [{ label: "Paid orders · today (latest 500)", value: String(paid.filter(o => o.created_at.slice(0, 10) === today).length) }, { label: "Paid orders · last 7 days (latest 500)", value: String(paid.filter(o => new Date(o.created_at) >= weekStart).length) }, { label: "Recorded sales · today (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 10) === today)) }, { label: "Recorded sales · this month (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 7) === today.slice(0, 7))) }, { label: "Recorded sales · this year (latest 500)", value: money(paid.filter(o => o.created_at.slice(0, 4) === today.slice(0, 4))) }, { label: "Recorded paid orders · latest 500", value: String(paid.length) }, { label: "Recorded order total · latest 500", value: money(paid) }, { label: "Open enquiries", value: String(tickets) }, { label: "Course proposals awaiting review", value: String(draftCount) }, { label: "Course reviews", value: String(reviews) }, { label: "Community comments", value: String(comments) }, { label: "Registered accounts", value: String(users) }],
     breakdown: { title: "Recorded paid orders · last six months (latest 500)", items: months.map(m => ({ label: m.label, count: byMonth.get(m.key) ?? 0 })) },
     panels: [
-      { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox" })) },
-      { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation" })) },
-      { title: "Recent course proposals", empty: "No course proposals yet.", items: (recentCourses.data ?? []).map(c => ({ label: c.title, detail: `${c.status} · ${day(c.created_at)}`, tool: "drafts" })) },
+       { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox", at: t.created_at })) },
+       { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation", at: c.created_at })) },
+       { title: "Recent course proposals", empty: "No course proposals yet.", items: (recentCourses.data ?? []).map(c => ({ label: c.title, detail: `${c.status} · ${day(c.created_at)}`, tool: "drafts", at: c.created_at })) },
       { title: "Upcoming live classes", empty: "No live classes scheduled.", items: (sessions.data ?? []).map(s => ({ label: s.title, detail: day(s.starts_at), tool: "live-classes" })) },
-      { title: "Recent registrations", empty: "No accounts registered yet.", items: (recentUsers.data ?? []).map(u => ({ label: u.full_name || "New learner", detail: day(u.created_at), tool: "students" })) },
+       { title: "Recent registrations", empty: "No accounts registered yet.", items: (recentUsers.data ?? []).map(u => ({ label: u.full_name || "New learner", detail: day(u.created_at), tool: "students", at: u.created_at })) },
       { title: "Upcoming events", empty: "No events scheduled.", items: (events.data ?? []).map(e => ({ label: e.title, detail: day(e.starts_at), tool: "events" })) },
     ],
     steps: [],
   };
+}
+
+/** A focused operations view; the detailed historical figures remain under Reports. */
+function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void }) {
+  const pending = data?.cards.filter(c => (c.count ?? 0) > 0) ?? [];
+  const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
+  const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
+  const figures = [
+    { label: "Awaiting action", value: String(pendingTotal), note: `${pending.length} ${pending.length === 1 ? "queue" : "queues"}` },
+    { label: "Paid orders · last 7 days", value: value("Paid orders · last 7 days (latest 500)"), note: "Latest 500 orders" },
+    { label: "Recorded sales · this month", value: value("Recorded sales · this month (latest 500)"), note: "Latest 500 orders" },
+    { label: "Registered accounts", value: value("Registered accounts"), note: "Total accounts" },
+  ];
+  const recent = (data?.panels ?? []).filter(p => p.title.startsWith("Recent")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Recent ", "") }))).sort((a, b) => (b.at ?? "").localeCompare(a.at ?? "")).slice(0, 6);
+  const coming = (data?.panels ?? []).filter(p => p.title.startsWith("Upcoming")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Upcoming ", "") }))).slice(0, 4);
+  return <div className="space-y-7 font-sans">
+    <header className="border-b border-border pb-5">
+      <p className="text-sm text-muted-foreground">{greeting}</p>
+    </header>
+    <section aria-label="Operations at a glance" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-md" />) : figures.map((figure, i) => <div key={figure.label} className="min-w-0 rounded-md border border-border bg-card p-4 sm:p-5">
+        <p className="text-xs font-semibold text-muted-foreground">{figure.label}</p>
+        <p className={`mt-2 break-words font-workspace text-2xl font-semibold tabular-nums text-primary sm:text-3xl ${i === 0 ? "text-brand-navy" : ""}`}>{figure.value}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{figure.note}</p>
+      </div>)}
+    </section>
+    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.8fr)_minmax(17rem,1fr)]">
+      <section aria-label="Operations queue" className="min-w-0">
+        <div className="mb-3 flex items-baseline justify-between gap-3"><h2 className="font-workspace text-lg font-semibold text-primary">Operations queue</h2><span className="text-xs text-muted-foreground">{pending.length} needing attention</span></div>
+        {isPending ? <div className="space-y-2">{[0, 1, 2].map(i => <Skeleton key={i} className="h-20 rounded-md" />)}</div> : pending.length ? <div className="overflow-hidden rounded-md border border-border bg-card">
+          <div className="hidden grid-cols-[minmax(0,1fr)_auto_5rem] border-b border-border bg-muted/50 px-5 py-3 text-xs font-semibold text-muted-foreground sm:grid"><span>Work item</span><span>Status</span><span className="text-right">Open</span></div>
+          <ul className="divide-y divide-border">{pending.map(c => <li key={c.tool}><Button type="button" variant="ghost" onClick={() => onNavigate(c.tool)} className="group grid h-auto min-h-20 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-none px-4 py-3 text-left hover:bg-muted/50 sm:grid-cols-[minmax(0,1fr)_auto_5rem] sm:px-5">
+            <span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{c.title}</span><span className="mt-1 block text-xs font-normal text-muted-foreground">{c.text}</span></span>
+            <span className="rounded border border-brand-gold/40 bg-brand-gold-soft px-2 py-1 text-xs font-semibold text-primary">{c.count} pending</span>
+            <ArrowRight className="hidden size-4 justify-self-end text-muted-foreground transition-transform group-hover:translate-x-1 sm:block" aria-hidden="true" />
+          </Button></li>)}</ul>
+        </div> : <div className="rounded-md border border-border bg-card px-5 py-8 text-sm text-muted-foreground">No work is waiting for review right now.</div>}
+      </section>
+      <aside className="min-w-0 space-y-7" aria-label="Recent and upcoming activity">
+        <section><h2 className="mb-3 font-workspace text-lg font-semibold text-primary">Recent activity</h2><div className="rounded-md border border-border bg-card p-4 sm:p-5">{isPending ? <Skeleton className="h-52" /> : recent.length ? <ol className="border-l border-border pl-4">{recent.map((item, i) => <li key={`${item.category}-${i}`} className="relative pb-4 last:pb-0 before:absolute before:-left-[21px] before:top-1.5 before:size-2 before:rounded-full before:bg-brand-gold"><Button variant="link" className="h-auto max-w-full justify-start whitespace-normal p-0 text-left font-medium text-foreground" onClick={() => onNavigate(item.tool)}>{item.label}</Button><p className="text-xs text-muted-foreground">{item.category} · {item.detail}</p></li>)}</ol> : <p className="text-sm text-muted-foreground">No recent activity yet.</p>}</div></section>
+        {coming.length > 0 && <section><h2 className="mb-3 font-workspace text-lg font-semibold text-primary">Coming up</h2><div className="divide-y divide-border rounded-md border border-border bg-card px-4 sm:px-5">{coming.map((item, i) => <Button key={`${item.category}-${i}`} variant="ghost" className="flex h-auto min-h-14 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium">{item.label}</span><span className="text-xs text-muted-foreground">{item.category} · {item.detail}</span></span><Clock3 className="size-4 shrink-0 text-muted-foreground" /></Button>)}</div></section>}
+      </aside>
+    </div>
+  </div>;
+}
+
+export function StaffOperationsReport({ userId, owner }: { userId: string; owner: boolean }) {
+  const { data, isPending } = useQuery({ queryKey: ["start-here", "staff", userId, "", owner], queryFn: () => load("staff", userId, "", owner) });
+  return <section className="mt-6 border-t border-border pt-6" aria-label="Operational reporting"><h2 className="font-workspace text-xl font-semibold text-primary">Operational figures</h2><p className="mt-1 text-sm text-muted-foreground">Sales and order figures are calculated from the latest 500 orders.</p>
+    {isPending ? <Skeleton className="mt-5 h-36" /> : <><div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">{data?.metrics?.map(m => <div key={m.label} className="min-w-0 rounded-md border border-border bg-card p-4"><p className="text-xl font-semibold tabular-nums text-primary">{m.value}</p><p className="mt-1 text-xs text-muted-foreground">{m.label}</p></div>)}</div>
+    {data?.breakdown && <div className="mt-7"><h3 className="font-workspace font-semibold text-primary">{data.breakdown.title}</h3><div className="mt-3 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...data.breakdown?.items.map(x => x.count) ?? []); return <div key={item.label} className="grid grid-cols-[4rem_1fr_6rem] items-center gap-3 text-sm"><span>{item.label}</span><div className="h-2 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="text-right tabular-nums">S${item.count.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>; })}</div></div>}</>}
+  </section>;
 }
 
 export function StartHere({ role, userId, email, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; email?: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
@@ -243,6 +295,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
   const hide = (v: boolean) => { setHidden(v); if (v) localStorage.setItem(key, "1"); else localStorage.removeItem(key); };
+  if (role === "staff") return <StaffOperationsHome data={data} isPending={isPending} greeting={greeting} onNavigate={onNavigate} />;
   // Urgent cards (with a count) come first.
   const cards = data ? role === "student" ? data.cards : [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
   const steps = data?.steps ?? [];
@@ -285,7 +338,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
         </div>
       </section>
       {data?.highlights && <section className="border-t border-border pt-5" aria-label="Coming up"><h2 className="font-serif text-2xl text-primary">{role === "business" ? "Team progress" : role === "student" ? "Tasks & booked classes" : role === "trainer" ? "Upcoming classes & meetings" : "Upcoming classes"}</h2>{data.highlights.length ? <ul className="mt-3 divide-y divide-border">{data.highlights.map((h, i) => <li key={`${h.title}-${i}`}><Button variant="ghost" onClick={() => onNavigate(h.tool)} className="flex h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left"><span className="min-w-0 whitespace-normal"><strong className="block font-medium">{h.title}</strong><span className="text-xs text-muted-foreground">{h.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{role === "business" ? "No linked course enrolments yet. Add team members, then ask SOQ to enrol them." : role === "trainer" ? "No upcoming classes or meetings. Schedule one from Classes." : "No tasks or confirmed classes coming up. Open a course to see what’s next."}</p>}</section>}
-      {data?.breakdown && <section className="border-t border-border pt-5"><h2 className="font-serif text-2xl text-primary">{data.breakdown.title}</h2>{data.breakdown.items.length ? <div className="mt-4 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...(data.breakdown?.items ?? []).map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,10rem)_1fr_auto] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-3 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="min-w-12 text-right tabular-nums">{role === "staff" ? `S$${item.count.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : item.count}</span></div>; })}</div> : <p className="mt-2 text-sm text-muted-foreground">No records yet.</p>}</section>}
+       {data?.breakdown && <section className="border-t border-border pt-5"><h2 className="font-serif text-2xl text-primary">{data.breakdown.title}</h2>{data.breakdown.items.length ? <div className="mt-4 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...(data.breakdown?.items ?? []).map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,10rem)_1fr_auto] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-3 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="min-w-12 text-right tabular-nums">{item.count}</span></div>; })}</div> : <p className="mt-2 text-sm text-muted-foreground">No records yet.</p>}</section>}
       {data?.panels && <div className="grid gap-x-10 gap-y-7 border-t border-border pt-5 lg:grid-cols-2">{data.panels.map(panel => <section key={panel.title}><h2 className="font-serif text-2xl text-primary">{panel.title}</h2>{panel.items.length ? <ul className="mt-2 divide-y divide-border">{panel.items.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="h-auto w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium">{item.label}</span><span className="block text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0" /></Button></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">{panel.empty}</p>}</section>)}</div>}
       {data?.unavailable && <p className="border-t border-border pt-5 text-sm text-muted-foreground">{data.unavailable}</p>}
       {checklist}

@@ -12,6 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Redesign staff/admin Today as a modern operations grid with actionable queues, four recorded figures and recent activity; move detailed order figures to Reports.
 - [x] Expand the organisation Home with package, seats, team progress, notices, events and upcoming classes; enrich affiliate, store and employer previews with clearly labelled sample learning, calendar, support and performance information.
 - [x] Expand admin and instructor Home with recorded sales windows, review queues, registrations, events, course progress, assessments, questions, meetings and notices; mark instructor earnings/visitors unavailable rather than inventing figures.
 - [x] Show learner-scoped courses, assessments, notices, dates, meetings, live classes, events and credit status on student Home.

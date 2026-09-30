@@ -284,14 +284,13 @@ export function StaffOperationsReport({ userId, owner }: { userId: string; owner
   const { data, isPending } = useQuery({ queryKey: ["start-here", "staff", userId, "", owner], queryFn: () => load("staff", userId, "", owner) });
   return <section className="mt-6 border-t border-border pt-6" aria-label="Operational reporting"><h2 className="font-workspace text-xl font-semibold text-primary">Operational figures</h2><p className="mt-1 text-sm text-muted-foreground">Sales and order figures are calculated from the latest 500 orders.</p>
     {isPending ? <Skeleton className="mt-5 h-36" /> : <><div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">{data?.metrics?.map(m => <div key={m.label} className="min-w-0 rounded-md border border-border bg-card p-4"><p className="text-xl font-semibold tabular-nums text-primary">{m.value}</p><p className="mt-1 text-xs text-muted-foreground">{m.label}</p></div>)}</div>
-    {data?.breakdown && <div className="mt-7"><h3 className="font-workspace font-semibold text-primary">{data.breakdown.title}</h3><div className="mt-3 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...data.breakdown!.items.map(x => x.count)); return <div key={item.label} className="grid grid-cols-[4rem_1fr_6rem] items-center gap-3 text-sm"><span>{item.label}</span><div className="h-2 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="text-right tabular-nums">S${item.count.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>; })}</div></div>}</>}
+    {data?.breakdown && <div className="mt-7"><h3 className="font-workspace font-semibold text-primary">{data.breakdown.title}</h3><div className="mt-3 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...data.breakdown?.items.map(x => x.count) ?? []); return <div key={item.label} className="grid grid-cols-[4rem_1fr_6rem] items-center gap-3 text-sm"><span>{item.label}</span><div className="h-2 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="text-right tabular-nums">S${item.count.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>; })}</div></div>}</>}
   </section>;
 }
 
 export function StartHere({ role, userId, email, greeting, onNavigate: fallback, stats, owner = false }: { role: StartRole; userId: string; email?: string; greeting: string; onNavigate: (tool: string) => void; stats?: React.ReactNode; owner?: boolean }) {
   const onNavigate = useWorkspaceNavigate() ?? fallback;
   const { data, isPending } = useQuery({ queryKey: ["start-here", role, userId, email, owner], queryFn: () => load(role, userId, email, owner) });
-  if (role === "staff") return <StaffOperationsHome data={data} isPending={isPending} greeting={greeting} onNavigate={onNavigate} />;
   const key = `soq-checklist-hidden:${role}:${userId}`;
   const [hidden, setHidden] = useState(false);
   useEffect(() => { setHidden(localStorage.getItem(key) === "1"); }, [key]);
@@ -302,6 +301,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
   const done = steps.filter(s => s.done).length;
   const allDone = steps.length > 0 && done === steps.length;
   const showList = steps.length > 0 && !allDone && !hidden;
+  if (role === "staff") return <StaffOperationsHome data={data} isPending={isPending} greeting={greeting} onNavigate={onNavigate} />;
   const checklist = showList && (
     <section className="rounded-xl border border-accent/50 bg-secondary/50 p-5" aria-label="Getting started">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">

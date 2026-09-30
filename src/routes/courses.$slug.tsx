@@ -25,7 +25,7 @@ export const Route = createFileRoute("/courses/$slug")({
     const o = overrides.find((x) => x.slug === params.slug);
     const base = courses.find((c) => c.slug === params.slug) ?? (o?.custom ? customToCourse(o) : undefined);
     if (!base || o?.hidden) throw notFound();
-    return { ...mergeCourse(base, o), sections: sectionsFor(base.slug, o) };
+    return { ...mergeCourse(base, o), sections: sectionsFor(base.slug, o), level: o?.level ?? null, requirements: o?.requirements ?? null, faqs: o?.faqs ?? [] };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
@@ -85,9 +85,9 @@ function ModuleCard({ index, title, items, image, duration, skills, defaultOpen 
   );
 }
 
-function FaqBlock({ badge, onAsk }: { badge: string; onAsk: () => void }) {
+function FaqBlock({ badge, custom, onAsk }: { badge: string; custom: { q: string; a: string }[]; onAsk: () => void }) {
   const [all, setAll] = useState(false);
-  const faqs: [string, string][] = [
+  const faqs: [string, string][] = custom.length ? custom.map(x => [x.q, x.a] as [string, string]) : [
     ["Can I use SkillsFuture Credit?", "Many SOQ courses are eligible for SkillsFuture Credit and WSQ funding of up to 70%. Our advisers will confirm your eligibility."],
     ["When is the next intake?", "See the Course Calendar or message us on WhatsApp for the latest schedule."],
     ["What certificate will I receive?", `You'll receive a ${badge} certificate on completion, subject to at least 75% attendance and passing the assessment.`],
@@ -173,7 +173,7 @@ function CoursePage() {
           {[
             { t: course.badge === "Diploma" ? "Diploma programme" : `${course.badge} certified`, s: "Recognised qualification", i: Award },
             { t: "Rated by learners", s: "See reviews below", i: Star },
-            { t: levelFor(course.badge), s: "No prior experience needed", i: GraduationCap },
+            { t: course.level || levelFor(course.badge), s: course.requirements ? "See entry requirements" : "No prior experience needed", i: GraduationCap },
             { t: course.duration, s: "Total course length", i: Clock3 },
             { t: course.mode, s: "Flexible intakes", i: Calendar },
           ].map(({ t, s, i: Icon }) => (
@@ -204,6 +204,11 @@ function CoursePage() {
               ))}
             </div>
           </section>
+
+          {course.requirements && <section>
+            <h2 className="text-xl font-semibold text-primary">Who it's for / entry requirements</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-muted-foreground">{course.requirements}</p>
+          </section>}
 
           <section>
             <h2 className="text-xl font-semibold text-primary">Skills you'll gain</h2>
@@ -252,7 +257,7 @@ function CoursePage() {
 
           <section id="apply" className="scroll-mt-20"><CourseApplyForm slug={course.slug} title={course.title} /></section>
 
-          <FaqBlock badge={course.badge} onAsk={() => setChatOpen(true)} />
+          <FaqBlock badge={course.badge} custom={course.faqs} onAsk={() => setChatOpen(true)} />
         </div>
 
         <aside className="self-start space-y-4 lg:sticky lg:top-20">

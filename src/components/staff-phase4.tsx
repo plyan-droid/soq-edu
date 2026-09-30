@@ -116,10 +116,22 @@ export function SfcClaims() {
     const { error } = await supabase.from("sfc_claims").insert({ ...f, course_fee: fee, sfc_amount: amt });
     if (error) toast.error(error.message); else { setF({ ...f, student_email: "", sfc_amount: "", claim_ref: "" }); void refresh(); }
   };
-  const total = data.filter(d => d.status !== "rejected").reduce((s, d) => s + Number(d.sfc_amount), 0);
+  const { data: payments = [] } = useQuery({ queryKey: ["sfc-payments"], queryFn: async () => (await supabase.from("bank_payments").select("id,email,total,reference,status,created_at").order("created_at", { ascending: false }).limit(500)).data ?? [] });
+  const [filter, setFilter] = useState<string>("submitted");
+  const [settle, setSettle] = useState<{ id: string; ref: string; date: string; note: string } | null>(null);
+  const update = async (id: string, patch: { status?: string; payment_id?: string | null; claim_ref?: string; settled_on?: string | null; staff_note?: string | null }) => { const { error } = await supabase.from("sfc_claims").update(patch).eq("id", id); if (error) toast.error(error.message); void refresh(); };
+  const sum = (st: string) => data.filter(d => d.status === st).reduce((s, d) => s + Number(d.sfc_amount), 0);
+  const shown = filter === "all" ? data : data.filter(d => d.status === filter);
+  const LABEL: Record<string, string> = { submitted: "Waiting", approved: "Approved", paid: "Paid out", rejected: "Rejected", all: "All" };
+  const confirmPaid = async () => {
+    if (!settle) return;
+    if (!settle.ref.trim()) { toast.error("Enter the SkillsFuture claim reference"); return; }
+    await update(settle.id, { status: "paid", claim_ref: settle.ref.trim(), settled_on: settle.date || new Date().toISOString().slice(0, 10), staff_note: settle.note.trim() || null });
+    setSettle(null); toast.success("Claim settled");
+  };
   return (
     <>
-    <div className="grid gap-6 lg:grid-cols-[1fr_1.6fr]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_1.8fr]">
       <Box><H>Record SkillsFuture Credit</H>
         <Input placeholder="Student email" value={f.student_email} onChange={e => setF({ ...f, student_email: e.target.value })} />
         <CourseSelect value={f.course_slug} onChange={v => setF({ ...f, course_slug: v, course_fee: String(priceOf(v)) })} />
@@ -129,11 +141,42 @@ export function SfcClaims() {
         <p className="text-sm text-muted-foreground">Student pays: <b>{money(Math.max(0, (Number(f.course_fee) || 0) - (Number(f.sfc_amount) || 0)))}</b></p>
         <Button className="rounded-full" disabled={!f.student_email} onClick={() => void save()}>Save</Button>
       </Box>
-      <Box><H>Claims · {money(total)} credit recorded</H>
-        {data.length === 0 ? <p className="text-sm text-muted-foreground">No claims yet.</p> :
-          <table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">Student</th><th>Course</th><th>Fee</th><th>Credit</th><th>Pays</th><th>Status</th></tr></thead>
-            <tbody>{data.map(d => <tr key={d.id} className="border-t border-border"><td className="py-2">{d.student_email}<div className="text-xs text-muted-foreground">{d.claim_ref}</div></td><td>{title(d.course_slug)}</td><td>{money(Number(d.course_fee))}</td><td>{money(Number(d.sfc_amount))}</td><td>{money(Number(d.course_fee) - Number(d.sfc_amount))}</td>
-              <td><select className="h-8 rounded border border-input bg-background text-xs" value={d.status} onChange={async e => { await supabase.from("sfc_claims").update({ status: e.target.value }).eq("id", d.id); void refresh(); }}><option value="submitted">Submitted</option><option value="approved">Approved</option><option value="paid">Paid out</option><option value="rejected">Rejected</option></select></td></tr>)}</tbody></table>}
+      <Box><H>Settle claims</H>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {(["submitted", "approved", "paid", "rejected"] as const).map(st => (
+            <button key={st} onClick={() => setFilter(st)} className={`rounded-md border p-3 text-left ${filter === st ? "border-primary bg-muted" : "border-border"}`}>
+              <p className="text-xs uppercase text-muted-foreground">{LABEL[st]} · {data.filter(d => d.status === st).length}</p>
+              <p className="font-semibold">{money(sum(st))}</p>
+            </button>))}
+        </div>
+        <button className="text-xs underline" onClick={() => setFilter("all")}>Show all claims</button>
+        {shown.length === 0 ? <p className="text-sm text-muted-foreground">No {LABEL[filter]?.toLowerCase()} claims.</p> :
+          <ul className="divide-y divide-border border-t border-border text-sm">{shown.map(d => {
+            const pays = Number(d.course_fee) - Number(d.sfc_amount);
+            const opts = payments.filter(p => p.email.toLowerCase() === d.student_email.toLowerCase());
+            return (
+            <li key={d.id} className="grid gap-2 py-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div><b>{d.student_email}</b><div className="text-xs text-muted-foreground">{title(d.course_slug)} · fee {money(Number(d.course_fee))} · credit {money(Number(d.sfc_amount))} · learner pays <b>{money(pays)}</b></div>
+                  {(d.claim_ref || d.settled_on || d.staff_note) && <div className="text-xs text-muted-foreground">{d.claim_ref && <>Ref {d.claim_ref}</>}{d.settled_on && <> · settled {new Date(d.settled_on).toLocaleDateString("en-GB")}</>}{d.staff_note && <> · {d.staff_note}</>}</div>}</div>
+                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{LABEL[d.status] ?? d.status}</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select aria-label="Linked payment" className="h-8 max-w-[16rem] rounded border border-input bg-background text-xs" value={d.payment_id ?? ""} onChange={e => void update(d.id, { payment_id: e.target.value || null })}>
+                  <option value="">{opts.length ? "Link to a payment…" : "No payments for this email"}</option>
+                  {opts.map(p => <option key={p.id} value={p.id}>{p.reference} · {money(Number(p.total))} · {p.status}</option>)}
+                </select>
+                {d.status === "submitted" && <><Button size="sm" onClick={() => void update(d.id, { status: "approved" })}>Approve</Button><Button size="sm" variant="outline" onClick={() => void update(d.id, { status: "rejected" })}>Reject</Button></>}
+                {d.status === "approved" && <Button size="sm" onClick={() => setSettle({ id: d.id, ref: d.claim_ref ?? "", date: new Date().toISOString().slice(0, 10), note: "" })}>Mark paid out</Button>}
+                {d.status !== "submitted" && <Button size="sm" variant="ghost" onClick={() => void update(d.id, { status: "submitted", settled_on: null })}>Reopen</Button>}
+              </div>
+              {settle?.id === d.id && <div className="grid gap-2 rounded-md bg-muted p-3 sm:grid-cols-3">
+                <label className="text-xs">SkillsFuture claim ref *<Input value={settle.ref} onChange={e => setSettle({ ...settle, ref: e.target.value })} /></label>
+                <label className="text-xs">Date received<Input type="date" value={settle.date} onChange={e => setSettle({ ...settle, date: e.target.value })} /></label>
+                <label className="text-xs">Note<Input value={settle.note} onChange={e => setSettle({ ...settle, note: e.target.value })} /></label>
+                <div className="flex gap-2 sm:col-span-3"><Button size="sm" onClick={() => void confirmPaid()}>Confirm paid out</Button><Button size="sm" variant="ghost" onClick={() => setSettle(null)}>Cancel</Button></div>
+              </div>}
+            </li>); })}</ul>}
       </Box>
     </div>
     <SfcBalancesAdmin />

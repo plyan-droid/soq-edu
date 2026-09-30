@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 export type CourseOverride = {
   slug: string; title: string | null; summary: string | null; price: string | null; duration: string | null;
   mode: string | null; badge: string | null; outcomes: string[] | null; sections: { title: string; items: string[] }[] | null; updated_at: string;
+  category: string | null; custom: boolean; hidden: boolean;
 };
 
 export const getCourseOverrides = createServerFn({ method: "GET" }).handler(async (): Promise<CourseOverride[]> => {
@@ -18,7 +19,7 @@ export const getCourseOverrides = createServerFn({ method: "GET" }).handler(asyn
       return fetch(input, { ...init, headers: h });
     } },
   });
-  const { data, error } = await sb.from("course_overrides").select("slug,title,summary,price,duration,mode,badge,outcomes,sections,updated_at");
+  const { data, error } = await sb.from("course_overrides").select("slug,title,summary,price,duration,mode,badge,outcomes,sections,updated_at,category,custom,hidden");
   if (error) { console.error("course_overrides", error.message); return []; }
   return (data ?? []) as unknown as CourseOverride[];
 });

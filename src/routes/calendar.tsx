@@ -7,7 +7,8 @@ import { PageHero } from "@/components/page-hero";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { courses, categories, contact } from "@/lib/site-content";
+import { categories, contact } from "@/lib/site-content";
+import { useAllCourses } from "@/lib/course-overrides";
 import { classHours, type Intake } from "@/lib/intakes";
 
 export const Route = createFileRoute("/calendar")({
@@ -34,6 +35,7 @@ const statusText: Record<string, string> = { tentative: "To be confirmed", confi
 const d = (s: string, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }) => new Date(s + (s.length === 10 ? "T00:00:00" : "")).toLocaleDateString("en-SG", opts);
 
 function CalendarPage() {
+  const courses = useAllCourses(true);
   const { path, view = "intakes" } = Route.useSearch();
   const nav = Route.useNavigate();
   const { user } = useAuth();
@@ -59,7 +61,7 @@ function CalendarPage() {
   const filtered = useMemo(() => intakes.filter(i => {
     const c = courses.find(x => x.slug === i.course_slug);
     return c && (!path || c.category === path) && c.title.toLowerCase().includes(q.toLowerCase());
-  }), [intakes, path, q]);
+  }), [intakes, path, q, courses]);
 
   const byMonth = useMemo(() => {
     const m = new Map<string, Intake[]>();

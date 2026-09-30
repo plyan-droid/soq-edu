@@ -61,7 +61,7 @@ function CalendarPage() {
   const filtered = useMemo(() => intakes.filter(i => {
     const c = courses.find(x => x.slug === i.course_slug);
     return c && (!path || c.category === path) && c.title.toLowerCase().includes(q.toLowerCase());
-  }), [intakes, path, q]);
+  }), [intakes, path, q, courses]);
 
   const byMonth = useMemo(() => {
     const m = new Map<string, Intake[]>();

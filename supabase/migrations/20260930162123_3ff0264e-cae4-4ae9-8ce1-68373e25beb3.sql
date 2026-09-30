@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_sfc_balance() FROM PUBLIC, anon, authenticated;

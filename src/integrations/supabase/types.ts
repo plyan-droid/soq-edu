@@ -620,7 +620,10 @@ export type Database = {
       course_overrides: {
         Row: {
           badge: string | null
+          category: string | null
+          custom: boolean
           duration: string | null
+          hidden: boolean
           mode: string | null
           outcomes: string[] | null
           price: string | null
@@ -633,7 +636,10 @@ export type Database = {
         }
         Insert: {
           badge?: string | null
+          category?: string | null
+          custom?: boolean
           duration?: string | null
+          hidden?: boolean
           mode?: string | null
           outcomes?: string[] | null
           price?: string | null
@@ -646,7 +652,10 @@ export type Database = {
         }
         Update: {
           badge?: string | null
+          category?: string | null
+          custom?: boolean
           duration?: string | null
+          hidden?: boolean
           mode?: string | null
           outcomes?: string[] | null
           price?: string | null
@@ -1845,18 +1854,24 @@ export type Database = {
           email: string
           updated_at: string
           user_id: string
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           balance?: number
           email: string
           updated_at?: string
           user_id: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           balance?: number
           email?: string
           updated_at?: string
           user_id?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -1867,7 +1882,10 @@ export type Database = {
           course_slug: string
           created_at: string
           id: string
+          payment_id: string | null
+          settled_on: string | null
           sfc_amount: number
+          staff_note: string | null
           status: string
           student_email: string
           user_id: string | null
@@ -1878,7 +1896,10 @@ export type Database = {
           course_slug: string
           created_at?: string
           id?: string
+          payment_id?: string | null
+          settled_on?: string | null
           sfc_amount?: number
+          staff_note?: string | null
           status?: string
           student_email: string
           user_id?: string | null
@@ -1889,12 +1910,23 @@ export type Database = {
           course_slug?: string
           created_at?: string
           id?: string
+          payment_id?: string | null
+          settled_on?: string | null
           sfc_amount?: number
+          staff_note?: string | null
           status?: string
           student_email?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sfc_claims_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "bank_payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_notices: {
         Row: {

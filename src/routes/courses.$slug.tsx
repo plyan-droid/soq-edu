@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CourseCard } from "@/components/course-card";
 import { courses, contact } from "@/lib/site-content";
-import { courseOverridesQuery, mergeCourse, sectionsFor } from "@/lib/course-overrides";
+import { courseOverridesQuery, mergeCourse, sectionsFor, customToCourse } from "@/lib/course-overrides";
 import { CourseApplyForm } from "@/components/course-apply-form";
 import { CourseReviews } from "@/components/course-reviews";
 import { CourseQA, GiftCourse } from "@/components/student-extras";
@@ -21,10 +21,10 @@ import { NotifyMe, JoinWaitlist } from "@/components/learner-tools";
 
 export const Route = createFileRoute("/courses/$slug")({
   loader: async ({ params, context }) => {
-    const base = courses.find((c) => c.slug === params.slug);
-    if (!base) throw notFound();
     const overrides = await context.queryClient.ensureQueryData(courseOverridesQuery).catch(() => []);
-    const o = overrides.find((x) => x.slug === base.slug);
+    const o = overrides.find((x) => x.slug === params.slug);
+    const base = courses.find((c) => c.slug === params.slug) ?? (o?.custom ? customToCourse(o) : undefined);
+    if (!base || o?.hidden) throw notFound();
     return { ...mergeCourse(base, o), sections: sectionsFor(base.slug, o) };
   },
   head: ({ loaderData }) => ({

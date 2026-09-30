@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHero } from "@/components/page-hero";
 import { CompareToggle } from "@/components/course-card";
-import { courses } from "@/lib/site-content";
+import { useAllCourses } from "@/lib/course-overrides";
 import { recommendCourses } from "@/lib/recommend.functions";
 
 export const Route = createFileRoute("/recommend")({
@@ -32,6 +32,7 @@ const examples = [
 type Result = { summary: string; recommendations: { slug: string; reason: string }[] };
 
 function RecommendPage() {
+  const courses = useAllCourses();
   const recommend = useServerFn(recommendCourses);
   const [goals, setGoals] = useState("");
   const [loading, setLoading] = useState(false);

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/components/page-hero";
-import { courses } from "@/lib/site-content";
+import { useAllCourses } from "@/lib/course-overrides";
 import { useCompare } from "@/lib/compare-store";
 
 export const Route = createFileRoute("/compare")({
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/compare")({
 });
 
 function ComparePage() {
+  const courses = useAllCourses();
   const { list, toggle, clear, max } = useCompare();
   const selected = list.map((s) => courses.find((c) => c.slug === s)).filter((c): c is NonNullable<typeof c> => !!c);
   const available = courses.filter((c) => !list.includes(c.slug));

@@ -238,7 +238,8 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
 
 /** A focused operations view; the detailed historical figures remain under Reports. */
 function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void }) {
-  const pending = data?.cards.filter(c => (c.count ?? 0) > 0) ?? [];
+  // Payments stay pinned even when clear; other queues appear only when work waits.
+  const pending = data?.cards.filter(c => (c.count ?? 0) > 0 || c.tool === "payments") ?? [];
   const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
   const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
   const figures = [

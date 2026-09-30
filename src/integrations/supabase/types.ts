@@ -487,13 +487,23 @@ export type Database = {
       }
       course_drafts: {
         Row: {
+          badge: string | null
           category: string
           created_at: string
           duration: string | null
+          faqs: Json
           id: string
+          image_key: string | null
+          intake_apply_by: string | null
+          intake_start: string | null
+          intake_time: string | null
+          level: string | null
           mode: string | null
           outcomes: string[]
           price: string | null
+          published_slug: string | null
+          requirements: string | null
+          sections: Json
           staff_note: string | null
           status: string
           summary: string
@@ -502,13 +512,23 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge?: string | null
           category?: string
           created_at?: string
           duration?: string | null
+          faqs?: Json
           id?: string
+          image_key?: string | null
+          intake_apply_by?: string | null
+          intake_start?: string | null
+          intake_time?: string | null
+          level?: string | null
           mode?: string | null
           outcomes?: string[]
           price?: string | null
+          published_slug?: string | null
+          requirements?: string | null
+          sections?: Json
           staff_note?: string | null
           status?: string
           summary?: string
@@ -517,13 +537,23 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge?: string | null
           category?: string
           created_at?: string
           duration?: string | null
+          faqs?: Json
           id?: string
+          image_key?: string | null
+          intake_apply_by?: string | null
+          intake_start?: string | null
+          intake_time?: string | null
+          level?: string | null
           mode?: string | null
           outcomes?: string[]
           price?: string | null
+          published_slug?: string | null
+          requirements?: string | null
+          sections?: Json
           staff_note?: string | null
           status?: string
           summary?: string
@@ -623,10 +653,14 @@ export type Database = {
           category: string | null
           custom: boolean
           duration: string | null
+          faqs: Json | null
           hidden: boolean
+          image_key: string | null
+          level: string | null
           mode: string | null
           outcomes: string[] | null
           price: string | null
+          requirements: string | null
           sections: Json | null
           slug: string
           summary: string | null
@@ -639,10 +673,14 @@ export type Database = {
           category?: string | null
           custom?: boolean
           duration?: string | null
+          faqs?: Json | null
           hidden?: boolean
+          image_key?: string | null
+          level?: string | null
           mode?: string | null
           outcomes?: string[] | null
           price?: string | null
+          requirements?: string | null
           sections?: Json | null
           slug: string
           summary?: string | null
@@ -655,10 +693,14 @@ export type Database = {
           category?: string | null
           custom?: boolean
           duration?: string | null
+          faqs?: Json | null
           hidden?: boolean
+          image_key?: string | null
+          level?: string | null
           mode?: string | null
           outcomes?: string[] | null
           price?: string | null
+          requirements?: string | null
           sections?: Json | null
           slug?: string
           summary?: string | null

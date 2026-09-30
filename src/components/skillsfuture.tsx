@@ -20,10 +20,10 @@ export function MySkillsFuture({ userId, email }: { userId: string; email: strin
   const key = ["my-sfc", userId];
   const { data } = useQuery({ queryKey: key, queryFn: async () => {
     const [b, c] = await Promise.all([
-      supabase.from("sfc_balances").select("balance").eq("user_id", userId).maybeSingle(),
+      supabase.from("sfc_balances").select("balance,verified_at").eq("user_id", userId).maybeSingle(),
       supabase.from("sfc_claims").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
     ]);
-    return { balance: b.data ? Number(b.data.balance) : null, claims: (c.data ?? []) as Claim[] };
+    return { balance: b.data ? Number(b.data.balance) : null, verified: !!b.data?.verified_at, claims: (c.data ?? []) as Claim[] };
   } });
   const [bal, setBal] = useState("");
   const [f, setF] = useState({ course: courses[0]!.slug, amount: "", ref: "" });
@@ -54,6 +54,7 @@ export function MySkillsFuture({ userId, email }: { userId: string; email: strin
           <div className="rounded-md bg-brand-cream p-4">
             <p className="text-sm text-muted-foreground">Credit left</p>
             <p className="font-serif text-4xl text-primary">{left === null ? "—" : money(left)}</p>
+            {balance !== null && <p className={`text-xs font-medium ${data?.verified ? "text-primary" : "text-muted-foreground"}`}>{data?.verified ? "Verified by SOQ" : "Self-reported · waiting for SOQ to verify"}</p>}
             {balance !== null && <p className="text-xs text-muted-foreground">From {money(balance)} · {money(usedCredit(data?.claims ?? []))} used or waiting</p>}
           </div>
           <label className="block text-sm">{balance === null ? "Your balance on MySkillsFuture (S$)" : "Update your balance (S$)"}
@@ -94,12 +95,17 @@ export function SfcBalancesAdmin() {
     const { error } = await supabase.from("sfc_balances").update({ balance: n, updated_at: new Date().toISOString() }).eq("user_id", id);
     if (error) toast.error(error.message); else { setEdit(e => ({ ...e, [id]: "" })); void qc.invalidateQueries({ queryKey: ["sfc-balances"] }); }
   };
+  const verify = async (id: string, on: boolean) => {
+    const { data: u } = await supabase.auth.getUser();
+    const { error } = await supabase.from("sfc_balances").update({ verified_at: on ? new Date().toISOString() : null, verified_by: on ? u.user?.id ?? null : null }).eq("user_id", id);
+    if (error) toast.error(error.message); else void qc.invalidateQueries({ queryKey: ["sfc-balances"] });
+  };
   return (
     <div className="mt-6 space-y-4 rounded-lg border border-border bg-card p-5">
       <h3 className="font-serif text-2xl text-primary">Credit left per student</h3>
       {rows.length === 0 ? <p className="text-sm text-muted-foreground">No student has entered a balance yet.</p> :
-        <table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">Student</th><th>Balance</th><th>Used / waiting</th><th>Left</th><th>Correct balance</th></tr></thead>
-          <tbody>{rows.map(r => <tr key={r.user_id} className="border-t border-border"><td className="py-2">{r.email}</td><td>{money(Number(r.balance))}</td><td>{money(r.used)}</td><td className="font-semibold">{money(r.left)}</td>
+        <table className="w-full text-sm"><thead className="text-left text-xs uppercase text-muted-foreground"><tr><th className="py-2">Student</th><th>Balance</th><th>Used / waiting</th><th>Left</th><th>Verified</th><th>Correct balance</th></tr></thead>
+          <tbody>{rows.map(r => <tr key={r.user_id} className="border-t border-border"><td className="py-2">{r.email}</td><td>{money(Number(r.balance))}</td><td>{money(r.used)}</td><td className="font-semibold">{money(r.left)}</td><td>{r.verified_at ? <button className="text-xs text-primary underline" onClick={() => void verify(r.user_id, false)}>Verified {new Date(r.verified_at).toLocaleDateString("en-GB")}</button> : <Button size="sm" variant="outline" onClick={() => void verify(r.user_id, true)}>Verify</Button>}</td>
             <td><div className="flex gap-1"><Input className="h-8 w-24" type="number" value={edit[r.user_id] ?? ""} onChange={e => setEdit(x => ({ ...x, [r.user_id]: e.target.value }))} /><Button size="sm" variant="outline" onClick={() => void save(r.user_id)}>Save</Button></div></td></tr>)}</tbody></table>}
     </div>
   );

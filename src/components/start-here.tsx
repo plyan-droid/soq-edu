@@ -238,7 +238,8 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
 
 /** A focused operations view; the detailed historical figures remain under Reports. */
 function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void }) {
-  const pending = data?.cards.filter(c => (c.count ?? 0) > 0) ?? [];
+  // Payments stay pinned even when clear; other queues appear only when work waits.
+  const pending = data?.cards.filter(c => (c.count ?? 0) > 0 || c.tool === "payments") ?? [];
   const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
   const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
   const figures = [
@@ -267,7 +268,7 @@ function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: 
           <div className="hidden grid-cols-[minmax(0,1fr)_auto_5rem] border-b border-border bg-muted/50 px-5 py-3 text-xs font-semibold text-muted-foreground sm:grid"><span>Work item</span><span>Status</span><span className="text-right">Open</span></div>
           <ul className="divide-y divide-border">{pending.map(c => <li key={c.tool}><Button type="button" variant="ghost" onClick={() => onNavigate(c.tool)} className="group grid h-auto min-h-20 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-none px-4 py-3 text-left hover:bg-muted/50 sm:grid-cols-[minmax(0,1fr)_auto_5rem] sm:px-5">
             <span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{c.title}</span><span className="mt-1 block text-xs font-normal text-muted-foreground">{c.text}</span></span>
-            <span className="rounded border border-brand-gold/40 bg-brand-gold-soft px-2 py-1 text-xs font-semibold text-primary">{c.count} pending</span>
+            <span className={`rounded border px-2 py-1 text-xs font-semibold ${(c.count ?? 0) > 0 ? "border-brand-gold/40 bg-brand-gold-soft text-primary" : "border-border bg-muted/50 text-muted-foreground"}`}>{(c.count ?? 0) > 0 ? `${c.count} pending` : "All clear"}</span>
             <ArrowRight className="hidden size-4 justify-self-end text-muted-foreground transition-transform group-hover:translate-x-1 sm:block" aria-hidden="true" />
           </Button></li>)}</ul>
         </div> : <div className="rounded-md border border-border bg-card px-5 py-8 text-sm text-muted-foreground">No work is waiting for review right now.</div>}

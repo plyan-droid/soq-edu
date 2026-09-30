@@ -187,7 +187,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
   const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions, recentComments, bookings, recentUsers, events, draftCount] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
-    n(supabase.from("sfc_claims").select("id", head).eq("status", "submitted")),
+    n(supabase.from("sfc_claims").select("id", head).in("status", ["submitted", "approved"])),
     n(supabase.from("support_tickets").select("id", head).eq("status", "open")),
     n(supabase.from("trainer_applications").select("id", head).eq("status", "pending")),
     owner ? n(supabase.from("staff_requests").select("id", head).eq("status", "pending")) : Promise.resolve(0),
@@ -215,7 +215,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     cards: [
       { tool: "applications", title: "Approve applications", text: apps ? `${plural(apps, "new application")} to review.` : "All caught up.", count: apps },
       { tool: "payments", title: "Confirm payments", text: pays ? `${plural(pays, "PayNow or bank payment")} to check.` : "No payments waiting.", count: pays },
-      { tool: "sfc", title: "Check SkillsFuture claims", text: sfc ? `${plural(sfc, "claim")} waiting for review.` : "No claims waiting.", count: sfc },
+      { tool: "sfc", title: "Settle SkillsFuture claims", text: sfc ? `${plural(sfc, "claim")} to approve or mark paid out.` : "No claims waiting.", count: sfc },
       { tool: "inbox", title: "Reply to enquiries", text: tickets ? `${plural(tickets, "open enquiry")} to review.` : "No enquiries waiting.", count: tickets },
       { tool: "live-classes", title: "Live-class seat requests", text: bookings ? `${plural(bookings, "request")} awaiting a trainer.` : "No seat requests waiting.", count: bookings },
       { tool: "trainers", title: "Review trainer applications", text: trainers ? `${plural(trainers, "trainer application")} waiting.` : "No applications waiting.", count: trainers },
@@ -239,7 +239,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
 /** A focused operations view; the detailed historical figures remain under Reports. */
 function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void }) {
   // Payments stay pinned even when clear; other queues appear only when work waits.
-  const pending = data?.cards.filter(c => (c.count ?? 0) > 0 || c.tool === "payments") ?? [];
+  const pending = data?.cards.filter(c => (c.count ?? 0) > 0 || c.tool === "payments" || c.tool === "sfc") ?? [];
   const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
   const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
   const figures = [

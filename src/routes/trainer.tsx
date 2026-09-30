@@ -14,6 +14,8 @@ import { TrainerQuizzes, TrainerAssignments, TrainerAttendance, TrainerNotices, 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { categories, courses } from "@/lib/site-content";
+import { CourseForm, cleanCourse, emptyCourse, type CourseFields, type Faq } from "@/components/course-form";
+import type { CourseSection } from "@/lib/course-details";
 import { fmtDateTime, type Lesson, type LiveSession } from "@/lib/learning";
 import { TrainerOverview, TrainerStudents, TrainerLessonHistory, TrainerCalendar } from "@/components/trainer-overview";
 
@@ -148,34 +150,42 @@ function Live({ userId }: { userId: string }) {
   );
 }
 
-type Draft = { id: string; title: string; category: string; summary: string; duration: string | null; mode: string | null; price: string | null; outcomes: string[]; status: string; staff_note: string | null };
+type Draft = { id: string; title: string; category: string; summary: string; duration: string | null; mode: string | null; price: string | null; outcomes: string[]; status: string; staff_note: string | null;
+  badge: string | null; level: string | null; requirements: string | null; sections: CourseSection[] | null; faqs: Faq[] | null; image_key: string | null; intake_start: string | null; intake_apply_by: string | null; intake_time: string | null; published_slug: string | null };
+const draftToFields = (d: Draft): CourseFields => ({ ...emptyCourse(), title: d.title, category: d.category, summary: d.summary, price: d.price ?? "", duration: d.duration ?? "", mode: d.mode ?? "", badge: d.badge ?? "", level: d.level ?? "",
+  requirements: d.requirements ?? "", outcomes: d.outcomes.join("\n"), sections: d.sections?.length ? d.sections : emptyCourse().sections, faqs: d.faqs ?? [], image_key: d.image_key ?? "",
+  intake_start: d.intake_start ?? "", intake_apply_by: d.intake_apply_by ?? "", intake_time: d.intake_time ?? "" });
 function Drafts({ userId }: { userId: string }) {
   const qc = useQueryClient();
-  const empty = { title: "", category: categories[0].name as string, summary: "", duration: "", mode: "", price: "", outcomes: "" };
-  const [f, setF] = useState(empty);
-  const { data = [] } = useQuery({ queryKey: ["t-drafts", userId], queryFn: async () => ((await supabase.from("course_drafts").select("*").eq("trainer_id", userId).order("created_at", { ascending: false })).data ?? []) as Draft[] });
+  const [f, setF] = useState<CourseFields>(emptyCourse);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const { data = [] } = useQuery({ queryKey: ["t-drafts", userId], queryFn: async () => ((await supabase.from("course_drafts").select("*").eq("trainer_id", userId).order("created_at", { ascending: false })).data ?? []) as unknown as Draft[] });
   const save = async (status: "draft" | "submitted") => {
-    if (f.title.trim().length < 5 || f.summary.trim().length < 20) return void toast.error("Add a title (5+ characters) and a summary (20+ characters).");
-    const { error } = await supabase.from("course_drafts").insert({ trainer_id: userId, title: f.title.trim(), category: f.category, summary: f.summary.trim(), duration: f.duration || null, mode: f.mode || null, price: f.price || null, outcomes: f.outcomes.split("\n").map(s => s.trim()).filter(Boolean), status });
+    const c = cleanCourse(f);
+    if (c.error) return void toast.error(c.error);
+    const row = { title: f.title.trim(), category: f.category, summary: f.summary.trim(), duration: f.duration.trim() || null, mode: f.mode.trim() || null, price: f.price.trim() || null,
+      badge: f.badge.trim() || null, level: f.level.trim() || null, requirements: f.requirements.trim() || null, outcomes: c.outcomes, sections: c.sections, faqs: c.faqs, image_key: f.image_key || null,
+      intake_start: f.intake_start || null, intake_apply_by: f.intake_apply_by || null, intake_time: f.intake_time.trim() || null, status };
+    const { error } = editing ? await supabase.from("course_drafts").update(row).eq("id", editing) : await supabase.from("course_drafts").insert({ ...row, trainer_id: userId });
     if (error) return void toast.error(error.message);
-    toast.success(status === "submitted" ? "Sent to SOQ staff for approval" : "Draft saved"); setF(empty);
+    toast.success(status === "submitted" ? "Sent to SOQ staff for approval" : "Draft saved"); setF(emptyCourse()); setEditing(null); setOpen(false);
     void qc.invalidateQueries({ queryKey: ["t-drafts", userId] });
   };
-  const submit = async (id: string) => { await supabase.from("course_drafts").update({ status: "submitted" }).eq("id", id); void qc.invalidateQueries({ queryKey: ["t-drafts", userId] }); };
+  const edit = (d: Draft) => { setF(draftToFields(d)); setEditing(d.id); setOpen(true); window.scrollTo({ top: 0, behavior: "smooth" }); };
   return (
-    <div className="mt-6 grid gap-8 lg:grid-cols-2">
-      <div className="space-y-3 rounded-lg border border-border bg-card p-5">
-        <Input placeholder="Course title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
-        <select className={sel} value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>{categories.map(c => <option key={c.name}>{c.name}</option>)}</select>
-        <Textarea rows={4} placeholder="What the course covers and who it's for" value={f.summary} onChange={e => setF({ ...f, summary: e.target.value })} />
-        <div className="grid grid-cols-3 gap-3"><Input placeholder="Duration" value={f.duration} onChange={e => setF({ ...f, duration: e.target.value })} /><Input placeholder="Mode" value={f.mode} onChange={e => setF({ ...f, mode: e.target.value })} /><Input placeholder="Fee" value={f.price} onChange={e => setF({ ...f, price: e.target.value })} /></div>
-        <Textarea rows={4} placeholder="Learning outcomes (one per line)" value={f.outcomes} onChange={e => setF({ ...f, outcomes: e.target.value })} />
-        <div className="flex gap-3"><Button variant="outline" className="rounded-full" onClick={() => void save("draft")}>Save draft</Button><Button className="rounded-full" onClick={() => void save("submitted")}>Submit for approval</Button></div>
-      </div>
+    <div className="mt-6 grid gap-6">
+      {!open ? <div><Button className="rounded-full" onClick={() => { setF(emptyCourse()); setEditing(null); setOpen(true); }}><Plus className="size-4" /> Add course</Button>
+        <p className="mt-2 text-sm text-muted-foreground">Fill in the full course page. SOQ staff review it and publish it to the website.</p></div> : <>
+        <h3 className="font-serif text-2xl text-primary">{editing ? "Edit course proposal" : "New course proposal"}</h3>
+        <CourseForm value={f} onChange={setF} />
+        <div className="flex flex-wrap gap-3"><Button variant="outline" className="rounded-full" onClick={() => void save("draft")}>Save draft</Button><Button className="rounded-full" onClick={() => void save("submitted")}>Submit for approval</Button><Button variant="ghost" className="rounded-full" onClick={() => { setOpen(false); setEditing(null); }}>Cancel</Button></div>
+      </>}
       <ul className="space-y-2">{data.length === 0 ? <p className="text-sm text-muted-foreground">No proposals yet.</p> : data.map(d => (
-        <li key={d.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{d.title}</p><p className="text-xs capitalize text-muted-foreground">{d.category} · {d.status === "submitted" ? "waiting for staff" : d.status}</p>
+        <li key={d.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{d.title}</p><p className="text-xs capitalize text-muted-foreground">{d.category} · {d.status === "submitted" ? "waiting for staff" : d.status === "approved" ? "published" : d.status}</p>
           {d.staff_note && <p className="mt-1 text-xs">Staff note: {d.staff_note}</p>}
-          {(d.status === "draft" || d.status === "rejected") && <button className="mt-1 text-xs underline" onClick={() => void submit(d.id)}>{d.status === "rejected" ? "Resubmit" : "Submit for approval"}</button>}</li>))}</ul>
+          {d.published_slug && <Link to="/courses/$slug" params={{ slug: d.published_slug }} className="mt-1 inline-block text-xs underline">View live course page</Link>}
+          {d.status !== "approved" && <button className="mt-1 ml-3 text-xs underline" onClick={() => edit(d)}>{d.status === "rejected" ? "Edit & resubmit" : "Edit"}</button>}</li>))}</ul>
     </div>
   );
 }

@@ -250,23 +250,45 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
 }
 
 /* ---------- Trainer course drafts ---------- */
-type Draft = { id: string; trainer_id: string; title: string; category: string; summary: string; duration: string | null; mode: string | null; price: string | null; outcomes: string[]; status: string; staff_note: string | null; created_at: string };
+type Draft = { id: string; trainer_id: string; title: string; category: string; summary: string; duration: string | null; mode: string | null; price: string | null; outcomes: string[]; status: string; staff_note: string | null; created_at: string;
+  badge: string | null; level: string | null; requirements: string | null; sections: { title: string; items: string[] }[] | null; faqs: { q: string; a: string }[] | null; image_key: string | null; intake_start: string | null; intake_apply_by: string | null; intake_time: string | null; published_slug: string | null };
 export function CourseDraftsReview() {
   const qc = useQueryClient();
-  const { data = [] } = useQuery({ queryKey: ["admin-drafts"], queryFn: async () => ((await supabase.from("course_drafts").select("*").neq("status", "draft").order("created_at", { ascending: false })).data ?? []) as Draft[] });
-  const decide = async (d: Draft, status: string) => {
-    const note = status === "rejected" ? prompt("Note for the trainer (what to change)?") ?? "" : null;
-    await supabase.from("course_drafts").update({ status, staff_note: note }).eq("id", d.id);
-    void qc.invalidateQueries({ queryKey: ["admin-drafts"] });
+  const { data = [] } = useQuery({ queryKey: ["admin-drafts"], queryFn: async () => ((await supabase.from("course_drafts").select("*").neq("status", "draft").order("created_at", { ascending: false })).data ?? []) as unknown as Draft[] });
+  const [open, setOpen] = useState<string | null>(null);
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-drafts"] }); void qc.invalidateQueries({ queryKey: ["course-overrides"] }); };
+  const sendBack = async (d: Draft) => {
+    const note = prompt("Note for the trainer (what to change)?") ?? "";
+    await supabase.from("course_drafts").update({ status: "rejected", staff_note: note }).eq("id", d.id); refresh();
+  };
+  const publish = async (d: Draft) => {
+    const { createLiveCourse } = await import("@/lib/course-publish");
+    const { emptyCourse } = await import("@/components/course-form");
+    const r = await createLiveCourse({ ...emptyCourse(), title: d.title, category: d.category, summary: d.summary, price: d.price ?? "", duration: d.duration ?? "", mode: d.mode ?? "", badge: d.badge ?? "",
+      level: d.level ?? "", requirements: d.requirements ?? "", outcomes: d.outcomes.join("\n"), sections: d.sections ?? [], faqs: d.faqs ?? [], image_key: d.image_key ?? "",
+      intake_start: d.intake_start ?? "", intake_apply_by: d.intake_apply_by ?? "", intake_time: d.intake_time ?? "" });
+    if (r.error || !r.slug) { alert(r.error ?? "Could not publish"); return; }
+    await supabase.from("course_drafts").update({ status: "approved", staff_note: null, published_slug: r.slug }).eq("id", d.id);
+    await supabase.from("trainer_courses").insert({ trainer_id: d.trainer_id, course_slug: r.slug });
+    refresh();
   };
   if (!data.length) return <p className="mt-6 text-muted-foreground">No courses submitted by trainers yet.</p>;
   return <Table head={["Submitted", "Course", "Details", "Status"]}>{data.map(d => (
-    <tr key={d.id} className="border-t border-border">
+    <tr key={d.id} className="border-t border-border align-top">
       <td className={td}>{date(d.created_at)}</td>
       <td className={td}><p className="font-medium">{d.title}</p><p className="text-xs text-muted-foreground">{d.category}</p></td>
-      <td className={`${td} max-w-md text-xs`}><p className="whitespace-pre-line">{d.summary}</p><p className="mt-2">{[d.duration, d.mode, d.price].filter(Boolean).join(" · ")}</p>{d.outcomes.length > 0 && <ul className="mt-2 list-disc pl-4">{d.outcomes.map(o => <li key={o}>{o}</li>)}</ul>}</td>
-      <td className={td}><p className="capitalize">{d.status}</p>{d.staff_note && <p className="text-xs text-muted-foreground">{d.staff_note}</p>}
-        {d.status === "submitted" && <div className="mt-2 flex gap-2"><Button size="sm" onClick={() => void decide(d, "approved")}>Approve</Button><Button size="sm" variant="outline" onClick={() => void decide(d, "rejected")}>Send back</Button></div>}</td>
+      <td className={`${td} max-w-md text-xs`}><p className="whitespace-pre-line">{d.summary}</p><p className="mt-2">{[d.price, d.duration, d.mode, d.badge, d.level].filter(Boolean).join(" · ")}</p>
+        {d.intake_start && <p className="mt-1">First intake {date(d.intake_start)}{d.intake_time ? ` · ${d.intake_time}` : ""}</p>}
+        <button className="mt-2 underline" onClick={() => setOpen(open === d.id ? null : d.id)}>{open === d.id ? "Hide full course" : "Show full course"}</button>
+        {open === d.id && <div className="mt-2 space-y-2">
+          {d.requirements && <p><b>Entry requirements:</b> {d.requirements}</p>}
+          {d.outcomes.length > 0 && <div><b>Outcomes</b><ul className="list-disc pl-4">{d.outcomes.map(o => <li key={o}>{o}</li>)}</ul></div>}
+          {(d.sections ?? []).map(s => <div key={s.title}><b>{s.title}</b><ul className="list-disc pl-4">{s.items.map(i => <li key={i}>{i}</li>)}</ul></div>)}
+          {(d.faqs ?? []).map(x => <p key={x.q}><b>{x.q}</b> {x.a}</p>)}
+        </div>}</td>
+      <td className={td}><p className="capitalize">{d.status === "approved" ? "Published" : d.status}</p>{d.staff_note && <p className="text-xs text-muted-foreground">{d.staff_note}</p>}
+        {d.published_slug && <a href={`/courses/${d.published_slug}`} target="_blank" rel="noreferrer" className="text-xs underline">View course page</a>}
+        {d.status === "submitted" && <div className="mt-2 flex flex-wrap gap-2"><Button size="sm" onClick={() => void publish(d)}>Approve & publish</Button><Button size="sm" variant="outline" onClick={() => void sendBack(d)}>Send back</Button></div>}</td>
     </tr>))}</Table>;
 }
 

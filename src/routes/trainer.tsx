@@ -3,7 +3,7 @@ import { PendingSeatRequests, SessionRequests } from "@/components/session-booki
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Home, CalendarDays, BookOpen, Users, UserRound } from "lucide-react";
+import { Plus, Trash2, Home, CalendarDays, BookOpen, Users, UserRound } from "lucide-react";
 import { TutorProfileEditor } from "@/components/tutor-profile-editor";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";

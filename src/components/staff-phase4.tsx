@@ -119,7 +119,7 @@ export function SfcClaims() {
   const { data: payments = [] } = useQuery({ queryKey: ["sfc-payments"], queryFn: async () => (await supabase.from("bank_payments").select("id,email,total,reference,status,created_at").order("created_at", { ascending: false }).limit(500)).data ?? [] });
   const [filter, setFilter] = useState<string>("submitted");
   const [settle, setSettle] = useState<{ id: string; ref: string; date: string; note: string } | null>(null);
-  const update = async (id: string, patch: Record<string, unknown>) => { const { error } = await supabase.from("sfc_claims").update(patch).eq("id", id); if (error) toast.error(error.message); void refresh(); };
+  const update = async (id: string, patch: { status?: string; payment_id?: string | null; claim_ref?: string; settled_on?: string | null; staff_note?: string | null }) => { const { error } = await supabase.from("sfc_claims").update(patch).eq("id", id); if (error) toast.error(error.message); void refresh(); };
   const sum = (st: string) => data.filter(d => d.status === st).reduce((s, d) => s + Number(d.sfc_amount), 0);
   const shown = filter === "all" ? data : data.filter(d => d.status === filter);
   const LABEL: Record<string, string> = { submitted: "Waiting", approved: "Approved", paid: "Paid out", rejected: "Rejected", all: "All" };

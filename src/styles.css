@@ -20,6 +20,7 @@
 
 @theme inline {
   --font-sans: "DM Sans", sans-serif;
+  --font-workspace: "Space Grotesk", "DM Sans", sans-serif;
   --font-serif: "Cormorant Garamond", serif;
   --font-script: "Alex Brush", cursive;
   --radius-sm: calc(var(--radius) - 4px);

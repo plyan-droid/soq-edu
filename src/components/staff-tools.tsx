@@ -102,11 +102,13 @@ export function TrainerApplications() {
       {!shown.length ? <p className="mt-6 text-muted-foreground">No applications here.</p> :
       <div className="mt-5 grid gap-3">{shown.map(a => (
         <div key={a.id} className="rounded-lg border border-border bg-card">
-          <button onClick={() => setOpen(open === a.id ? null : a.id)} className="flex w-full flex-wrap items-center gap-3 p-4 text-left">
+          <div className="flex flex-wrap items-center gap-3 p-4"><Button variant="ghost" onClick={() => setOpen(open === a.id ? null : a.id)} className="h-auto min-w-0 flex-1 justify-start whitespace-normal p-0 text-left">
             <div className="min-w-48 flex-1"><p className="font-medium text-primary underline-offset-2 hover:underline">{a.full_name}</p><p className="text-xs text-muted-foreground">{a.expertise}{a.years_experience != null ? ` · ${a.years_experience} yrs` : ""} · applied {date(a.created_at)}</p></div>
-            {a.cv_path && <span className="rounded bg-muted px-2 py-0.5 text-xs">CV attached</span>}
-            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${a.status === "approved" ? "bg-primary text-primary-foreground" : a.status === "pending" ? "bg-brand-gold-soft text-primary" : "bg-muted text-muted-foreground"}`}>{a.status === "pending" ? "Waiting" : a.status}</span>
-          </button>
+            </Button>
+            {a.cv_path && <span className="text-xs text-muted-foreground">CV attached</span>}
+            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${a.status === "approved" ? "bg-primary/10 text-primary" : a.status === "pending" ? "bg-brand-gold-soft text-primary" : "bg-muted text-muted-foreground"}`}>{a.status === "pending" ? "Waiting" : a.status}</span>
+            <DropdownMenu><DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="size-8" aria-label={`Actions for ${a.full_name}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => setOpen(a.id)}>View application</DropdownMenuItem>{a.cv_path && <DropdownMenuItem onClick={() => void openFile(a.cv_path!)}>Open CV</DropdownMenuItem>}{a.certs_path && <DropdownMenuItem onClick={() => void openFile(a.certs_path!)}>Open certificates</DropdownMenuItem>}<DropdownMenuSeparator />{a.status === "pending" ? <><DropdownMenuItem onClick={() => void setStatus(a, "approved")}>Approve trainer</DropdownMenuItem><DropdownMenuItem onClick={() => void setStatus(a, "rejected")}>Reject application</DropdownMenuItem></> : <DropdownMenuItem onClick={() => void setStatus(a, "pending")}>Move back to Waiting</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
+          </div>
           {open === a.id && <div className="grid gap-5 border-t border-border p-4 md:grid-cols-[1fr_260px]">
             <dl className="grid gap-3 sm:grid-cols-2">
               {row("Email", <a className="underline" href={`mailto:${a.email}`}>{a.email}</a>)}
@@ -126,8 +128,7 @@ export function TrainerApplications() {
                 {a.certs_path && <Button size="sm" variant="outline" onClick={() => void openFile(a.certs_path!)}>Open certificates</Button>}
               </div>
               <textarea defaultValue={a.staff_note ?? ""} onBlur={e => { if (e.target.value !== (a.staff_note ?? "")) void saveNote(a.id, e.target.value); }} rows={3} placeholder="Staff notes (saved when you click away)" className="rounded-md border border-input bg-background p-2 text-sm" />
-              {a.status === "pending" ? <div className="flex gap-2"><Button size="sm" className="rounded-full" onClick={() => void setStatus(a, "approved")}>Approve</Button><Button size="sm" variant="outline" className="rounded-full" onClick={() => void setStatus(a, "rejected")}>Reject</Button></div>
-                : <button className="text-left text-xs underline" onClick={() => void setStatus(a, "pending")}>Move back to Waiting</button>}
+              <p className="text-xs text-muted-foreground">Use the row menu to change the application status.</p>
             </div>
           </div>}
         </div>))}</div>}
@@ -319,10 +320,10 @@ export function CourseDraftsReview() {
     refresh();
   };
   if (!data.length) return <p className="mt-6 text-muted-foreground">No courses submitted by trainers yet.</p>;
-  return <Table head={["Submitted", "Course", "Details", "Status"]}>{data.map(d => (
+  return <Table head={["Submitted", "Course", "Details", "Status", ""]}>{data.map(d => (
     <tr key={d.id} className="border-t border-border align-top">
       <td className={td}>{date(d.created_at)}</td>
-      <td className={td}><p className="font-medium">{d.title}</p><p className="text-xs text-muted-foreground">{d.category}</p></td>
+      <td className={td}><p className="font-medium">{d.title}</p><span className="mt-1 inline-flex rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{d.category}</span></td>
       <td className={`${td} max-w-md text-xs`}><p className="whitespace-pre-line">{d.summary}</p><p className="mt-2">{[d.price, d.duration, d.mode, d.badge, d.level].filter(Boolean).join(" · ")}</p>
         {d.intake_start && <p className="mt-1">First intake {date(d.intake_start)}{d.intake_time ? ` · ${d.intake_time}` : ""}</p>}
         <button className="mt-2 underline" onClick={() => setOpen(open === d.id ? null : d.id)}>{open === d.id ? "Hide full course" : "Show full course"}</button>
@@ -332,9 +333,8 @@ export function CourseDraftsReview() {
           {(d.sections ?? []).map(s => <div key={s.title}><b>{s.title}</b><ul className="list-disc pl-4">{s.items.map(i => <li key={i}>{i}</li>)}</ul></div>)}
           {(d.faqs ?? []).map(x => <p key={x.q}><b>{x.q}</b> {x.a}</p>)}
         </div>}</td>
-      <td className={td}><p className="capitalize">{d.status === "approved" ? "Published" : d.status}</p>{d.staff_note && <p className="text-xs text-muted-foreground">{d.staff_note}</p>}
-        {d.published_slug && <a href={`/courses/${d.published_slug}`} target="_blank" rel="noreferrer" className="text-xs underline">View course page</a>}
-        {d.status === "submitted" && <div className="mt-2 flex flex-wrap gap-2"><Button size="sm" onClick={() => void publish(d)}>Approve & publish</Button><Button size="sm" variant="outline" onClick={() => void sendBack(d)}>Send back</Button></div>}</td>
+      <td className={td}><span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ${d.status === "submitted" ? "bg-brand-gold-soft text-primary" : d.status === "approved" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{d.status === "approved" ? "Published" : d.status}</span>{d.staff_note && <p className="mt-1 text-xs text-muted-foreground">{d.staff_note}</p>}</td>
+      <td className={td}><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${d.title}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => setOpen(d.id)}>View full course</DropdownMenuItem>{d.published_slug && <DropdownMenuItem asChild><a href={`/courses/${d.published_slug}`} target="_blank" rel="noreferrer">View course page</a></DropdownMenuItem>}{d.status === "submitted" && <><DropdownMenuSeparator /><DropdownMenuItem onClick={() => void publish(d)}>Approve & publish</DropdownMenuItem><DropdownMenuItem onClick={() => void sendBack(d)}>Send back</DropdownMenuItem></>}</DropdownMenuContent></DropdownMenu></td>
     </tr>))}</Table>;
 }
 

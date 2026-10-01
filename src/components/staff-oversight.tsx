@@ -1,6 +1,8 @@
 import { ListSkeleton } from "@/components/start-here";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -263,6 +265,7 @@ export function OrganisationsAdmin() {
     },
   });
   const [f, setF] = useState({ org: "", name: "", students: "5", instructors: "1", expires: "" });
+  const [editing, setEditing] = useState<string | null>(null);
   const create = async () => {
     if (!f.org || !f.name) return;
     const { error } = await supabase.from("org_packages").insert({ org_id: f.org, name: f.name, student_seats: Number(f.students) || 0, instructor_seats: Number(f.instructors) || 0, expires_on: f.expires || null });
@@ -289,13 +292,14 @@ export function OrganisationsAdmin() {
         </div>
       </div>
       {packages.length === 0 ? <p className="mt-6 text-muted-foreground">No packages yet.</p> : (
-        <Table head={["Organisation", "Package", "Student seats", "Instructor seats", "Expires on"]}>{packages.map(p => (
+        <Table head={["Organisation", "Package", "Seats", "Expires on", "Status", ""]}>{packages.map(p => (
           <tr key={p.org_id} className="border-t border-border">
-            <td className={td}>{orgName(p.org_id)}</td>
-            <td className={td}>{p.name}</td>
-            <td className={td}><Input className="h-8 w-20" type="number" min={0} defaultValue={p.student_seats} onBlur={e => { const v = Number(e.target.value); if (v !== p.student_seats) void update(p.org_id, { student_seats: v }); }} aria-label="Student seats" /></td>
-            <td className={td}><Input className="h-8 w-20" type="number" min={0} defaultValue={p.instructor_seats} onBlur={e => { const v = Number(e.target.value); if (v !== p.instructor_seats) void update(p.org_id, { instructor_seats: v }); }} aria-label="Instructor seats" /></td>
+            <td className={td}><p className="font-medium text-primary">{orgName(p.org_id)}</p><p className="text-xs text-muted-foreground">{orgs.find(o => o.id === p.org_id)?.email}</p></td>
+            <td className={td}><span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{p.name}</span></td>
+            <td className={td}>{editing === p.org_id ? <div className="flex flex-wrap items-center gap-2"><label className="text-xs text-muted-foreground">Learners<Input className="mt-1 h-8 w-20" type="number" min={0} defaultValue={p.student_seats} onBlur={e => { const v = Number(e.target.value); if (v !== p.student_seats) void update(p.org_id, { student_seats: v }); }} /></label><label className="text-xs text-muted-foreground">Instructors<Input className="mt-1 h-8 w-20" type="number" min={0} defaultValue={p.instructor_seats} onBlur={e => { const v = Number(e.target.value); if (v !== p.instructor_seats) void update(p.org_id, { instructor_seats: v }); }} /></label></div> : `${p.student_seats} learners · ${p.instructor_seats} instructors`}</td>
             <td className={td}>{p.expires_on ?? "—"}</td>
+            <td className={td}><span className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.expires_on && p.expires_on < new Date().toISOString().slice(0, 10) ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>{p.expires_on && p.expires_on < new Date().toISOString().slice(0, 10) ? "Expired" : "Active"}</span></td>
+            <td className={td}><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="size-8" aria-label={`Actions for ${orgName(p.org_id)}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem onClick={() => setEditing(editing === p.org_id ? null : p.org_id)}>{editing === p.org_id ? "Finish editing seats" : "Edit seats"}</DropdownMenuItem></DropdownMenuContent></DropdownMenu></td>
           </tr>))}</Table>)}
     </div>
   );

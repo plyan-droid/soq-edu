@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Eye, EyeOff, ExternalLink, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { CalendarDays, Eye, EyeOff, ExternalLink, Plus, RotateCcw, Save, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CourseForm, cleanCourse, emptyCourse, type CourseFields } from "@/components/course-form";
 import { createLiveCourse } from "@/lib/course-publish";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,11 @@ import { courses, categories } from "@/lib/site-content";
 import { courseOverridesQuery, mergeCourse, sectionsFor, allCourses, customToCourse } from "@/lib/course-overrides";
 
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
+const statusTone: Record<string, string> = { confirmed: "bg-primary/10 text-primary", tentative: "bg-brand-gold-soft text-primary", full: "bg-secondary text-secondary-foreground", cancelled: "bg-muted text-muted-foreground" };
+function IntakeActions({ row, onStatus, onDelete }: { row: IntakeRow; onStatus: (id: string, status: string) => void; onDelete: (id: string) => void }) {
+  return <DropdownMenu><DropdownMenuTrigger asChild><Button size="icon" variant="ghost" className="size-8" aria-label={`Actions for intake ${row.start_date}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem disabled>Set status</DropdownMenuItem>{["tentative", "confirmed", "full", "cancelled"].filter(s => s !== row.status).map(status => <DropdownMenuItem key={status} onClick={() => onStatus(row.id, status)}>Mark {status}</DropdownMenuItem>)}<DropdownMenuSeparator /><DropdownMenuItem className="text-destructive" onClick={() => { if (confirm("Delete this intake date?")) onDelete(row.id); }}>Delete intake</DropdownMenuItem></DropdownMenuContent></DropdownMenu>;
+}
+const intakeBadge = (status: string) => <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusTone[status] ?? "bg-muted text-muted-foreground"}`}>{status}</span>;
 
 type IntakeRow = { id: string; course_slug: string; start_date: string; end_date: string | null; apply_by: string | null; session_time: string | null; status: string };
 
@@ -53,11 +59,10 @@ export function CoursesAndIntakes() {
                   <div key={cat.name} className="mt-3">
                     <p className="px-2 text-xs font-semibold uppercase tracking-wider text-brand-gold">{cat.name}</p>
                     {items.map(c => (
-                      <button key={c.slug} onClick={() => { setAdding(false); setSlug(c.slug); }} className={`mt-1 block w-full rounded-md px-2 py-1.5 text-left text-sm ${!adding && slug === c.slug ? "bg-brand-navy text-primary-foreground" : "hover:bg-muted"}`}>
-                        {c.title}
-                        {overrides.find(o => o.slug === c.slug)?.custom ? <span className="ml-1 text-[10px] text-brand-gold">● new</span> : overrides.some(o => o.slug === c.slug) && <span className="ml-1 text-[10px] text-brand-gold">● edited</span>}
-                        {overrides.find(o => o.slug === c.slug)?.hidden && <span className="ml-1 text-[10px] opacity-70">(hidden)</span>}
-                      </button>
+                      <Button key={c.slug} variant="ghost" onClick={() => { setAdding(false); setSlug(c.slug); }} className={`mt-1 flex h-auto min-h-9 w-full justify-between gap-2 whitespace-normal rounded-md px-2 py-1.5 text-left text-sm ${!adding && slug === c.slug ? "bg-primary/10 text-primary" : ""}`}>
+                        <span className="min-w-0 flex-1">{c.title}</span>
+                        {overrides.find(o => o.slug === c.slug)?.hidden && <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">Hidden</span>}
+                      </Button>
                     ))}
                   </div>
                 );
@@ -129,16 +134,14 @@ function Editor({ slug }: { slug: string }) {
     <div className="grid min-w-0 gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-5">
         <div>
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">{base.category}</p>
+          <div className="flex flex-wrap gap-1.5"><span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">{base.category}</span><span className={`rounded-full px-2 py-0.5 text-xs ${o?.hidden ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>{o?.hidden ? "Hidden" : "Public"}</span>{custom && <span className="rounded-full bg-brand-gold-soft px-2 py-0.5 text-xs text-primary">Custom</span>}</div>
           <h2 className="font-serif text-3xl text-primary">{f.title}</h2>
           {o?.hidden && <p className="text-xs font-medium text-destructive">Hidden from the public site</p>}
           {o && <p className="text-xs text-muted-foreground">Last edited {new Date(o.updated_at).toLocaleString("en-SG")}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="ghost" className="rounded-full"><Link to="/courses/$slug" params={{ slug }} target="_blank"><ExternalLink /> View page</Link></Button>
-          <Button variant="outline" className="rounded-full" onClick={() => void toggleHidden()}>{o?.hidden ? <><Eye /> Show course</> : <><EyeOff /> Hide course</>}</Button>
-          {custom ? <Button variant="outline" className="rounded-full" onClick={() => void remove()}><Trash2 /> Delete</Button> : o && <Button variant="outline" className="rounded-full" onClick={() => void reset()}><RotateCcw /> Restore original</Button>}
           <Button className="rounded-full" disabled={busy} onClick={() => void save()}><Save /> {busy ? "Saving…" : "Save changes"}</Button>
+          <DropdownMenu><DropdownMenuTrigger asChild><Button size="icon" variant="ghost" aria-label={`Actions for ${f.title}`}><MoreHorizontal className="size-4" /></Button></DropdownMenuTrigger><DropdownMenuContent align="end"><DropdownMenuItem asChild><Link to="/courses/$slug" params={{ slug }} target="_blank"><ExternalLink className="mr-2 size-4" />View page</Link></DropdownMenuItem><DropdownMenuItem onClick={() => void toggleHidden()}>{o?.hidden ? <Eye className="mr-2 size-4" /> : <EyeOff className="mr-2 size-4" />}{o?.hidden ? "Show course" : "Hide course"}</DropdownMenuItem>{custom ? <DropdownMenuItem className="text-destructive" onClick={() => void remove()}>Delete course</DropdownMenuItem> : o && <DropdownMenuItem onClick={() => void reset()}><RotateCcw className="mr-2 size-4" />Restore original</DropdownMenuItem>}</DropdownMenuContent></DropdownMenu>
         </div>
       </div>
       {msg && <p className="rounded-md bg-brand-gold-soft px-4 py-2 text-sm text-primary">{msg}</p>}
@@ -183,8 +186,8 @@ function CourseIntakes({ slug, title }: { slug: string; title: string }) {
                 <td className="whitespace-nowrap p-3">{i.start_date}{i.end_date ? ` → ${i.end_date}` : ""}</td>
                 <td className="p-3">{i.apply_by ?? "—"}</td>
                 <td className="p-3">{i.session_time ?? "—"}</td>
-                <td className="p-3"><select className={sel} value={i.status} onChange={e => void setStatus(i.id, e.target.value)}>{["tentative", "confirmed", "full", "cancelled"].map(s => <option key={s}>{s}</option>)}</select></td>
-                <td className="p-3"><Button size="icon" variant="ghost" onClick={() => void del(i.id)}><Trash2 /></Button></td>
+                <td className="p-3">{intakeBadge(i.status)}</td>
+                <td className="p-3"><IntakeActions row={i} onStatus={setStatus} onDelete={del} /></td>
               </tr>
             ))}</tbody>
           </table>
@@ -254,8 +257,8 @@ function MasterSchedule() {
                 <td className="whitespace-nowrap p-3">{i.start_date}{i.end_date ? ` → ${i.end_date}` : ""}</td>
                 <td className="p-3">{i.apply_by ?? "—"}</td>
                 <td className="p-3">{i.session_time ?? "—"}</td>
-                <td className="p-3"><select className={sel} value={i.status} onChange={e => void setStatus(i.id, e.target.value)}>{["tentative", "confirmed", "full", "cancelled"].map(s => <option key={s}>{s}</option>)}</select></td>
-                <td className="p-3"><Button size="icon" variant="ghost" onClick={() => void del(i.id)}><Trash2 /></Button></td>
+                <td className="p-3">{intakeBadge(i.status)}</td>
+                <td className="p-3"><IntakeActions row={i} onStatus={setStatus} onDelete={del} /></td>
               </tr>
             ))}</tbody>
           </table>

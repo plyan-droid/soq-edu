@@ -311,6 +311,39 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
         </button></li>))}</ul>
     </section>
   );
+  if (role === "trainer") {
+    const attention = cards.filter(c => c.count && c.count > 0);
+    const summary = (data?.metrics ?? []).filter(m => ["Courses I teach", "Students", "Upcoming live classes", "Booked 1-to-1 meetings"].includes(m.label));
+    return <div className="mt-5 max-w-6xl space-y-8">
+      <header className="border-b border-border pb-5">
+        <p className="text-xs font-semibold uppercase text-muted-foreground">Teaching overview</p>
+        <h2 className="mt-2 text-2xl font-semibold text-primary">Today</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{greeting}</p>
+      </header>
+      <section aria-label="Needs attention">
+        <div className="mb-3 flex items-baseline justify-between gap-3"><h2 className="text-lg font-semibold text-primary">Needs attention</h2><span className="text-xs text-muted-foreground">{attention.reduce((sum, c) => sum + (c.count ?? 0), 0)} waiting</span></div>
+        {isPending ? <div className="grid gap-3 md:grid-cols-3">{[0, 1, 2].map(i => <Skeleton key={i} className="h-24" />)}</div>
+          : attention.length ? <div className="grid gap-3 md:grid-cols-3">{attention.map(c => <Button key={c.title} variant="outline" onClick={() => onNavigate(c.tool)} className="flex h-auto min-h-24 w-full items-start justify-between gap-3 rounded-md border-border bg-card p-4 text-left shadow-none hover:border-accent"><span className="min-w-0 whitespace-normal"><strong className="block text-sm font-semibold text-primary">{c.title}</strong><span className="mt-1 block text-xs font-normal text-muted-foreground">{c.text}</span></span><span className="shrink-0 rounded bg-secondary px-2 py-0.5 text-sm font-semibold text-primary">{c.count}</span></Button>)}</div>
+          : <p className="border-y border-border py-5 text-sm text-muted-foreground">All caught up. No teaching tasks waiting.</p>}
+      </section>
+      <section aria-label="Teaching at a glance" className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border py-5 md:grid-cols-4">
+        {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-16" />) : summary.map(m => <div key={m.label} className="min-w-0"><strong className="block text-2xl font-semibold tabular-nums text-primary">{m.value}</strong><span className="text-xs text-muted-foreground">{m.label}</span></div>)}
+      </section>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,1fr)]">
+        <section aria-label="Upcoming teaching">
+          <div className="flex items-center justify-between gap-3"><h2 className="text-lg font-semibold text-primary">Upcoming teaching</h2><Button variant="link" size="sm" className="h-auto p-0" onClick={() => onNavigate("calendar")}>Calendar <ArrowRight className="size-4" /></Button></div>
+          {data?.highlights?.length ? <ul className="mt-3 divide-y divide-border border-t border-border">{data.highlights.map((h, i) => <li key={`${h.title}-${i}`}><Button variant="ghost" onClick={() => onNavigate(h.tool)} className="flex h-auto min-h-16 w-full justify-between gap-3 rounded-none px-0 py-3 text-left"><span className="min-w-0 whitespace-normal"><strong className="block text-sm font-medium text-foreground">{h.title}</strong><span className="text-xs font-normal text-muted-foreground">{h.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground" /></Button></li>)}</ul>
+            : <p className="mt-3 border-t border-border py-4 text-sm text-muted-foreground">No upcoming classes or meetings.</p>}
+        </section>
+        <section aria-label="Teaching tools">
+          <h2 className="text-lg font-semibold text-primary">Teaching tools</h2>
+          <div className="mt-3 divide-y divide-border border-t border-border">{[{ title: "Schedule a class", tool: "live" }, { title: "Session plans", tool: "plans" }, { title: "My courses", tool: "overview" }, { title: "1-to-1 availability", tool: "slots" }].map(a => <Button key={a.tool} variant="ghost" onClick={() => onNavigate(a.tool)} className="flex h-11 w-full justify-between rounded-none px-0 text-left text-sm font-medium">{a.title}<ArrowRight className="size-4 text-muted-foreground" /></Button>)}</div>
+        </section>
+      </div>
+      {checklist}
+      {steps.length > 0 && !showList && <Button variant="link" className="h-auto p-0 text-sm" onClick={() => hide(false)}>{allDone ? "All set-up steps done ✓" : "Show getting-started checklist"}</Button>}
+    </div>;
+  }
   return (
     <div className="mt-2 space-y-6">
       <div className="border-b border-border pb-5"><p className="text-xs font-semibold uppercase text-brand-gold">{data?.identity ? `Learning with ${data.identity}` : owner ? "Owner overview" : role === "business" ? "Team learning" : role === "trainer" ? "Teaching today" : role === "student" ? "Your learning" : "Daily operations"}</p><p className="mt-2 max-w-2xl text-muted-foreground">{greeting}</p></div>

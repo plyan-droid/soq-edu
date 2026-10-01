@@ -134,7 +134,7 @@ function ApplicantForm({ courses, onClose, onDone }: { courses: { slug: string; 
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const er: Record<string, string> = {};
+    const er: Partial<Record<keyof typeof blank, string>> = {};
     const digits = f.mobile.replace(/\D/g, "");
     if (!f.course_slug) er.course_slug = "Choose a course";
     if (f.full_name.trim().length < 2) er.full_name = "Enter the full name as per NRIC";

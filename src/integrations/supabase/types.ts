@@ -1009,6 +1009,7 @@ export type Database = {
           ends_at: string | null
           id: string
           image_key: string | null
+          is_private: boolean
           location: string
           online_url: string | null
           speaker: string | null
@@ -1026,6 +1027,7 @@ export type Database = {
           ends_at?: string | null
           id?: string
           image_key?: string | null
+          is_private?: boolean
           location?: string
           online_url?: string | null
           speaker?: string | null
@@ -1043,6 +1045,7 @@ export type Database = {
           ends_at?: string | null
           id?: string
           image_key?: string | null
+          is_private?: boolean
           location?: string
           online_url?: string | null
           speaker?: string | null

@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { EVENT_CATEGORIES, categoryLabel, eventImage, imageOptions, timeRange, type EventItem } from "@/lib/events";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime } from "@/lib/learning";
 import { courseTitle } from "@/components/student-dashboard";
@@ -251,66 +253,116 @@ export function OrganisationsAdmin() {
 }
 
 /* ---------- Events ---------- */
-type EventRow = { id: string; title: string; description: string; starts_at: string; location: string; online_url: string | null; capacity: number };
-type Signup = { event_id: string; name: string; created_at: string };
+type EventRow = EventItem;
+type Signup = { event_id: string; name: string; created_at: string; user_id: string };
+const blankEv = { title: "", description: "", starts: "", ends: "", location: "10 Anson Road, International Plaza, Singapore", url: "", capacity: "30", category: "workshop", speaker: "", speaker_role: "", image_key: "", agenda: "" };
+const toLocal = (d: string | null) => d ? new Date(new Date(d).getTime() - new Date(d).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
 
 export function EventsAdmin() {
   const qc = useQueryClient();
-  const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-events"] }); void qc.invalidateQueries({ queryKey: ["admin-signups"] }); };
-  const { data: events = [] } = useQuery({
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-events"] }); void qc.invalidateQueries({ queryKey: ["admin-signups"] }); void qc.invalidateQueries({ queryKey: ["events"] }); };
+  const { data: events } = useQuery({
     queryKey: ["admin-events"],
-    queryFn: async () => ((await supabase.from("events").select("*").order("starts_at", { ascending: false }).limit(100)).data ?? []) as EventRow[],
+    queryFn: async () => ((await supabase.from("events").select("*").order("starts_at", { ascending: false }).limit(200)).data ?? []) as EventRow[],
   });
   const { data: signups = [] } = useQuery({
     queryKey: ["admin-signups"],
-    queryFn: async () => ((await supabase.from("event_signups").select("event_id,name,created_at").order("created_at", { ascending: false }).limit(500)).data ?? []) as Signup[],
+    queryFn: async () => ((await supabase.from("event_signups").select("event_id,name,created_at,user_id").order("created_at").limit(1000)).data ?? []) as Signup[],
   });
-  const [f, setF] = useState({ title: "", description: "", starts: "", location: "", url: "", capacity: "50" });
-  const create = async () => {
-    if (!f.title || !f.starts || !f.location) return;
-    const uid = (await supabase.auth.getUser()).data.user?.id ?? "";
-    const { error } = await supabase.from("events").insert({ title: f.title, description: f.description, starts_at: new Date(f.starts).toISOString(), location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 50, created_by: uid });
-    await toastErr(error, "Event created"); if (!error) { setF({ ...f, title: "", description: "", starts: "" }); refresh(); }
+  const [f, setF] = useState(blankEv);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"upcoming" | "past">("upcoming");
+  const [roster, setRoster] = useState<string | null>(null);
+  const save = async () => {
+    if (!f.title.trim() || !f.starts || !f.location.trim()) { (await import("sonner")).toast.error("Add a title, start time and location"); return; }
+    const row = { title: f.title.trim(), description: f.description, starts_at: new Date(f.starts).toISOString(), ends_at: f.ends ? new Date(f.ends).toISOString() : null, location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 30, category: f.category, speaker: f.speaker || null, speaker_role: f.speaker_role || null, image_key: f.image_key || null, agenda: f.agenda || null };
+    let error;
+    if (editing) ({ error } = await supabase.from("events").update(row).eq("id", editing));
+    else { const uid = (await supabase.auth.getUser()).data.user?.id ?? ""; ({ error } = await supabase.from("events").insert({ ...row, created_by: uid })); }
+    await toastErr(error, editing ? "Event updated" : "Event created");
+    if (!error) { setF(blankEv); setEditing(null); setOpen(false); refresh(); }
   };
+  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "" }); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const remove = async (id: string) => {
+    if (!confirm("Delete this event and its sign-up list?")) return;
     await supabase.from("event_signups").delete().eq("event_id", id);
     const { error } = await supabase.from("events").delete().eq("id", id);
     await toastErr(error, "Event deleted"); refresh();
   };
+  const exportCsv = (ev: EventRow) => {
+    const rows = [["Name", "Signed up"], ...signups.filter(s => s.event_id === ev.id).map(s => [s.name, date(s.created_at)])];
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n")], { type: "text/csv" }));
+    a.download = `${ev.title.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-signups.csv`; a.click();
+  };
   if (!events) return <ListSkeleton />;
+  const now = Date.now();
+  const list = events.filter(e => (new Date(e.starts_at).getTime() >= now) === (view === "upcoming"));
+  if (view === "upcoming") list.reverse();
   const count = (id: string) => signups.filter(s => s.event_id === id).length;
+  const upcoming = events.filter(e => new Date(e.starts_at).getTime() >= now);
+  const seatsTaken = upcoming.reduce((n, e) => n + count(e.id), 0);
+  const seatsTotal = upcoming.reduce((n, e) => n + e.capacity, 0);
+  const lbl = "text-xs font-medium text-muted-foreground";
   return (
     <div>
-      <p className="mt-4 text-muted-foreground">Public events on the site — create, edit capacity and see who has signed up.</p>
-      <div className="mt-4 rounded-lg border border-border bg-card p-6">
-        <h3 className="font-serif text-xl text-primary">Create an event</h3>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Input placeholder="Event title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} aria-label="Event title" />
-          <Input type="datetime-local" value={f.starts} onChange={e => setF({ ...f, starts: e.target.value })} aria-label="Starts at" />
-          <Input placeholder="Location or online" value={f.location} onChange={e => setF({ ...f, location: e.target.value })} aria-label="Location" />
-          <Input placeholder="Online link (optional)" value={f.url} onChange={e => setF({ ...f, url: e.target.value })} aria-label="Online link" />
-          <Input type="number" min={1} placeholder="Capacity" value={f.capacity} onChange={e => setF({ ...f, capacity: e.target.value })} aria-label="Capacity" />
-          <Input placeholder="Description" value={f.description} onChange={e => setF({ ...f, description: e.target.value })} aria-label="Description" />
-        </div>
-        <Button className="mt-4 rounded-full" onClick={() => void create()}>Create event</Button>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-muted-foreground">Plan open houses, workshops and talks. Everything here appears on the public <a href="/events" target="_blank" rel="noreferrer" className="text-primary underline">Events page</a>.</p>
+        <Button className="rounded-full" onClick={() => { setOpen(!open || !!editing); setEditing(null); setF(blankEv); }}>{open && !editing ? "Close" : "+ New event"}</Button>
       </div>
-      {events.length === 0 ? <p className="mt-6 text-muted-foreground">No events yet.</p> : (
-        <Table head={["Event", "When", "Location", "Sign-ups", "Capacity", ""]}>{events.map(ev => (
-          <tr key={ev.id} className="border-t border-border">
-            <td className={td}>{ev.title}<div className="max-w-sm truncate text-xs text-muted-foreground">{ev.description}</div>{count(ev.id) > 0 && <div className="text-xs text-muted-foreground">{signups.filter(s => s.event_id === ev.id).map(s => s.name).join(", ")}</div>}</td>
-            <td className={td}>{fmtDateTime(ev.starts_at)}</td>
-            <td className={td}>{ev.location}</td>
-            <td className={td}>{count(ev.id)}</td>
-            <td className={td}><Input className="h-8 w-20" type="number" min={1} defaultValue={ev.capacity} onBlur={e => { const v = Number(e.target.value); if (v !== ev.capacity) void updateCapacity(ev.id, v, refresh); }} aria-label="Capacity" /></td>
-            <td className={td}><Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => void remove(ev.id)}>Delete</Button></td>
-          </tr>))}</Table>)}
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {[["Upcoming events", upcoming.length], ["Seats reserved", seatsTaken], ["Seats filled", seatsTotal ? `${Math.round(seatsTaken / seatsTotal * 100)}%` : "—"]].map(([l, v]) => (
+          <div key={l} className="rounded-lg border border-border bg-card p-4"><p className={lbl}>{l}</p><p className="mt-1 text-2xl font-semibold text-primary">{v}</p></div>))}
+      </div>
+      {open && <div className="mt-5 rounded-lg border border-brand-gold/40 bg-card p-6">
+        <h3 className="font-serif text-xl text-primary">{editing ? "Edit event" : "New event"}</h3>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="sm:col-span-2"><span className={lbl}>Title</span><Input value={f.title} onChange={e => setF({ ...f, title: e.target.value })} maxLength={150} /></label>
+          <label><span className={lbl}>Type</span><select className={`${sel} w-full`} value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>{EVENT_CATEGORIES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
+          <label><span className={lbl}>Seats</span><Input type="number" min={1} value={f.capacity} onChange={e => setF({ ...f, capacity: e.target.value })} /></label>
+          <label><span className={lbl}>Starts</span><Input type="datetime-local" value={f.starts} onChange={e => setF({ ...f, starts: e.target.value })} /></label>
+          <label><span className={lbl}>Ends (optional)</span><Input type="datetime-local" value={f.ends} onChange={e => setF({ ...f, ends: e.target.value })} /></label>
+          <label><span className={lbl}>Location</span><Input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} /></label>
+          <label><span className={lbl}>Online link (makes it an online event)</span><Input value={f.url} onChange={e => setF({ ...f, url: e.target.value })} placeholder="https://" /></label>
+          <label><span className={lbl}>Speaker</span><Input value={f.speaker} onChange={e => setF({ ...f, speaker: e.target.value })} /></label>
+          <label><span className={lbl}>Speaker role</span><Input value={f.speaker_role} onChange={e => setF({ ...f, speaker_role: e.target.value })} placeholder="e.g. Academic Director" /></label>
+          <label className="sm:col-span-2"><span className={lbl}>Cover photo</span>
+            <div className="flex items-center gap-3"><img src={eventImage(f.image_key)} alt="" className="size-12 rounded object-cover" />
+              <select className={`${sel} flex-1`} value={f.image_key} onChange={e => setF({ ...f, image_key: e.target.value })}><option value="">Default photo</option>{imageOptions.map(o => <option key={o.key} value={o.key}>{o.title}</option>)}</select></div></label>
+          <label className="sm:col-span-2"><span className={lbl}>Description</span><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={3} /></label>
+          <label className="sm:col-span-2"><span className={lbl}>Agenda (one line per item, optional)</span><Textarea value={f.agenda} onChange={e => setF({ ...f, agenda: e.target.value })} rows={3} placeholder={"10:00 Welcome\n10:30 Demo"} /></label>
+        </div>
+        <div className="mt-4 flex gap-2"><Button className="rounded-full" onClick={() => void save()}>{editing ? "Save changes" : "Create event"}</Button><Button variant="ghost" onClick={() => { setOpen(false); setEditing(null); setF(blankEv); }}>Cancel</Button></div>
+      </div>}
+      <div className="mt-6 flex gap-2">{(["upcoming", "past"] as const).map(v => <button key={v} onClick={() => setView(v)} className={`rounded-full border px-4 py-1.5 text-sm ${view === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{v === "upcoming" ? "Upcoming" : "Past"}</button>)}</div>
+      {list.length === 0 ? <p className="mt-6 text-muted-foreground">No {view} events.</p> : (
+        <div className="mt-4 space-y-3">{list.map(ev => {
+          const n = count(ev.id); const names = signups.filter(s => s.event_id === ev.id);
+          return <div key={ev.id} className="rounded-lg border border-border bg-card p-4">
+            <div className="flex flex-wrap items-start gap-4">
+              <img src={eventImage(ev.image_key)} alt="" className="size-16 rounded object-cover" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-brand-gold">{categoryLabel(ev.category)}{ev.online_url ? " · Online" : ""}</p>
+                <p className="font-medium text-primary">{ev.title}</p>
+                <p className="text-xs text-muted-foreground">{timeRange(ev.starts_at, ev.ends_at)} · {ev.online_url ? "Online" : ev.location}{ev.speaker ? ` · ${ev.speaker}` : ""}</p>
+                <div className="mt-2 flex items-center gap-2"><div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.min(100, n / ev.capacity * 100)}%` }} /></div><span className="text-xs">{n}/{ev.capacity} reserved</span></div>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <Button size="sm" variant="outline" onClick={() => setRoster(roster === ev.id ? null : ev.id)}>Sign-ups ({n})</Button>
+                <Button size="sm" variant="outline" onClick={() => edit(ev)}>Edit</Button>
+                <Button size="sm" variant="ghost" onClick={() => void remove(ev.id)}>Delete</Button>
+              </div>
+            </div>
+            {roster === ev.id && <div className="mt-3 rounded-md bg-secondary p-3">
+              {names.length === 0 ? <p className="text-sm text-muted-foreground">No sign-ups yet.</p> : <>
+                <ol className="list-decimal space-y-0.5 pl-5 text-sm">{names.map(s => <li key={s.user_id}>{s.name} <span className="text-xs text-muted-foreground">· {date(s.created_at)}</span></li>)}</ol>
+                <Button size="sm" variant="outline" className="mt-3" onClick={() => exportCsv(ev)}>Download list (CSV)</Button></>}
+            </div>}
+          </div>;
+        })}</div>)}
     </div>
   );
-}
-
-async function updateCapacity(id: string, capacity: number, refresh: () => void) {
-  const { error } = await supabase.from("events").update({ capacity }).eq("id", id);
-  await toastErr(error, "Capacity updated"); refresh();
 }
 
 /* ---------- Learning oversight ---------- */

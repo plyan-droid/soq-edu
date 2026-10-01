@@ -8,14 +8,21 @@ import logo from "@/assets/soq-logo-local.png";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ArrowRight,
+  BookOpen,
+  BriefcaseBusiness,
+  ChevronDown,
   Facebook,
+  FileText,
+  HelpCircle,
   Instagram,
   Linkedin,
   Mail,
   MapPin,
   Menu,
+  Newspaper,
   Phone,
   Search,
+  Users,
   X,
   Youtube,
 } from "lucide-react";
@@ -31,7 +38,51 @@ const nav = [
   { label: "Businesses", to: "/businesses" as const },
   { label: "Funding", to: "/funding" as const },
   { label: "About SOQ", to: "/about" as const },
-  { label: "Resources", to: "/resources" as const },
+];
+
+const resourceLinks = [
+  {
+    label: "Frequently asked questions",
+    desc: "Courses, payment, attendance and funding",
+    icon: HelpCircle,
+    to: "/faq" as const,
+  },
+  {
+    label: "News & updates",
+    desc: "Academy news and programme updates",
+    icon: Newspaper,
+    href: "https://soq.edu.sg/blog/list",
+  },
+  {
+    label: "PEI profile",
+    desc: "Registration, governance and facilities",
+    icon: BookOpen,
+    to: "/pei-profile" as const,
+  },
+  {
+    label: "Student policies",
+    desc: "Policies and guidance for learners",
+    icon: FileText,
+    href: "https://soq.edu.sg/upload/general/student-policy.pdf",
+  },
+  {
+    label: "Registration guide",
+    desc: "Registration and student administration",
+    icon: FileText,
+    href: "https://soq.edu.sg/upload/general/reg-guide.pdf",
+  },
+  {
+    label: "Job matching programme",
+    desc: "For graduates and employers",
+    icon: BriefcaseBusiness,
+    to: "/job-matching-program" as const,
+  },
+  {
+    label: "Our trainers",
+    desc: "Meet the SOQ training team",
+    icon: Users,
+    to: "/trainer/list" as const,
+  },
 ];
 
 const socials = [
@@ -59,6 +110,55 @@ export function Brand({ size = "md" }: { size?: "md" | "lg"; light?: boolean }) 
   );
 }
 
+function ResourcesMenu() {
+  return (
+    <div className="group relative">
+      <Link
+        to="/resources"
+        className="flex items-center gap-1 text-sm text-foreground/80 transition-colors group-hover:text-primary hover:text-primary"
+        activeProps={{ className: "text-primary font-semibold" }}
+      >
+        Resources
+        <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
+      </Link>
+      <div className="invisible absolute left-1/2 top-full z-50 w-[22rem] -translate-x-1/2 pt-3 opacity-0 transition-all duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+        <div className="rounded-xl border border-border bg-background p-2 shadow-lg">
+          {resourceLinks.map(({ icon: Icon, label, desc, to, href }) => {
+            const inner = (
+              <>
+                <Icon className="mt-0.5 size-5 shrink-0 text-brand-gold" />
+                <span>
+                  <span className="block text-sm font-medium text-primary">{label}</span>
+                  <span className="block text-xs text-muted-foreground">{desc}</span>
+                </span>
+              </>
+            );
+            return to ? (
+              <Link
+                key={label}
+                to={to}
+                className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-muted"
+              >
+                {inner}
+              </Link>
+            ) : (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-muted"
+              >
+                {inner}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { user, isAdmin, isTrainer, isOrg, loading } = useAuth();
@@ -78,6 +178,7 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <ResourcesMenu />
         </nav>
         <div className="hidden items-center gap-4 lg:flex">
           <Link
@@ -150,6 +251,32 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Resources
+            </p>
+            {resourceLinks.map(({ label, to, href }) =>
+              to ? (
+                <Link
+                  key={label}
+                  to={to}
+                  onClick={close}
+                  className="rounded-md px-6 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-primary"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={close}
+                  className="rounded-md px-6 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-primary"
+                >
+                  {label}
+                </a>
+              ),
+            )}
             {user ? (
               <>
                 <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

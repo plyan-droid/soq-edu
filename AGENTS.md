@@ -24,3 +24,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Trainer Courses → Classroom groups each course into Stream, Classwork, People and Grades views reusing existing tables; keeps per-course teaching in one place.
 - Course-specific Community discussions use separate private threads and replies scoped by course membership, keeping public community posts distinct from classroom conversations.
 - Student classes use a single /learn/$slug workspace with Stream, Classwork, People and My work tabs; item hashes open the exact assignment or quiz, preserving one student path from dashboard to submission.
+- The official SOQ logo is bundled locally for shared chrome, chat and certificate PDF; this avoids intermittent CDN asset-proxy failures that broke the visible brand and PDF downloads.

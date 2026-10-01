@@ -251,6 +251,32 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Resources
+            </p>
+            {resourceLinks.map(({ label, to, href }) =>
+              to ? (
+                <Link
+                  key={label}
+                  to={to}
+                  onClick={close}
+                  className="rounded-md px-6 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-primary"
+                >
+                  {label}
+                </Link>
+              ) : (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={close}
+                  className="rounded-md px-6 py-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-primary"
+                >
+                  {label}
+                </a>
+              ),
+            )}
             {user ? (
               <>
                 <p className="mt-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

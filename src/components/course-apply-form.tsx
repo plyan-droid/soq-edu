@@ -18,7 +18,21 @@ const schema = z.object({
 });
 
 export function CourseApplyForm({ slug, title }: { slug: string; title: string }) {
+  const { user } = useAuth();
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", citizenship: "singapore_citizen", preferred_intake: "", message: "" });
+  useEffect(() => {
+    if (!user) return;
+    void supabase.from("profiles").select("full_name,email,phone,citizenship").eq("id", user.id).maybeSingle().then(({ data }) => {
+      if (!data) return;
+      setForm(f => ({
+        ...f,
+        full_name: f.full_name || data.full_name || "",
+        email: f.email || data.email || user.email || "",
+        phone: f.phone || data.phone || "",
+        citizenship: (data.citizenship as typeof f.citizenship) || f.citizenship,
+      }));
+    });
+  }, [user]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);

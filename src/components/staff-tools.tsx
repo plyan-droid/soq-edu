@@ -1,15 +1,24 @@
 import { ListSkeleton } from "@/components/start-here";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { Download, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { TrainerApplyForm } from "@/components/trainer-apply-form";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { approveTrainer } from "@/lib/trainer-approval.functions";
 import { courses } from "@/lib/site-content";
 import { courseTitle } from "@/components/student-dashboard";
+
+const roleBadge: Record<string, string> = {
+  Admin: "bg-brand-navy text-white",
+  Staff: "bg-brand-navy/10 text-brand-navy",
+  Trainer: "bg-brand-gold/30 text-brand-navy",
+  Organisation: "bg-primary/10 text-primary",
+  Student: "bg-muted text-muted-foreground",
+};
 
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 const date = (d: string) => new Date(d).toLocaleDateString("en-SG");
@@ -254,17 +263,34 @@ export function UsersAdmin({ selfId }: { selfId?: string | undefined }) {
         {([["all", "Everyone"], ["staff", "Staff"], ["trainer", "Trainers"], ["student", "Students"]] as const).map(([k, l]) => <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} className="rounded-full" onClick={() => setFilter(k)}>{l} ({counts[k]})</Button>)}
         <Input className="ml-auto max-w-sm" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} />
       </div>
-      <Table head={["Name", "Email", "Joined", "Role", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const top = data.tops.has(u.id); const trainer = data.trainers.has(u.id); const org = data.orgs.has(u.id); return (
-        <tr key={u.id} className="border-t border-border"><td className={td}>{u.full_name ?? "—"}</td><td className={td}>{u.email}</td><td className={td}>{date(u.created_at)}</td><td className={td}>{[top ? "Admin" : admin && "Staff", trainer && "Trainer", org && "Organisation"].filter(Boolean).join(", ") || "Student"}</td>
-          <td className={`${td} max-w-xs`}>
-            <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
-              <button type="button" className="text-brand-navy underline-offset-2 hover:underline" onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</button>
-              {u.id !== selfId && !top && <button type="button" className="text-brand-navy underline-offset-2 hover:underline" onClick={() => void toggle(u, "staff", admin)}>{admin ? "Remove staff" : "Make staff"}</button>}
-              {u.id !== selfId && <button type="button" className="text-brand-navy underline-offset-2 hover:underline" onClick={() => void toggle(u, "admin", top)}>{top ? "Remove Admin" : "Make Admin"}</button>}
-              <button type="button" className="text-brand-navy underline-offset-2 hover:underline" onClick={() => void toggle(u, "organization", org)}>{org ? "Remove organisation" : "Make organisation"}</button>
-              <button type="button" className="text-muted-foreground underline-offset-2 hover:underline" onClick={() => void reset(u)}>Send password reset</button>
+      <Table head={["Member", "Joined", "Roles", ""]}>{shown.map(u => { const admin = data.admins.has(u.id); const top = data.tops.has(u.id); const trainer = data.trainers.has(u.id); const org = data.orgs.has(u.id); const badges: string[] = [top ? "Admin" : admin ? "Staff" : null, trainer ? "Trainer" : null, org ? "Organisation" : null].filter((b): b is string => !!b); return (
+        <tr key={u.id} className="border-t border-border">
+          <td className={`${td} min-w-52`}>
+            <p className="text-sm font-medium text-primary">{u.full_name || "—"}</p>
+            <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+          </td>
+          <td className={`${td} whitespace-nowrap text-muted-foreground`}>{date(u.created_at)}</td>
+          <td className={td}>
+            <div className="flex flex-wrap gap-1.5">
+              {(badges.length ? badges : ["Student"]).map(b => <span key={b} className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${roleBadge[b] ?? roleBadge["Student"]}`}>{b}</span>)}
             </div>
-          </td></tr>); })}</Table>
+          </td>
+          <td className={`${td} text-right`}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label={`Actions for ${u.email}`} className="size-8 rounded-full text-muted-foreground"><MoreHorizontal /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={() => void toggle(u, "trainer", trainer)}>{trainer ? "Remove trainer" : "Make trainer"}</DropdownMenuItem>
+                {u.id !== selfId && !top && <DropdownMenuItem onClick={() => void toggle(u, "staff", admin)}>{admin ? "Remove staff" : "Make staff"}</DropdownMenuItem>}
+                {u.id !== selfId && <DropdownMenuItem onClick={() => void toggle(u, "admin", top)}>{top ? "Remove Admin" : "Make Admin"}</DropdownMenuItem>}
+                <DropdownMenuItem onClick={() => void toggle(u, "organization", org)}>{org ? "Remove organisation" : "Make organisation"}</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-muted-foreground" onClick={() => void reset(u)}>Send password reset</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </td>
+        </tr>); })}</Table>
     </div>
   );
 }

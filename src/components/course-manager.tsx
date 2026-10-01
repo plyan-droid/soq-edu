@@ -203,15 +203,52 @@ function MasterSchedule() {
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-intakes"] }); void qc.invalidateQueries({ queryKey: ["intakes"] }); };
   const setStatus = async (id: string, status: string) => { await supabase.from("course_intakes").update({ status }).eq("id", id); refresh(); };
   const del = async (id: string) => { await supabase.from("course_intakes").delete().eq("id", id); refresh(); };
+
+  const [courseQ, setCourseQ] = useState("");
+  const [dateQ, setDateQ] = useState("");
+  const [sort, setSort] = useState<"date-asc" | "date-desc" | "course-az" | "course-za">("date-asc");
+  const filtering = courseQ.trim() !== "" || dateQ.trim() !== "" || sort !== "date-asc";
+  const rows = data
+    .filter(i => !courseQ.trim() || titleFor(i.course_slug).toLowerCase().includes(courseQ.trim().toLowerCase()))
+    .filter(i => {
+      const q = dateQ.trim().toLowerCase();
+      if (!q) return true;
+      return [i.start_date, i.end_date, i.apply_by].some(d => d && d.toLowerCase().includes(q));
+    })
+    .sort((a, b) => {
+      if (sort === "date-desc") return b.start_date.localeCompare(a.start_date);
+      if (sort === "course-az") return titleFor(a.course_slug).localeCompare(titleFor(b.course_slug)) || a.start_date.localeCompare(b.start_date);
+      if (sort === "course-za") return titleFor(b.course_slug).localeCompare(titleFor(a.course_slug)) || a.start_date.localeCompare(b.start_date);
+      return a.start_date.localeCompare(b.start_date);
+    });
+
   return (
     <div className="mt-6">
       <h2 className="font-serif text-3xl text-primary">All intake dates</h2>
       <p className="mt-1 text-sm text-muted-foreground">Every scheduled intake across all courses, as shown on the public Course Calendar.</p>
-      {data.length === 0 ? <p className="mt-4 text-muted-foreground">No intake dates yet.</p> : (
+      <div className="mt-4 flex flex-wrap items-end gap-3">
+        <label className="text-xs text-muted-foreground">Course
+          <Input className="mt-1 w-56" placeholder="Type to filter by course" value={courseQ} onChange={e => setCourseQ(e.target.value)} />
+        </label>
+        <label className="text-xs text-muted-foreground">Date
+          <Input className="mt-1 w-44" placeholder="e.g. 2026-11" value={dateQ} onChange={e => setDateQ(e.target.value)} />
+        </label>
+        <label className="text-xs text-muted-foreground">Sort by
+          <select className={`${sel} mt-1 block`} value={sort} onChange={e => setSort(e.target.value as typeof sort)}>
+            <option value="date-asc">Date (earliest first)</option>
+            <option value="date-desc">Date (latest first)</option>
+            <option value="course-az">Course name (A → Z)</option>
+            <option value="course-za">Course name (Z → A)</option>
+          </select>
+        </label>
+        {filtering && <Button variant="ghost" className="rounded-full" onClick={() => { setCourseQ(""); setDateQ(""); setSort("date-asc"); }}>Reset</Button>}
+        <p className="ml-auto text-xs text-muted-foreground">Showing {rows.length} of {data.length} intakes</p>
+      </div>
+      {data.length === 0 ? <p className="mt-4 text-muted-foreground">No intake dates yet.</p> : rows.length === 0 ? <p className="mt-4 text-muted-foreground">No intakes match these filters.</p> : (
         <div className="mt-5 overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-sm">
             <thead className="bg-muted"><tr>{["Course", "Dates", "Apply by", "Time", "Status", ""].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
-            <tbody>{data.map(i => (
+            <tbody>{rows.map(i => (
               <tr key={i.id} className="border-t border-border">
                 <td className="p-3">{titleFor(i.course_slug)}</td>
                 <td className="whitespace-nowrap p-3">{i.start_date}{i.end_date ? ` → ${i.end_date}` : ""}</td>

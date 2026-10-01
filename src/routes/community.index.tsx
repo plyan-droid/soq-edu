@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { PenLine, CalendarDays, Flame } from "lucide-react";
 import { CommunityMobileNav, CommunitySidebar, sections } from "@/components/community-sidebar";
@@ -8,6 +8,7 @@ import type { Intake } from "@/lib/intakes";
 import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/community-ui";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import { POST_SELECT, countOf, suggestedTags, type PostRow } from "@/lib/community";
 import { CommunityEvents } from "@/components/upcoming-events";
 
@@ -28,6 +29,9 @@ export const Route = createFileRoute("/community/")({
 
 function Community() {
   const { tag, sort = "latest", who } = Route.useSearch();
+  const { isAdmin } = useAuth();
+  const qc = useQueryClient();
+  const refreshPosts = () => void qc.invalidateQueries({ queryKey: ["posts"] });
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["posts", tag, who],
     queryFn: async () => {
@@ -79,7 +83,7 @@ function Community() {
               <p className="mt-2 text-muted-foreground">Be the first to share something with the SOQ community.</p>
               <Button asChild className="mt-5 rounded-full"><Link to="/community/new">Write the first post</Link></Button>
             </div>
-          ) : <div className="grid gap-4">{list.map(p => <PostCard key={p.id} post={p} />)}</div>}
+          ) : <div className="grid gap-4">{list.map(p => <PostCard key={p.id} post={p} isStaff={isAdmin} onChanged={refreshPosts} />)}</div>}
         </div>
         <aside className="grid content-start gap-5">
           <div className="rounded-lg border border-border bg-card p-5">

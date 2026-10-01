@@ -2194,43 +2194,67 @@ export type Database = {
       }
       trainer_applications: {
         Row: {
+          availability: string | null
+          certs_path: string | null
+          courses_interest: string | null
           created_at: string
+          cv_path: string | null
           email: string
           experience: string
           expertise: string
           full_name: string
           id: string
+          languages: string | null
           phone: string | null
           portfolio_url: string | null
+          qualifications: string | null
           staff_note: string | null
           status: string
+          teaching_mode: string | null
           user_id: string | null
+          years_experience: number | null
         }
         Insert: {
+          availability?: string | null
+          certs_path?: string | null
+          courses_interest?: string | null
           created_at?: string
+          cv_path?: string | null
           email: string
           experience: string
           expertise: string
           full_name: string
           id?: string
+          languages?: string | null
           phone?: string | null
           portfolio_url?: string | null
+          qualifications?: string | null
           staff_note?: string | null
           status?: string
+          teaching_mode?: string | null
           user_id?: string | null
+          years_experience?: number | null
         }
         Update: {
+          availability?: string | null
+          certs_path?: string | null
+          courses_interest?: string | null
           created_at?: string
+          cv_path?: string | null
           email?: string
           experience?: string
           expertise?: string
           full_name?: string
           id?: string
+          languages?: string | null
           phone?: string | null
           portfolio_url?: string | null
+          qualifications?: string | null
           staff_note?: string | null
           status?: string
+          teaching_mode?: string | null
           user_id?: string | null
+          years_experience?: number | null
         }
         Relationships: []
       }

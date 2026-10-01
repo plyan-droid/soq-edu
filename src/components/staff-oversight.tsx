@@ -255,7 +255,7 @@ export function OrganisationsAdmin() {
 /* ---------- Events ---------- */
 type EventRow = EventItem;
 type Signup = { event_id: string; name: string; created_at: string; user_id: string };
-const blankEv = { title: "", description: "", starts: "", ends: "", location: "10 Anson Road, International Plaza, Singapore", url: "", capacity: "30", category: "workshop", speaker: "", speaker_role: "", image_key: "", agenda: "" };
+const blankEv = { title: "", description: "", starts: "", ends: "", location: "10 Anson Road, International Plaza, Singapore", url: "", capacity: "30", category: "workshop", speaker: "", speaker_role: "", image_key: "", agenda: "", is_private: false };
 const toLocal = (d: string | null) => d ? new Date(new Date(d).getTime() - new Date(d).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
 
 export function EventsAdmin() {
@@ -272,18 +272,18 @@ export function EventsAdmin() {
   const [f, setF] = useState(blankEv);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"upcoming" | "past">("upcoming");
+  const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
   const [roster, setRoster] = useState<string | null>(null);
   const save = async () => {
     if (!f.title.trim() || !f.starts || !f.location.trim()) { (await import("sonner")).toast.error("Add a title, start time and location"); return; }
-    const row = { title: f.title.trim(), description: f.description, starts_at: new Date(f.starts).toISOString(), ends_at: f.ends ? new Date(f.ends).toISOString() : null, location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 30, category: f.category, speaker: f.speaker || null, speaker_role: f.speaker_role || null, image_key: f.image_key || null, agenda: f.agenda || null };
+    const row = { title: f.title.trim(), description: f.description, starts_at: new Date(f.starts).toISOString(), ends_at: f.ends ? new Date(f.ends).toISOString() : null, location: f.location, online_url: f.url || null, capacity: Number(f.capacity) || 30, category: f.category, speaker: f.speaker || null, speaker_role: f.speaker_role || null, image_key: f.image_key || null, agenda: f.agenda || null, is_private: f.is_private };
     let error;
     if (editing) ({ error } = await supabase.from("events").update(row).eq("id", editing));
     else { const uid = (await supabase.auth.getUser()).data.user?.id ?? ""; ({ error } = await supabase.from("events").insert({ ...row, created_by: uid })); }
     await toastErr(error, editing ? "Event updated" : "Event created");
     if (!error) { setF(blankEv); setEditing(null); setOpen(false); refresh(); }
   };
-  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "" }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "", is_private: !!ev.is_private }); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const remove = async (id: string) => {
     if (!confirm("Delete this event and its sign-up list?")) return;
     await supabase.from("event_signups").delete().eq("event_id", id);
@@ -331,12 +331,13 @@ export function EventsAdmin() {
             <div className="flex items-center gap-3"><img src={eventImage(f.image_key)} alt="" className="size-12 rounded object-cover" />
               <select className={`${sel} flex-1`} value={f.image_key} onChange={e => setF({ ...f, image_key: e.target.value })}><option value="">Default photo</option>{imageOptions.map(o => <option key={o.key} value={o.key}>{o.title}</option>)}</select></div></label>
           <label className="sm:col-span-2"><span className={lbl}>Description</span><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={3} /></label>
+          <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={f.is_private} onChange={e => setF({ ...f, is_private: e.target.checked })} />Private event — hide from the website, homepage and Community (staff only)</label>
           <label className="sm:col-span-2"><span className={lbl}>Agenda (one line per item, optional)</span><Textarea value={f.agenda} onChange={e => setF({ ...f, agenda: e.target.value })} rows={3} placeholder={"10:00 Welcome\n10:30 Demo"} /></label>
         </div>
         <div className="mt-4 flex gap-2"><Button className="rounded-full" onClick={() => void save()}>{editing ? "Save changes" : "Create event"}</Button><Button variant="ghost" onClick={() => { setOpen(false); setEditing(null); setF(blankEv); }}>Cancel</Button></div>
       </div>}
-      <div className="mt-6 flex gap-2">{(["upcoming", "past"] as const).map(v => <button key={v} onClick={() => setView(v)} className={`rounded-full border px-4 py-1.5 text-sm ${view === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{v === "upcoming" ? "Upcoming" : "Past"}</button>)}</div>
-      {list.length === 0 ? <p className="mt-6 text-muted-foreground">No {view} events.</p> : (
+      <div className="mt-6 flex gap-2">{(["upcoming", "past", "calendar"] as const).map(v => <button key={v} onClick={() => setView(v)} className={`rounded-full border px-4 py-1.5 text-sm ${view === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{v === "upcoming" ? "Upcoming" : v === "past" ? "Past" : "Calendar"}</button>)}</div>
+      {view === "calendar" ? <EventCalendar events={events} count={count} onEdit={edit} /> : list.length === 0 ? <p className="mt-6 text-muted-foreground">No {view} events.</p> : (
         <div className="mt-4 space-y-3">{list.map(ev => {
           const n = count(ev.id); const names = signups.filter(s => s.event_id === ev.id);
           return <div key={ev.id} className="rounded-lg border border-border bg-card p-4">
@@ -344,7 +345,7 @@ export function EventsAdmin() {
               <img src={eventImage(ev.image_key)} alt="" className="size-16 rounded object-cover" />
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-brand-gold">{categoryLabel(ev.category)}{ev.online_url ? " · Online" : ""}</p>
-                <p className="font-medium text-primary">{ev.title}</p>
+                <p className="font-medium text-primary">{ev.title}{ev.is_private && <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">Private</span>}</p>
                 <p className="text-xs text-muted-foreground">{timeRange(ev.starts_at, ev.ends_at)} · {ev.online_url ? "Online" : ev.location}{ev.speaker ? ` · ${ev.speaker}` : ""}</p>
                 <div className="mt-2 flex items-center gap-2"><div className="h-1.5 w-32 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.min(100, n / ev.capacity * 100)}%` }} /></div><span className="text-xs">{n}/{ev.capacity} reserved</span></div>
               </div>
@@ -361,6 +362,51 @@ export function EventsAdmin() {
             </div>}
           </div>;
         })}</div>)}
+    </div>
+  );
+}
+
+function EventCalendar({ events, count, onEdit }: { events: EventRow[]; count: (id: string) => number; onEdit: (e: EventRow) => void }) {
+  const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const [pick, setPick] = useState<string | null>(null);
+  const first = (month.getDay() + 6) % 7;
+  const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+  const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const byDay = events.reduce<Record<string, EventRow[]>>((m, e) => { (m[key(new Date(e.starts_at))] ??= []).push(e); return m; }, {});
+  const cells = [...Array(first).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
+  const sel = events.find(e => e.id === pick);
+  const today = key(new Date());
+  return (
+    <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_300px]">
+      <div className="rounded-lg border border-border bg-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <Button size="sm" variant="outline" aria-label="Previous month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>&lt;</Button>
+          <p className="font-serif text-xl text-primary">{month.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</p>
+          <Button size="sm" variant="outline" aria-label="Next month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>&gt;</Button>
+        </div>
+        <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <p key={d}>{d}</p>)}</div>
+        <div className="mt-1 grid grid-cols-7 gap-1">{cells.map((d, i) => {
+          if (!d) return <div key={i} />;
+          const k = key(new Date(month.getFullYear(), month.getMonth(), d)); const list = byDay[k] ?? [];
+          return <div key={i} className={`min-h-20 rounded-md border p-1 text-left ${k === today ? "border-brand-gold" : "border-border"}`}>
+            <p className="text-xs text-muted-foreground">{d}</p>
+            {list.map(e => <button key={e.id} onClick={() => setPick(e.id)} className={`mt-0.5 block w-full truncate rounded px-1 py-0.5 text-left text-[11px] ${pick === e.id ? "bg-primary text-primary-foreground" : e.is_private ? "bg-muted text-foreground" : "bg-brand-gold-soft text-primary"}`}>{new Date(e.starts_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} {e.title}</button>)}
+          </div>;
+        })}</div>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-4">
+        {!sel ? <p className="text-sm text-muted-foreground">Pick an event to see its date, speaker, venue and RSVPs.</p> : <>
+          <p className="text-xs text-brand-gold">{categoryLabel(sel.category)}{sel.is_private ? " · Private" : ""}</p>
+          <p className="mt-1 font-serif text-xl text-primary">{sel.title}</p>
+          <dl className="mt-3 grid gap-2 text-sm">
+            <div><dt className="text-xs text-muted-foreground">When</dt><dd>{timeRange(sel.starts_at, sel.ends_at)}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Speaker</dt><dd>{sel.speaker ? `${sel.speaker}${sel.speaker_role ? `, ${sel.speaker_role}` : ""}` : "—"}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Venue</dt><dd>{sel.online_url ? "Online" : sel.location}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">RSVPs</dt><dd>{count(sel.id)} / {sel.capacity} seats reserved</dd></div>
+          </dl>
+          <Button size="sm" variant="outline" className="mt-4" onClick={() => onEdit(sel)}>Edit event</Button>
+        </>}
+      </div>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrainerApplyForm } from "@/components/trainer-apply-form";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { approveTrainer } from "@/lib/trainer-approval.functions";
 import { courses } from "@/lib/site-content";
 import { courseTitle } from "@/components/student-dashboard";
 
@@ -52,19 +54,23 @@ type TrainerApp = { id: string; full_name: string; email: string; phone: string 
   cv_path: string | null; certs_path: string | null; years_experience: number | null; qualifications: string | null; teaching_mode: string | null; availability: string | null; languages: string | null; courses_interest: string | null; staff_note: string | null };
 export function TrainerApplications() {
   const qc = useQueryClient();
+  const approveTrainerFn = useServerFn(approveTrainer);
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [filter, setFilter] = useState("pending");
   const [msg, setMsg] = useState<string | null>(null);
   const { data = [] } = useQuery({ queryKey: ["admin-trainers"], queryFn: async () => ((await supabase.from("trainer_applications").select("*").order("created_at", { ascending: false })).data ?? []) as TrainerApp[] });
   const setStatus = async (a: TrainerApp, status: string) => {
-    const { error } = await supabase.from("trainer_applications").update({ status }).eq("id", a.id);
-    if (error) { setMsg(`Couldn't update: ${error.message}`); return; }
-    if (status === "approved" && a.user_id) {
-      const r = await supabase.from("user_roles").insert({ user_id: a.user_id, role: "trainer" as never });
-      setMsg(r.error && !r.error.message.includes("duplicate") ? `Approved, but couldn't open the Trainer Dashboard for them: ${r.error.message}` : `${a.full_name} is approved and can now open the Trainer Dashboard.`);
-    } else if (status === "approved") setMsg(`${a.full_name} is approved. They applied without an account, so ask them to sign up, then use "Make trainer" under Users & roles.`);
-    else setMsg(null);
+    if (status === "approved") {
+      try {
+        const r = await approveTrainerFn({ data: { id: a.id } });
+        setMsg(r.created ? `${a.full_name} is approved. An account was created for ${a.email} with Trainer Dashboard access — they can set a password with "Forgot password" on the login page.` : `${a.full_name} is approved and can now open the Trainer Dashboard.`);
+      } catch (e) { setMsg(`Couldn't approve: ${(e as Error).message}`); return; }
+    } else {
+      const { error } = await supabase.from("trainer_applications").update({ status }).eq("id", a.id);
+      if (error) { setMsg(`Couldn't update: ${error.message}`); return; }
+      setMsg(null);
+    }
     void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); void qc.invalidateQueries({ queryKey: ["admin-trainers-waiting"] });
   };
   const saveNote = async (id: string, staff_note: string) => { await supabase.from("trainer_applications").update({ staff_note }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); setMsg("Note saved."); };

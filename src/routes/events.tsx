@@ -28,7 +28,7 @@ function EventsPage() {
   const [mode, setMode] = useState<"all" | "in" | "online">("all");
   const { data, isLoading } = useQuery({ queryKey: ["events", user?.id], queryFn: async () => {
     const [e, c, mine] = await Promise.all([
-      supabase.from("events").select("*").order("starts_at"),
+      supabase.from("events").select("*").eq("is_private", false).order("starts_at"),
       supabase.rpc("event_counts"),
       user ? supabase.from("event_signups").select("event_id").eq("user_id", user.id) : Promise.resolve({ data: [] as { event_id: string }[] }),
     ]);

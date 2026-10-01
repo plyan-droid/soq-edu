@@ -347,14 +347,6 @@ export function SiteLayout({ children }: { children: ReactNode }) {
       <SiteSettingsLayer />
       <RefCapture />
       <SiteHeader />
-      {demoPortal && showDemoNotice && (
-        <div role="status" className="relative border-y border-amber-300 bg-amber-50 px-12 py-2 text-center text-sm font-medium text-amber-950">
-          Demo workspace — sample records and amounts only. No payments, funding, completions or certificates shown here are verified.
-          <Button type="button" variant="ghost" size="icon" onClick={() => setShowDemoNotice(false)} aria-label="Dismiss demo notice" className="absolute right-2 top-1/2 size-8 -translate-y-1/2 text-amber-950 hover:bg-amber-100">
-            <X className="size-4" />
-          </Button>
-        </div>
-      )}
       <main>
         <CommunityGate>{children}</CommunityGate>
       </main>

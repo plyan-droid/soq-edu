@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CourseCard } from "@/components/course-card";
+import { HomeEvents } from "@/components/upcoming-events";
 import { categories, courses } from "@/lib/site-content";
 import heroImage from "@/assets/soq-hero.jpg";
 import diplomaImage from "@/assets/course-diploma.jpg";
@@ -134,6 +135,8 @@ function HomePage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{["ai-course-singapore", "certificate-in-eyebrow-embroidery", "effective-product-demonstration", "diploma-in-professional-make-up"].map((slug) => { const course = courses.find((c) => c.slug === slug); return course ? <CourseCard key={course.slug} course={course} showCompare={false} /> : null; })}</div>
         </div>
       </section>
+
+      <HomeEvents />
 
       {/* CORPORATE */}
       <section className="relative isolate overflow-hidden bg-primary text-primary-foreground">

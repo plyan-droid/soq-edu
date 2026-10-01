@@ -13,6 +13,7 @@ import { aiWrite } from "@/lib/ai-writer.functions";
 import { CertificateView, downloadCertificatePdf, TEMPLATES, useCertDesign, type CertDesign } from "@/components/certificate";
 import { addApplicant, type ApplicantInput } from "@/lib/applicants.functions";
 import { useAllCourses } from "@/lib/course-overrides";
+import { bannerSrc } from "@/lib/form-banner";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const Box = ({ children }: { children: React.ReactNode }) => <div className="space-y-4 rounded-lg border border-border bg-card p-5">{children}</div>;
@@ -224,19 +225,27 @@ export function BundlesAdmin() {
 type Field = { label: string; type: "text" | "email" | "textarea" | "select"; required: boolean; options?: string };
 export function FormBuilder() {
   const qc = useQueryClient();
-  const [f, setF] = useState({ title: "", slug: "", intro: "" }); const [fields, setFields] = useState<Field[]>([{ label: "Full name", type: "text", required: true }, { label: "Email", type: "email", required: true }]);
+  const [f, setF] = useState({ title: "", slug: "", intro: "", banner: "" }); const [fields, setFields] = useState<Field[]>([{ label: "Full name", type: "text", required: true }, { label: "Email", type: "email", required: true }]);
   const [view, setView] = useState<string | null>(null);
   const { data = [] } = useQuery({ queryKey: ["forms-admin"], queryFn: async () => (await supabase.from("custom_forms").select("*").order("created_at")).data ?? [] });
   const { data: resp = [] } = useQuery({ enabled: !!view, queryKey: ["form-resp", view], queryFn: async () => (await supabase.from("form_responses").select("*").eq("form_id", view!).order("created_at", { ascending: false })).data ?? [] });
   const save = async () => {
-    const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields });
+    if (f.banner && !bannerSrc(f.banner)) return void toast.error("Picture link must start with https://");
+    const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields, banner: f.banner || null });
     if (error) return void toast.error(error.message.includes("slug") ? "Page address must be 2–60 lowercase letters, numbers or dashes, and unused." : error.message);
-    setF({ title: "", slug: "", intro: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");
+    setF({ title: "", slug: "", intro: "", banner: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");
   };
   const upd = (i: number, p: Partial<Field>) => setFields(fields.map((x, j) => j === i ? { ...x, ...p } : x));
+  const preview = bannerSrc(f.banner);
   return <div className="space-y-6"><Box><H>Build a form</H>
     <div className="grid gap-3 sm:grid-cols-2"><Input placeholder="Form title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} /><Input placeholder="Page address, e.g. open-house-rsvp" value={f.slug} onChange={e => setF({ ...f, slug: e.target.value })} /></div>
     <Textarea placeholder="Intro text" value={f.intro} onChange={e => setF({ ...f, intro: e.target.value })} />
+    <div className="space-y-2">
+      <p className="text-sm font-medium">Banner picture <span className="font-normal text-muted-foreground">(optional)</span></p>
+      {preview && <div className="relative"><img src={preview} alt="Banner preview" className="h-36 w-full rounded-md object-cover" /><Button size="sm" variant="secondary" className="absolute right-2 top-2" onClick={() => setF({ ...f, banner: "" })}>Remove</Button></div>}
+      <div className="flex gap-2 overflow-x-auto pb-1">{courses.map(c => <button type="button" key={c.slug} onClick={() => setF({ ...f, banner: c.slug })} aria-label={`Use photo from ${c.title}`} className={`shrink-0 overflow-hidden rounded-md border-2 ${f.banner === c.slug ? "border-primary" : "border-transparent"}`}><img src={c.image} alt="" className="h-14 w-20 object-cover" loading="lazy" /></button>)}</div>
+      <Input placeholder="…or paste a picture link (https://…)" value={/^https?:/i.test(f.banner) ? f.banner : ""} onChange={e => setF({ ...f, banner: e.target.value.trim() })} />
+    </div>
     {fields.map((x, i) => <div key={i} className="flex flex-wrap items-center gap-2"><Input className="w-48" value={x.label} onChange={e => upd(i, { label: e.target.value })} />
       <select className={sel} value={x.type} onChange={e => upd(i, { type: e.target.value as Field["type"] })}><option value="text">Short answer</option><option value="email">Email</option><option value="textarea">Long answer</option><option value="select">Drop-down</option></select>
       {x.type === "select" && <Input className="w-56" placeholder="Choices, separated by commas" value={x.options ?? ""} onChange={e => upd(i, { options: e.target.value })} />}

@@ -226,17 +226,18 @@ type Field = { label: string; type: "text" | "email" | "textarea" | "select"; re
 export function FormBuilder() {
   const qc = useQueryClient();
   const [f, setF] = useState({ title: "", slug: "", intro: "", banner: "" }); const [fields, setFields] = useState<Field[]>([{ label: "Full name", type: "text", required: true }, { label: "Email", type: "email", required: true }]);
-  const [view, setView] = useState<string | null>(null);
   const { data = [] } = useQuery({ queryKey: ["forms-admin"], queryFn: async () => (await supabase.from("custom_forms").select("*").order("created_at")).data ?? [] });
-  const { data: resp = [] } = useQuery({ enabled: !!view, queryKey: ["form-resp", view], queryFn: async () => (await supabase.from("form_responses").select("*").eq("form_id", view!).order("created_at", { ascending: false })).data ?? [] });
   const save = async () => {
     const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields, banner: f.banner || null });
     if (error) return void toast.error(error.message.includes("slug") ? "Page address must be 2–60 lowercase letters, numbers or dashes, and unused." : error.message);
     setF({ title: "", slug: "", intro: "", banner: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");
   };
   const upd = (i: number, p: Partial<Field>) => setFields(fields.map((x, j) => j === i ? { ...x, ...p } : x));
-  const downloadExcel = async () => {
-    const form = data.find(x => x.id === view);
+  const downloadExcel = async (formId: string) => {
+    const form = data.find(x => x.id === formId);
+    const { data: resp, error } = await supabase.from("form_responses").select("*").eq("form_id", formId).order("created_at", { ascending: false });
+    if (error) return void toast.error(error.message);
+    if (!resp?.length) return void toast.info("No responses yet for this form");
     const XLSX = await import("xlsx");
     const keys = [...new Set(resp.flatMap(r => Object.keys(r.data as Record<string, string>)))];
     const rows = resp.map(r => {
@@ -269,11 +270,7 @@ export function FormBuilder() {
     <div className="flex gap-2"><Button variant="outline" className="rounded-full" onClick={() => setFields([...fields, { label: "New question", type: "text", required: false }])}>+ Add question</Button><Button className="rounded-full" onClick={() => void save()}>Publish form</Button></div>
   </Box>
     <Box><H>Your forms</H><ul className="divide-y divide-border text-sm">{data.map(x => <li key={x.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span><strong>{x.title}</strong> · <a className="underline" href={`/f/${x.slug}`} target="_blank" rel="noreferrer">/f/{x.slug}</a></span>
-      <span className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setView(view === x.id ? null : x.id)}>Responses</Button><button aria-label="Delete" onClick={async () => { await supabase.from("custom_forms").delete().eq("id", x.id); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); }}><Trash2 className="size-4" /></button></span></li>)}</ul>
-      {view && (resp.length === 0 ? <p className="text-sm text-muted-foreground">No responses yet.</p> : <>
-        <Button size="sm" variant="outline" className="mb-3 rounded-full" onClick={() => void downloadExcel()}>Download Excel</Button>
-        <ul className="space-y-2 text-sm">{resp.map(r => <li key={r.id} className="rounded-md bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{fmt(r.created_at)}</p>{Object.entries(r.data as Record<string, string>).map(([k, v]) => <p key={k}><strong>{k}:</strong> {v}</p>)}</li>)}</ul>
-      </>)}
+      <span className="flex gap-2"><Button size="sm" variant="outline" onClick={() => void downloadExcel(x.id)}>Responses (Excel)</Button><button aria-label="Delete" onClick={async () => { await supabase.from("custom_forms").delete().eq("id", x.id); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); }}><Trash2 className="size-4" /></button></span></li>)}</ul>
     </Box></div>;
 }
 

@@ -35,7 +35,7 @@ const statusText: Record<string, string> = { tentative: "To be confirmed", confi
 const d = (s: string, opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" }) => new Date(s + (s.length === 10 ? "T00:00:00" : "")).toLocaleDateString("en-SG", opts);
 
 function CalendarPage() {
-  const courses = useAllCourses(true);
+  const courses = useAllCourses();
   const { path, view = "intakes" } = Route.useSearch();
   const nav = Route.useNavigate();
   const { user } = useAuth();

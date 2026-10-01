@@ -61,3 +61,28 @@ export const addApplicant = createServerFn({ method: "POST" })
     if (appErr) throw new Error(appErr.message);
     return { userId, created, enrolled };
   });
+
+/** Public website application: records the application and creates an account for new emails (they set a password via Forgot password). Existing accounts' details are never changed from here. */
+export const submitApplication = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => applicantSchema.omit({ enrol_now: true }).extend({ preferred_intake: z.string().trim().max(100).optional().default("") }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let created = false;
+    const { data: existing } = await supabaseAdmin.from("profiles").select("id").ilike("email", data.email).maybeSingle();
+    if (!existing) {
+      const { data: u, error } = await supabaseAdmin.auth.admin.createUser({ email: data.email, password: crypto.randomUUID() + crypto.randomUUID(), email_confirm: true, user_metadata: { full_name: data.full_name } });
+      if (!error && u.user) {
+        created = true;
+        await supabaseAdmin.from("profiles").update({ full_name: data.full_name, phone: data.phone, nationality: data.nationality, citizenship: data.citizenship, id_type: data.id_type, id_number: data.id_number, date_of_birth: data.date_of_birth, address: data.address, qualification: data.qualification }).eq("id", u.user.id);
+      }
+    }
+    if (data.newsletter) await supabaseAdmin.from("newsletter_subscribers").upsert({ email: data.email, source: "course-application" }, { onConflict: "email", ignoreDuplicates: true });
+    const { error } = await supabaseAdmin.from("course_applications").insert({
+      course_slug: data.course_slug, full_name: data.full_name, email: data.email, phone: data.phone, citizenship: data.citizenship,
+      nationality: data.nationality, id_type: data.id_type, id_number: data.id_number, date_of_birth: data.date_of_birth, address: data.address,
+      qualification: data.qualification, sales_manager: data.sales_manager || null, newsletter: data.newsletter,
+      preferred_intake: data.preferred_intake || null, message: data.notes || null, source: "website", status: "new",
+    });
+    if (error) throw new Error("Could not send your application");
+    return { created };
+  });

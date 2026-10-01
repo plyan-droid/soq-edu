@@ -310,7 +310,7 @@ export function EventsAdmin() {
     <div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted-foreground">Plan open houses, workshops and talks. Everything here appears on the public <a href="/events" target="_blank" rel="noreferrer" className="text-primary underline">Events page</a>.</p>
-        <Button className="rounded-full" onClick={() => { setOpen(!open || !!editing); setEditing(null); setF(blankEv); }}>{open && !editing ? "Close" : "+ New event"}</Button>
+        <Button className="rounded-full" onClick={() => { setOpen(!open || !!editing); setEditing(null); setF(blankEv); setMore(false); }}>{open && !editing ? "Close" : "+ New event"}</Button>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {[["Upcoming events", upcoming.length], ["Seats reserved", seatsTaken], ["Seats filled", seatsTotal ? `${Math.round(seatsTaken / seatsTotal * 100)}%` : "—"]].map(([l, v]) => (

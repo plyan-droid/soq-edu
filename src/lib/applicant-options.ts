@@ -8,4 +8,4 @@ export const QUALIFICATIONS = ["No Formal Qualification", "PSLE & Below", "Lower
 
 export const SALES_MANAGERS = ["A Team", "Betty Lee", "BTR", "Crystal Ng", "Dylan Kong", "Harper Kok", "Irene Low", "IT", "Jeff Lim", "Kino Zhang", "Megan Goh", "N Team", "Ng Hong Lan", "Nora Wang", "Shu Hui", "Tiffany Nguyen", "Training Management", "Tyson Low", "Wendyy Chua", "Win Team", "Yvonne Cheng"];
 
-export const APP_STAGES = [["new", "New"], ["contacted", "Contacted"], ["screening", "Screening"], ["offer", "Offer sent"], ["approved", "Approved"], ["enrolled", "Enrolled"], ["closed", "Closed"]] as const;
+export const APP_STAGES = [["new", "New"], ["contacted", "Contacted"], ["screening", "Screening"], ["offer", "Offer sent"], ["waitlist", "Waitlist"], ["approved", "Approved"], ["enrolled", "Enrolled"], ["closed", "Closed"]] as const;

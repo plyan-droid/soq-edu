@@ -14,7 +14,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { StaffMessages } from "@/components/staff-messages";
 import { StudentProfileForm } from "@/components/student-profile-form";
-import { BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
+import { BankPayments, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 import { LiveClassesOversight, TutorSlotsOversight, CommunityModeration, OrganisationsAdmin, EventsAdmin, LearningOversight } from "@/components/staff-oversight";
@@ -41,7 +41,7 @@ const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 const adminSections = [
   { name: "Home", icon: Home, items: [["start", "Today"], ["reports", "Reports"]] },
-  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Applications & enrolment"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
+  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Applications & enrolment"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses", icon: BookOpen, items: [["intakes", "Courses & intakes"], ["live-classes", "Live classes & 1-to-1"], ["events", "Events"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
   { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community moderation"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
@@ -112,7 +112,7 @@ function Admin() {
         <TabsContent value="orgs"><OrganisationsAdmin /></TabsContent>
         <TabsContent value="learning"><LearningOversight /></TabsContent>
         <TabsContent value="payments"><BankPayments /></TabsContent>
-        <TabsContent value="waitlist"><WaitlistAdmin /></TabsContent>
+
         <TabsContent value="notices"><NoticeboardAdmin /></TabsContent>
         <TabsContent value="bundles"><BundlesAdmin /></TabsContent>
         <TabsContent value="forms"><FormBuilder /></TabsContent>

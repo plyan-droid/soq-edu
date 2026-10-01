@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { PenLine, CalendarDays, Flame } from "lucide-react";
 import { CommunityMobileNav, CommunitySidebar, sections } from "@/components/community-sidebar";
@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/community-ui";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { useQueryClient } from "@tanstack/react-query";
 import { POST_SELECT, countOf, suggestedTags, type PostRow } from "@/lib/community";
 import { CommunityEvents } from "@/components/upcoming-events";
 

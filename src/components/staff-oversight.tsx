@@ -394,15 +394,15 @@ export function LearningOversight() {
             <td className={td}>{quizList.attempts.filter(x => x.quiz_id === q.id && x.passed).length}</td>
           </tr>))}</Table>) : <p className="mt-2 text-muted-foreground">No quizzes match.</p>}
       <h3 className="mt-10 font-serif text-2xl text-primary">Attendance</h3>
-      {attendance.length === 0 ? <p className="mt-2 text-muted-foreground">No attendance recorded yet.</p> : (() => {
+      {shownAtt.length === 0 ? <p className="mt-2 text-muted-foreground">No attendance matches.</p> : (() => {
         const bySession = new Map<string, Att[]>();
-        attendance.forEach(r => { const list = bySession.get(r.session_id) ?? []; list.push(r); bySession.set(r.session_id, list); });
+        shownAtt.forEach(r => { const list = bySession.get(r.session_id) ?? []; list.push(r); bySession.set(r.session_id, list); });
         return (
           <Table head={["Class", "When", "Present", "Absent", "Excused"]}>{[...bySession.entries()].map(([sid, rows]) => {
             const meta = rows[0]?.live_sessions ?? null;
             return (
             <tr key={sid} className="border-t border-border">
-              <td className={td}>{meta?.title ?? "Class"}<div className="text-xs text-muted-foreground">{meta ? courseTitle(meta.course_slug) : ""}</div></td>
+              <td className={td}>{meta?.title ?? "Class"}<div className="text-xs text-muted-foreground">{meta ? `${courseTitle(meta.course_slug)} · ${trainersFor(meta.course_slug)}` : ""}</div></td>
               <td className={td}>{meta ? fmtDateTime(meta.starts_at) : "—"}</td>
               <td className={td}>{rows.filter(r => r.status === "present").length}</td>
               <td className={td}>{rows.filter(r => r.status === "absent").length}</td>
@@ -414,7 +414,7 @@ export function LearningOversight() {
   );
 }
 
-function AssignmentCard({ a, onGrade }: { a: Asg; onGrade: (id: string, patch: Partial<Sub>) => Promise<void> }) {
+function AssignmentCard({ a, trainers, onGrade }: { a: Asg; trainers: string; onGrade: (id: string, patch: Partial<Sub>) => Promise<void> }) {
   const { data = [] } = useQuery({
     queryKey: ["admin-submissions", a.id],
     queryFn: async () => ((await supabase.from("assignment_submissions").select("*").eq("assignment_id", a.id).order("created_at", { ascending: false })).data ?? []) as Sub[],
@@ -424,7 +424,7 @@ function AssignmentCard({ a, onGrade }: { a: Asg; onGrade: (id: string, patch: P
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <button className="flex w-full items-center justify-between gap-3 text-left" onClick={() => setOpen(o => !o)}>
-        <span><b>{a.title}</b><div className="text-xs text-muted-foreground">{courseTitle(a.course_slug)} · due {a.due_at ? date(a.due_at) : "no due date"} · max {a.max_score}</div></span>
+        <span><b>{a.title}</b><div className="text-xs text-muted-foreground">{courseTitle(a.course_slug)} · {trainers} · due {a.due_at ? date(a.due_at) : "no due date"} · max {a.max_score}</div></span>
         <span className="text-xs text-muted-foreground">{data.length === 0 ? "No submissions" : `${graded}/${data.length} graded`} {open ? "▲" : "▼"}</span>
       </button>
       {open && (

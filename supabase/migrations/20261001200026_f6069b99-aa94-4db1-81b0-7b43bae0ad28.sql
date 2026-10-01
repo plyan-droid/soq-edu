@@ -1,0 +1,14 @@
+ALTER TABLE public.classroom_threads DROP CONSTRAINT IF EXISTS classroom_threads_author_id_fkey;
+ALTER TABLE public.classroom_replies DROP CONSTRAINT IF EXISTS classroom_replies_author_id_fkey;
+DROP POLICY "Members read course threads" ON public.classroom_threads;
+CREATE POLICY "Members read course threads" ON public.classroom_threads FOR SELECT TO authenticated USING (public.in_course(auth.uid(), course_slug) OR public.has_role(auth.uid(), 'staff'));
+DROP POLICY "Members create own course threads" ON public.classroom_threads;
+CREATE POLICY "Members create own course threads" ON public.classroom_threads FOR INSERT TO authenticated WITH CHECK (author_id = auth.uid() AND (public.in_course(auth.uid(), course_slug) OR public.has_role(auth.uid(), 'staff')));
+DROP POLICY "Members read course replies" ON public.classroom_replies;
+CREATE POLICY "Members read course replies" ON public.classroom_replies FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.classroom_threads t WHERE t.id = thread_id AND (public.in_course(auth.uid(), t.course_slug) OR public.has_role(auth.uid(), 'staff'))));
+DROP POLICY "Members create own course replies" ON public.classroom_replies;
+CREATE POLICY "Members create own course replies" ON public.classroom_replies FOR INSERT TO authenticated WITH CHECK (author_id = auth.uid() AND EXISTS (SELECT 1 FROM public.classroom_threads t WHERE t.id = thread_id AND (public.in_course(auth.uid(), t.course_slug) OR public.has_role(auth.uid(), 'staff'))));
+DROP POLICY "Authors and staff remove threads" ON public.classroom_threads;
+CREATE POLICY "Authors and staff remove threads" ON public.classroom_threads FOR DELETE TO authenticated USING ((author_id = auth.uid() AND public.in_course(auth.uid(), course_slug)) OR public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'staff'));
+DROP POLICY "Authors and staff remove replies" ON public.classroom_replies;
+CREATE POLICY "Authors and staff remove replies" ON public.classroom_replies FOR DELETE TO authenticated USING ((author_id = auth.uid() AND EXISTS (SELECT 1 FROM public.classroom_threads t WHERE t.id = thread_id AND public.in_course(auth.uid(), t.course_slug))) OR public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'staff'));

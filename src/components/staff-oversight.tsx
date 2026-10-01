@@ -284,7 +284,7 @@ export function EventsAdmin() {
     await toastErr(error, editing ? "Event updated" : "Event created");
     if (!error) { setF(blankEv); setEditing(null); setOpen(false); refresh(); }
   };
-  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "", is_private: !!ev.is_private }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setMore(!!(ev.ends_at || ev.online_url || ev.speaker || ev.image_key || ev.agenda)); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "", is_private: !!ev.is_private }); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const remove = async (id: string) => {
     if (!confirm("Delete this event and its sign-up list?")) return;
     await supabase.from("event_signups").delete().eq("event_id", id);

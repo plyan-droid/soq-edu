@@ -65,7 +65,7 @@ export function TrainerApplications() {
       setMsg(r.error && !r.error.message.includes("duplicate") ? `Approved, but couldn't open the Trainer Dashboard for them: ${r.error.message}` : `${a.full_name} is approved and can now open the Trainer Dashboard.`);
     } else if (status === "approved") setMsg(`${a.full_name} is approved. They applied without an account, so ask them to sign up, then use "Make trainer" under Users & roles.`);
     else setMsg(null);
-    void qc.invalidateQueries({ queryKey: ["admin-trainers"] });
+    void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); void qc.invalidateQueries({ queryKey: ["admin-trainers-waiting"] });
   };
   const saveNote = async (id: string, staff_note: string) => { await supabase.from("trainer_applications").update({ staff_note }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); setMsg("Note saved."); };
   const openFile = async (path: string) => {

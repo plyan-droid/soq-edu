@@ -35,7 +35,7 @@ function parseCsv(text: string): string[][] {
   row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
   return rows;
 }
-type Parsed = { line: number; name: string; email: string; courseTitle: string; data?: ApplicantInput; problems: string[]; result?: string };
+type Parsed = { line: number; name: string; email: string; courseTitle: string; data?: ApplicantInput | undefined; problems: string[]; result?: string | undefined };
 
 export function ManualEnrol() {
   const add = useServerFn(addApplicant);

@@ -27,7 +27,7 @@ const pages = [
   ["Notices, My course proposals (Communication & courses)", "/trainer", "trainer"],
   ["Overview: Reports", "/portal-admin", "staff"],
   ["Learners & admissions: Students, Course applications, Diploma admissions, Enrol students, Waitlists, Exemptions, Certificates", "/portal-admin", "staff"],
-  ["Courses & teaching: Intakes, Trainer applications, Trainer courses, Reviews, Bundles, Certificate design", "/portal-admin", "staff"],
+  ["Courses & teaching: Intakes, Trainer applications, Course proposals, Reviews, Bundles, Certificate design", "/portal-admin", "staff"],
   ["Payments & funding: Sales, PayNow & instalments, SkillsFuture Credit, Discount codes, Referrals", "/portal-admin", "staff"],
   ["Communications: Support inbox, Community members, Newsletter, Noticeboard, WhatsApp reminders, Leads", "/portal-admin", "staff"],
   ["Site & settings: Users & roles, Pages, Message templates, Forms, Login history, AI writer, Gov & Xero links, Settings", "/portal-admin", "staff"],

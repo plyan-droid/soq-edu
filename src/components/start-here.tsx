@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, CheckCircle2, Circle, X, Clock3, type LucideIcon } from "lucide-react";
+import { ArrowRight, CheckCircle2, Circle, X, CalendarDays, CreditCard, UsersRound, ClipboardList, type LucideIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -184,7 +184,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
       ],
     };
   }
-  const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions, recentComments, bookings, recentUsers, events, draftCount] = await Promise.all([
+  const [apps, pays, sfc, tickets, trainers, ownerRequests, reviews, comments, users, orders, recentTickets, recentCourses, sessions, recentComments, bookings, recentUsers, events, draftCount, intakes, courseVisibility] = await Promise.all([
     n(supabase.from("course_applications").select("id", head).eq("status", "new")),
     n(supabase.from("bank_payments").select("id", head).eq("status", "pending")),
     n(supabase.from("sfc_claims").select("id", head).in("status", ["submitted", "approved"])),
@@ -203,7 +203,12 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
     supabase.from("profiles").select("full_name,created_at").order("created_at", { ascending: false }).limit(4),
     supabase.from("events").select("title,starts_at").gte("starts_at", now).order("starts_at").limit(4),
     n(supabase.from("course_drafts").select("id", head).eq("status", "submitted")),
+    supabase.from("course_intakes").select("course_slug,start_date,status").gte("start_date", now.slice(0, 10)).neq("status", "cancelled").order("start_date").limit(30),
+    supabase.from("course_overrides").select("slug,title,hidden,custom"),
   ]);
+  const visible = new Map((courseVisibility.data ?? []).map(o => [o.slug, o]));
+  const known = new Set(courses.map(c => c.slug));
+  const upcomingIntakes = (intakes.data ?? []).filter(i => !visible.get(i.course_slug)?.hidden && (known.has(i.course_slug) || visible.get(i.course_slug)?.custom)).slice(0, 4);
   const paid = (orders.data ?? []).filter(o => o.status === "paid");
   const byMonth = new Map<string, number>();
   paid.forEach(o => { const key = o.created_at.slice(0, 7); byMonth.set(key, (byMonth.get(key) ?? 0) + Number(o.total)); });
@@ -228,9 +233,10 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
        { title: "Recent enquiries", empty: "No enquiries yet.", items: (recentTickets.data ?? []).map(t => ({ label: t.topic, detail: `${t.status} · ${day(t.created_at)}`, tool: "inbox", at: t.created_at })) },
        { title: "Recent community comments", empty: "No comments yet.", items: (recentComments.data ?? []).map(c => ({ label: c.body.slice(0, 100), detail: day(c.created_at), tool: "moderation", at: c.created_at })) },
        { title: "Recent course proposals", empty: "No course proposals yet.", items: (recentCourses.data ?? []).map(c => ({ label: c.title, detail: `${c.status} · ${day(c.created_at)}`, tool: "drafts", at: c.created_at })) },
-      { title: "Upcoming live classes", empty: "No live classes scheduled.", items: (sessions.data ?? []).map(s => ({ label: s.title, detail: day(s.starts_at), tool: "live-classes" })) },
+      { title: "Upcoming live classes", empty: "No live classes scheduled.", items: (sessions.data ?? []).map(s => ({ label: s.title, detail: day(s.starts_at), tool: "live-classes", at: s.starts_at })) },
        { title: "Recent registrations", empty: "No accounts registered yet.", items: (recentUsers.data ?? []).map(u => ({ label: u.full_name || "New learner", detail: day(u.created_at), tool: "students", at: u.created_at })) },
-      { title: "Upcoming events", empty: "No events scheduled.", items: (events.data ?? []).map(e => ({ label: e.title, detail: day(e.starts_at), tool: "events" })) },
+      { title: "Upcoming events", empty: "No events scheduled.", items: (events.data ?? []).map(e => ({ label: e.title, detail: day(e.starts_at), tool: "events", at: e.starts_at })) },
+      { title: "Upcoming intakes", empty: "No intakes scheduled.", items: upcomingIntakes.map(i => ({ label: visible.get(i.course_slug)?.title || title(i.course_slug), detail: `${day(i.start_date)} · ${i.status}`, tool: "intakes", at: `${i.start_date}T00:00:00` })) },
     ],
     steps: [],
   };
@@ -238,45 +244,32 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
 
 /** A focused operations view; the detailed historical figures remain under Reports. */
 function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void }) {
-  // Payments stay pinned even when clear; other queues appear only when work waits.
   const pending = data?.cards.filter(c => (c.count ?? 0) > 0 || c.tool === "payments" || c.tool === "sfc") ?? [];
   const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
   const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
   const figures = [
-    { label: "Awaiting action", value: String(pendingTotal), note: `${pending.length} ${pending.length === 1 ? "queue" : "queues"}` },
-    { label: "Paid orders · last 7 days", value: value("Paid orders · last 7 days (latest 500)"), note: "Latest 500 orders" },
-    { label: "Recorded sales · this month", value: value("Recorded sales · this month (latest 500)"), note: "Latest 500 orders" },
-    { label: "Registered accounts", value: value("Registered accounts"), note: "Total accounts" },
+    { label: "Awaiting action", value: String(pendingTotal), note: "Across active queues", icon: ClipboardList },
+    { label: "Paid orders · 7 days", value: value("Paid orders · last 7 days (latest 500)"), note: "Latest 500 orders", icon: CreditCard },
+    { label: "Recorded sales · month", value: value("Recorded sales · this month (latest 500)"), note: "Latest 500 orders", icon: CalendarDays },
+    { label: "Registered accounts", value: value("Registered accounts"), note: "Total accounts", icon: UsersRound },
   ];
-  const recent = (data?.panels ?? []).filter(p => p.title.startsWith("Recent")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Recent ", "") }))).sort((a, b) => (b.at ?? "").localeCompare(a.at ?? "")).slice(0, 6);
-  const coming = (data?.panels ?? []).filter(p => p.title.startsWith("Upcoming")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Upcoming ", "") }))).slice(0, 4);
-  return <div className="space-y-7 font-sans">
-    <header className="border-b border-border pb-5">
-      <p className="text-sm text-muted-foreground">{greeting}</p>
+  const recent = (data?.panels ?? []).filter(p => p.title.startsWith("Recent")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Recent ", "") }))).sort((a, b) => (b.at ?? "").localeCompare(a.at ?? "")).slice(0, 5);
+  const coming = (data?.panels ?? []).filter(p => p.title.startsWith("Upcoming")).flatMap(p => p.items.map(item => ({ ...item, category: p.title.replace("Upcoming ", "") }))).sort((a, b) => (a.at ?? "").localeCompare(b.at ?? "")).slice(0, 5);
+  return <div className="mx-auto max-w-6xl space-y-6 font-sans">
+    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+      <div><p className="text-xs font-medium uppercase text-muted-foreground">{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p><p className="mt-1 text-sm text-foreground">{greeting}</p></div>
+      <span className="rounded-full bg-brand-gold-soft px-3 py-1.5 text-xs font-semibold text-primary">{isPending ? "Checking work…" : pendingTotal ? `${pendingTotal} ${pendingTotal === 1 ? "item" : "items"} awaiting review` : "All caught up"}</span>
     </header>
-    <section aria-label="Operations at a glance" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-      {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-md" />) : figures.map((figure, i) => <div key={figure.label} className="min-w-0 rounded-md border border-border bg-card p-4 sm:p-5">
-        <p className="text-xs font-semibold text-muted-foreground">{figure.label}</p>
-        <p className={`mt-2 break-words font-workspace text-2xl font-semibold tabular-nums text-primary sm:text-3xl ${i === 0 ? "text-brand-navy" : ""}`}>{figure.value}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{figure.note}</p>
-      </div>)}
+    <section aria-label="Priority actions">
+      <div className="mb-3 flex items-baseline justify-between gap-2"><h2 className="font-workspace text-lg font-semibold text-primary">Priority actions</h2><span className="text-xs text-muted-foreground">Open a queue to take action</span></div>
+      {isPending ? <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map(i => <Skeleton key={i} className="h-24 rounded-md" />)}</div> : <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{pending.map(c => <Button key={c.tool} type="button" variant="outline" onClick={() => onNavigate(c.tool)} className={`group flex h-auto min-h-24 w-full items-start justify-between gap-3 whitespace-normal rounded-md border-l-2 p-4 text-left transition-colors hover:bg-secondary/40 ${(c.count ?? 0) > 0 ? "border-l-brand-gold" : "border-l-border"}`}><span className="min-w-0 flex-1"><span className="block font-semibold text-foreground">{c.title}</span><span className="mt-1 block text-xs font-normal leading-relaxed text-muted-foreground">{c.text}</span></span><span className="flex shrink-0 flex-col items-end gap-2"><span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${(c.count ?? 0) > 0 ? "bg-brand-gold-soft text-primary" : "bg-muted text-muted-foreground"}`}>{(c.count ?? 0) > 0 ? `${c.count} pending` : "All clear"}</span><ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" /></span></Button>)}</div>}
     </section>
-    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1.8fr)_minmax(17rem,1fr)]">
-      <section aria-label="Operations queue" className="min-w-0">
-        <div className="mb-3 flex items-baseline justify-between gap-3"><h2 className="font-workspace text-lg font-semibold text-primary">Operations queue</h2><span className="text-xs text-muted-foreground">{pending.length} needing attention</span></div>
-        {isPending ? <div className="space-y-2">{[0, 1, 2].map(i => <Skeleton key={i} className="h-20 rounded-md" />)}</div> : pending.length ? <div className="overflow-hidden rounded-md border border-border bg-card">
-          <div className="hidden grid-cols-[minmax(0,1fr)_auto_5rem] border-b border-border bg-muted/50 px-5 py-3 text-xs font-semibold text-muted-foreground sm:grid"><span>Work item</span><span>Status</span><span className="text-right">Open</span></div>
-          <ul className="divide-y divide-border">{pending.map(c => <li key={c.tool}><Button type="button" variant="ghost" onClick={() => onNavigate(c.tool)} className="group grid h-auto min-h-20 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-none px-4 py-3 text-left hover:bg-muted/50 sm:grid-cols-[minmax(0,1fr)_auto_5rem] sm:px-5">
-            <span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{c.title}</span><span className="mt-1 block text-xs font-normal text-muted-foreground">{c.text}</span></span>
-            <span className={`rounded border px-2 py-1 text-xs font-semibold ${(c.count ?? 0) > 0 ? "border-brand-gold/40 bg-brand-gold-soft text-primary" : "border-border bg-muted/50 text-muted-foreground"}`}>{(c.count ?? 0) > 0 ? `${c.count} pending` : "All clear"}</span>
-            <ArrowRight className="hidden size-4 justify-self-end text-muted-foreground transition-transform group-hover:translate-x-1 sm:block" aria-hidden="true" />
-          </Button></li>)}</ul>
-        </div> : <div className="rounded-md border border-border bg-card px-5 py-8 text-sm text-muted-foreground">No work is waiting for review right now.</div>}
-      </section>
-      <aside className="min-w-0 space-y-7" aria-label="Recent and upcoming activity">
-        <section><h2 className="mb-3 font-workspace text-lg font-semibold text-primary">Recent activity</h2><div className="rounded-md border border-border bg-card p-4 sm:p-5">{isPending ? <Skeleton className="h-52" /> : recent.length ? <ol className="border-l border-border pl-4">{recent.map((item, i) => <li key={`${item.category}-${i}`} className="relative pb-4 last:pb-0 before:absolute before:-left-[21px] before:top-1.5 before:size-2 before:rounded-full before:bg-brand-gold"><Button variant="link" className="h-auto max-w-full justify-start whitespace-normal p-0 text-left font-medium text-foreground" onClick={() => onNavigate(item.tool)}>{item.label}</Button><p className="text-xs text-muted-foreground">{item.category} · {item.detail}</p></li>)}</ol> : <p className="text-sm text-muted-foreground">No recent activity yet.</p>}</div></section>
-        {coming.length > 0 && <section><h2 className="mb-3 font-workspace text-lg font-semibold text-primary">Coming up</h2><div className="divide-y divide-border rounded-md border border-border bg-card px-4 sm:px-5">{coming.map((item, i) => <Button key={`${item.category}-${i}`} variant="ghost" className="flex h-auto min-h-14 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium">{item.label}</span><span className="text-xs text-muted-foreground">{item.category} · {item.detail}</span></span><Clock3 className="size-4 shrink-0 text-muted-foreground" /></Button>)}</div></section>}
-      </aside>
+    <section aria-label="Operations at a glance" className="grid grid-cols-2 divide-x divide-y divide-border border-y border-border sm:grid-cols-4 sm:divide-y-0">
+      {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="m-3 h-20" />) : figures.map(f => <div key={f.label} className="min-w-0 px-3 py-4 first:pl-0 sm:px-5 sm:first:pl-0"><div className="flex items-center gap-2 text-xs text-muted-foreground"><f.icon className="size-4 shrink-0 text-brand-gold" aria-hidden="true" /><span>{f.label}</span></div><p className="mt-2 break-words font-workspace text-xl font-semibold tabular-nums text-primary sm:text-2xl">{f.value}</p><p className="text-[11px] text-muted-foreground">{f.note}</p></div>)}
+    </section>
+    <div className="grid gap-7 lg:grid-cols-2 lg:gap-9">
+      <section className="min-w-0"><h2 className="mb-2 font-workspace text-lg font-semibold text-primary">Recent activity</h2>{isPending ? <Skeleton className="h-40" /> : recent.length ? <ul className="divide-y divide-border">{recent.map((item, i) => <li key={`${item.category}-${i}`}><Button variant="ghost" className="group flex h-auto min-h-16 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{item.label}</span><span className="text-xs text-muted-foreground">{item.category} · {item.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></Button></li>)}</ul> : <p className="border-t border-border py-4 text-sm text-muted-foreground">No recent activity yet.</p>}</section>
+      <section className="min-w-0"><h2 className="mb-2 font-workspace text-lg font-semibold text-primary">Upcoming schedule & intakes</h2>{isPending ? <Skeleton className="h-40" /> : coming.length ? <ul className="divide-y divide-border">{coming.map((item, i) => <li key={`${item.category}-${i}`}><Button variant="ghost" className="group flex h-auto min-h-16 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{item.label}</span><span className="text-xs text-muted-foreground">{item.category} · {item.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></Button></li>)}</ul> : <p className="border-t border-border py-4 text-sm text-muted-foreground">No classes, events or intakes scheduled.</p>}</section>
     </div>
   </div>;
 }

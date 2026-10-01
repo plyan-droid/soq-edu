@@ -14,6 +14,7 @@ export const sections = [
 const learn = [
   { to: "/recommend", label: "Find my course", Icon: Sparkles },
   { to: "/calendar", label: "Course calendar", Icon: CalendarDays },
+  { to: "/events", label: "Events & workshops", Icon: CalendarDays },
   { to: "/funding", label: "Funding & SkillsFuture", Icon: Wallet },
   { to: "/student-portal", label: "Student portal", Icon: LayoutDashboard },
 ] as const;
@@ -79,6 +80,7 @@ export function CommunityMobileNav({ active }: { active: string }) {
       <Link to="/community" className={chip(active === "home")}>Home</Link>
       {sections.map(s => <Link key={s.tag} to="/community" search={{ tag: s.tag }} className={chip(active === s.tag)}>{s.label}</Link>)}
       <Link to="/community/live" className={chip(active === "live")}>Livestreams</Link>
+      <Link to="/events" className={chip(false)}>Events</Link>
       <Link to="/community/members" className={chip(active === "members")}>Members</Link>
       <Link to="/community/saved" className={chip(active === "saved")}>Saved</Link>
       <Link to="/community/guidelines" className={chip(active === "guidelines")}>Guidelines</Link>

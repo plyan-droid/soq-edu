@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/community-ui";
 import { supabase } from "@/integrations/supabase/client";
 import { POST_SELECT, countOf, suggestedTags, type PostRow } from "@/lib/community";
+import { CommunityEvents } from "@/components/upcoming-events";
 
 export const Route = createFileRoute("/community/")({
   validateSearch: z.object({ tag: z.string().optional(), sort: z.enum(["latest", "top"]).optional(), who: z.string().optional() }),
@@ -105,6 +106,7 @@ function Community() {
             </div>
             <Link to="/calendar" className="mt-3 inline-block text-sm font-medium text-primary underline">Full course calendar</Link>
           </div>
+          <CommunityEvents />
           {trending && (
             <div className="rounded-lg bg-brand-navy p-5 text-primary-foreground">
               <p className="flex items-center gap-2 text-sm text-brand-gold"><Flame className="size-4" /> Trending now</p>

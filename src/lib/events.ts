@@ -18,7 +18,7 @@ export const imageOptions = courses.map(c => ({ key: c.slug, title: c.title }));
 export type EventItem = {
   id: string; title: string; description: string; starts_at: string; ends_at: string | null;
   location: string; online_url: string | null; capacity: number; created_by: string;
-  category: string; speaker: string | null; speaker_role: string | null; image_key: string | null; agenda: string | null;
+  category: string; speaker: string | null; speaker_role: string | null; image_key: string | null; agenda: string | null; is_private?: boolean;
 };
 
 const ics = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");

@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.guard_session_plan() FROM PUBLIC, anon, authenticated;

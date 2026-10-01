@@ -86,8 +86,8 @@ function Admin() {
         <TabsContent value="live-classes"><LiveClassesOversight /></TabsContent>
         <TabsContent value="events"><EventsAdmin /></TabsContent>
         <TabsContent value="students">
-          <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Search by name, email or student ID, then pick one to manage their details and courses.</p>
-          <StudentSearch students={students} studentId={studentId} onPick={setStudentId} />
+          <p className="mt-4 text-muted-foreground">Every student account is listed here in alphabetical order. Type a name, email or student ID to narrow the list, then pick a student to manage their details and courses.</p>
+          <StudentDirectory students={students} studentId={studentId} onPick={setStudentId} />
           {studentId && <StudentProfileForm userId={studentId} email={students.find(s => s.id === studentId)?.email} />}
           {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}

@@ -16,7 +16,7 @@ const badge = (s?: string) => `rounded-full px-2 py-0.5 text-xs ${s === "approve
 const FIELDS = [["objectives", "Learning objectives", "What will learners be able to do by the end?"], ["activities", "Activities & timing", "e.g. 10 min recap · 30 min demo · 20 min practice"], ["materials", "Materials & equipment", "Slides, kits, handouts, links"], ["assessment", "How you'll check learning", "Quiz, practical check, Q&A"]] as const;
 
 /** Trainer: write or edit the plan for one session. */
-export function SessionPlanEditor({ session, plan, userId, onDone }: { session: Session; plan?: SessionPlan; userId: string; onDone: () => void }) {
+export function SessionPlanEditor({ session, plan, userId, onDone }: { session: Session; plan?: SessionPlan | undefined; userId: string; onDone: () => void }) {
   const [f, setF] = useState({ objectives: plan?.objectives ?? "", activities: plan?.activities ?? "", materials: plan?.materials ?? "", assessment: plan?.assessment ?? "" });
   const save = async (status: "draft" | "submitted") => {
     if (status === "submitted" && (!f.objectives.trim() || !f.activities.trim())) return void toast.error("Add objectives and activities before submitting.");
@@ -83,7 +83,7 @@ export function StaffSessionPlans() {
   return (
     <div>
       <h3 className="mt-10 font-serif text-2xl text-primary">Session plans</h3>
-      <div className="mt-3 flex flex-wrap gap-2">{[["submitted", "Waiting for review"], ["changes", "Changes requested"], ["approved", "Approved"], ["all", "All"]].map(([k, l]) => (
+      <div className="mt-3 flex flex-wrap gap-2">{([["submitted", "Waiting for review"], ["changes", "Changes requested"], ["approved", "Approved"], ["all", "All"]] as const).map(([k, l]) => (
         <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} className="rounded-full" onClick={() => setFilter(k)}>{l} ({k === "all" ? data.length : data.filter(p => p.status === k).length})</Button>))}</div>
       {shown.length === 0 ? <p className="mt-3 text-muted-foreground">No plans here.</p> : (
         <ul className="mt-4 space-y-3">{shown.map(p => (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, CheckCircle2, ClipboardList, FileText, MessageSquareText } from "lucide-react";
+import { BookOpen, CheckCircle2, ClipboardList, FileAudio, FileText, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Topic = { topic: string; task: string; brief: string; answer: string; feedback: string };
@@ -56,7 +56,7 @@ export function DemoClasswork({ slug, expanded, onToggle }: { slug: string; expa
       <p className="mt-4 text-sm leading-6">{example.brief}</p>
       <div className="mt-5 border-t border-border pt-4">
         <h3 className="font-serif text-xl text-primary">Your work <span className="font-sans text-xs text-muted-foreground">(sample, not your submission)</span></h3>
-        <div className="mt-3 rounded-md border border-border bg-card p-4"><p className="flex items-center gap-2 text-sm font-medium"><FileText className="size-4 shrink-0 text-brand-gold" /> Example response</p><p className="mt-3 text-sm leading-6">{example.answer}</p></div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2"><div className="rounded-md border border-border bg-card p-4"><p className="flex items-center gap-2 text-sm font-medium"><FileText className="size-4 shrink-0 text-brand-gold" /> [DEMO] Case-study.pdf</p><p className="mt-2 text-xs text-muted-foreground">Example PDF-style response · no file attached</p></div><div className="rounded-md border border-border bg-card p-4"><p className="flex items-center gap-2 text-sm font-medium"><FileAudio className="size-4 shrink-0 text-brand-gold" /> [DEMO] Reflection.mp3</p><p className="mt-2 text-xs text-muted-foreground">Example audio-style submission · no file attached</p></div></div><p className="mt-3 text-sm leading-6">{example.answer}</p>
         <p className="mt-4 text-sm"><strong>Sample trainer feedback:</strong> {example.feedback}</p>
       </div>
     </div>}

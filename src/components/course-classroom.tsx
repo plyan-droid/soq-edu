@@ -11,6 +11,7 @@ import { noticeColor } from "@/components/trainer-tools";
 import { NoticeFileList, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
 import { AssignmentMarking } from "@/components/assignment-marking";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +54,7 @@ export function CourseClassroom({ userId, isAdmin, onNavigate }: { userId: strin
       {tab === "stream" && <Stream slug={slug} userId={userId} onNavigate={onNavigate} />}
       {tab === "classwork" && <Classwork slug={slug} userId={userId} isAdmin={isAdmin} onNavigate={onNavigate} />}
       {tab === "people" && <People slug={slug} userId={userId} />}
-      {tab === "grades" && <Grades slug={slug} trainerId={userId} />}
+      {tab === "grades" && <Grades slug={slug} />}
     </div>
   );
 }
@@ -329,7 +330,7 @@ function People({ slug, userId }: { slug: string; userId: string }) {
 }
 
 /* ---------- Grades ---------- */
-function Grades({ slug, trainerId }: { slug: string; trainerId: string }) {
+function Grades({ slug }: { slug: string }) {
   const { data: asgs = [] } = useQuery({ queryKey: ["t-asg", slug], queryFn: async () => ((await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("created_at")).data ?? []) as unknown as Asg[] });
   const [open, setOpen] = useState<{ a: Asg; i: number } | null>(null);
   const students = [...new Set(asgs.flatMap(a => a.assignment_submissions.map(s => s.student_name)))].sort();

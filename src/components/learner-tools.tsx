@@ -12,14 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { NoticeFileList, asFiles } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
+import { AssignmentFileList, AssignmentFilePicker, assignmentFiles, uploadAssignmentFiles, removeAssignmentFiles } from "@/components/assignment-files";
 
 const card = "rounded-lg border border-border bg-card p-5";
 
 export function CourseNoticesList({ slug }: { slug: string }) {
   const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   if (data.length === 0) return null;
-  return <div className="mb-6 space-y-2">{data.map(n => (
-    <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.title}</p>{n.body && <NoticeBody text={n.body} className="mt-1 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
+  return <div className="mb-6 space-y-2">{[...data].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(n => (
+    <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.pinned && <span className="text-xs text-primary">Pinned · </span>}{n.title}</p>{n.body && <NoticeBody text={n.body} className="mt-1 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
   ))}</div>;
 }
 
@@ -73,21 +74,24 @@ export function StudentAssignments({ slug }: { slug: string }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [f, setF] = useState<Record<string, { body: string; link: string }>>({});
+  const [files, setFiles] = useState<Record<string, File[]>>({});
   const [open, setOpen] = useState<string | null>(null);
   useEffect(() => { const sync = () => { const id = window.location.hash.match(/^#assignment-(.+)$/)?.[1]; if (id) setOpen(id); }; sync(); window.addEventListener("hashchange", sync); return () => window.removeEventListener("hashchange", sync); }, []);
   const [saving, setSaving] = useState(false);
   const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-asg", slug, user?.id], queryFn: async () => (await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("due_at", { nullsFirst: false })).data ?? [] });
   if (!user || data.length === 0) return null;
   const submit = async (id: string) => {
-    const v = f[id]; if (!v || (!v.body.trim() && !v.link.trim())) { toast.error("Write an answer or add a link to your file"); return; }
+    const v = f[id] ?? { body: "", link: "" }; if (!v.body.trim() && !v.link.trim() && !files[id]?.length) { toast.error("Write an answer or attach a file"); return; }
     if (v.link.trim() && !/^https?:\/\//i.test(v.link.trim())) { toast.error("Use a full https:// link for your file"); return; }
     if (saving) return;
     setSaving(true);
     const name = (user.user_metadata?.["full_name"] as string) || user.email || "Student";
-    const { error } = await supabase.from("assignment_submissions").insert({ assignment_id: id, student_id: user.id, student_name: name, body: v.body.trim(), link: v.link.trim() || null });
+    let uploaded: Awaited<ReturnType<typeof uploadAssignmentFiles>> = [];
+    try { uploaded = await uploadAssignmentFiles(slug, user.id, id, files[id] ?? []); } catch (e) { setSaving(false); toast.error(e instanceof Error ? e.message : "Couldn't upload files"); return; }
+    const { error } = await supabase.from("assignment_submissions").insert({ assignment_id: id, student_id: user.id, student_name: name, body: v.body.trim(), link: v.link.trim() || null, files: uploaded });
     setSaving(false);
-    if (error) { toast.error("Couldn't submit"); return; }
-    toast.success("Handed in"); setOpen(null); void qc.invalidateQueries({ queryKey: ["s-asg", slug] });
+    if (error) { await removeAssignmentFiles(uploaded); toast.error("Couldn't submit"); return; }
+    toast.success("Handed in"); setFiles(p => ({ ...p, [id]: [] })); setOpen(null); void qc.invalidateQueries({ queryKey: ["s-asg", slug] }); void qc.invalidateQueries({ queryKey: ["learn", slug] }); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
   };
   return (
     <div className={card}>
@@ -96,12 +100,12 @@ export function StudentAssignments({ slug }: { slug: string }) {
         const mine = (a.assignment_submissions ?? []).find(s => s.student_id === user.id);
         const v = f[a.id] ?? { body: "", link: "" };
         return <li key={a.id} id={`assignment-${a.id}`} className="scroll-mt-24 text-sm">
-          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Marked" : "Handed in" : a.due_at && new Date(a.due_at) < new Date() ? "Overdue" : "To do"}</span></Button>
+          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Returned" : mine.status === "marked" ? "Being marked" : "Handed in" : a.due_at && new Date(a.due_at) < new Date() ? "Overdue" : "To do"}</span></Button>
           <p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"} · {a.max_score} marks</p>
           {open === a.id && <div className="mt-3 space-y-3 border-t border-border pt-3">
             {a.instructions && <p className="whitespace-pre-line">{a.instructions}</p>}
-            {mine ? <div className="rounded-md bg-muted/50 p-3"><p className="font-medium">{mine.status === "graded" ? `Marked: ${mine.score}/${a.max_score}` : "Handed in · waiting for marking"}</p>{mine.body && <p className="mt-2 whitespace-pre-line">{mine.body}</p>}{mine.link && <a href={mine.link} target="_blank" rel="noreferrer" className="mt-2 block text-primary underline">Your submitted link</a>}{mine.feedback && <p className="mt-2 whitespace-pre-line"><b>Trainer feedback:</b> {mine.feedback}</p>}</div>
-            : <div className="space-y-2"><Textarea aria-label={`Answer for ${a.title}`} placeholder="Your answer" value={v.body} onChange={e => setF({ ...f, [a.id]: { ...v, body: e.target.value } })} maxLength={10000} /><Input aria-label={`File link for ${a.title}`} placeholder="File link (Google Drive, OneDrive…)" value={v.link} onChange={e => setF({ ...f, [a.id]: { ...v, link: e.target.value } })} maxLength={500} /><Button size="sm" disabled={saving || (!v.body.trim() && !v.link.trim())} onClick={() => void submit(a.id)}>Hand in assignment</Button></div>}
+            {mine ? <div className="rounded-md bg-muted/50 p-3"><p className="font-medium">{mine.status === "graded" ? `Returned: ${mine.score}/${a.max_score}` : mine.status === "marked" ? "Being marked" : "Handed in · waiting for marking"}</p>{mine.body && <p className="mt-2 whitespace-pre-line">{mine.body}</p>}{mine.link && <a href={mine.link} target="_blank" rel="noreferrer" className="mt-2 block text-primary underline">Your submitted link</a>}<AssignmentFileList files={assignmentFiles(mine.files)} />{mine.status === "graded" && mine.feedback && <p className="mt-2 whitespace-pre-line"><b>Trainer feedback:</b> {mine.feedback}</p>}</div>
+            : <div className="space-y-2"><Textarea aria-label={`Answer for ${a.title}`} placeholder="Your answer" value={v.body} onChange={e => setF({ ...f, [a.id]: { ...v, body: e.target.value } })} maxLength={10000} /><Input aria-label={`File link for ${a.title}`} placeholder="File link (Google Drive, OneDrive…)" value={v.link} onChange={e => setF({ ...f, [a.id]: { ...v, link: e.target.value } })} maxLength={500} /><AssignmentFilePicker files={files[a.id] ?? []} onChange={next => setFiles(p => ({ ...p, [a.id]: next }))} /><Button size="sm" disabled={saving || (!v.body.trim() && !v.link.trim() && !files[a.id]?.length)} onClick={() => void submit(a.id)}>Hand in assignment</Button></div>}
           </div>}
         </li>;
       })}</ul>

@@ -25,9 +25,9 @@ export function StudentQuizzes({ slug }: { slug: string }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState<string | null>(null);
-  const [ans, setAns] = useState<Record<string, number>>({});
+  const [ans, setAns] = useState<Record<string, number | string>>({});
   const [result, setResult] = useState<{ score: number; passed: boolean; certificate: string | null; right: number; total: number } | null>(null);
-  const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-quizzes", slug, user?.id], queryFn: async () => (await supabase.from("quizzes").select("*, quiz_questions(id, prompt, options, position), quiz_attempts(score, passed, certificate_code, created_at)").eq("course_slug", slug).order("created_at")).data ?? [] });
+  const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-quizzes", slug, user?.id], queryFn: async () => (await supabase.from("quizzes").select("*, quiz_questions(id, prompt, options, position, kind), quiz_attempts(score, passed, certificate_code, created_at)").eq("course_slug", slug).order("created_at")).data ?? [] });
   if (!user || data.length === 0) return null;
   const submit = async (id: string) => {
     const { data: r, error } = await supabase.rpc("submit_quiz", { _quiz: id, _answers: ans });
@@ -54,9 +54,9 @@ export function StudentQuizzes({ slug }: { slug: string }) {
               ) : <>
                 {qs.map((qq, i) => (
                   <fieldset key={qq.id}><legend className="font-medium">{i + 1}. {qq.prompt}</legend>
-                    {qq.options.map((o, k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="radio" name={qq.id} checked={ans[qq.id] === k} onChange={() => setAns({ ...ans, [qq.id]: k })} />{o}</label>)}</fieldset>
+                    {qq.kind === "short" ? <input className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3" placeholder="Type your answer" value={(ans[qq.id] as string) ?? ""} onChange={e => setAns({ ...ans, [qq.id]: e.target.value })} /> : qq.options.map((o, k) => <label key={k} className="mt-1 flex items-center gap-2"><input type="radio" name={qq.id} checked={ans[qq.id] === k} onChange={() => setAns({ ...ans, [qq.id]: k })} />{o}</label>)}</fieldset>
                 ))}
-                <Button className="rounded-full" disabled={Object.keys(ans).length < qs.length} onClick={() => void submit(q.id)}>Submit answers</Button>
+                <Button className="rounded-full" disabled={qs.some(x => ans[x.id] === undefined || ans[x.id] === "")} onClick={() => void submit(q.id)}>Submit answers</Button>
               </>}
             </div>
           )}

@@ -50,33 +50,33 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
   const [active, setActive] = useState("start");
   const sections: WorkspaceSection[] = [
     { name: "Home", icon: Home, items: [
-      { id: "start", label: "Home", content: <StartHere role="trainer" userId={userId} onNavigate={setActive} greeting="Welcome to your teaching space. Pick what you want to do, or follow the set-up steps." /> },
+      { id: "start", label: "Home", content: <StartHere role="trainer" userId={userId} onNavigate={setActive} greeting="Your teaching schedule and work needing attention." /> },
     ] },
     { name: "Classes", icon: CalendarDays, items: [
       { id: "live", label: "Live classes", content: <Live userId={userId} /> },
-      { id: "calendar", label: "Calendar view", content: <TrainerCalendar userId={userId} /> },
+      { id: "calendar", label: "Calendar", content: <TrainerCalendar userId={userId} /> },
       { id: "plans", label: "Session plans", content: <TrainerSessionPlans userId={userId} /> },
       { id: "slots", label: "1-to-1 sessions", content: <TrainerSlots userId={userId} /> },
-      { id: "history", label: "Past lessons", content: <TrainerLessonHistory userId={userId} /> },
+      { id: "history", label: "History", content: <TrainerLessonHistory userId={userId} /> },
     ] },
     { name: "Courses", icon: BookOpen, items: [
       { id: "overview", label: "My courses", content: <TrainerOverview userId={userId} /> },
       { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
       { id: "quizzes", label: "Quizzes", content: <TrainerQuizzes userId={userId} isAdmin={isAdmin} /> },
       { id: "assignments", label: "Assignments", content: <TrainerAssignments userId={userId} isAdmin={isAdmin} /> },
+      { id: "notices", label: "Notices", content: <TrainerNotices userId={userId} isAdmin={isAdmin} /> },
       { id: "drafts", label: "Propose a course", content: isTrainer ? <Drafts userId={userId} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p> },
     ] },
     { name: "Students", icon: Users, items: [
       { id: "students", label: "Progress", content: <TrainerStudents userId={userId} /> },
       { id: "attendance", label: "Attendance", content: <TrainerAttendance userId={userId} /> },
-      { id: "notices", label: "Notices", content: <TrainerNotices userId={userId} isAdmin={isAdmin} /> },
       { id: "stats", label: "Stats", content: <TrainerStats userId={userId} /> },
     ] },
     { name: "Profile", icon: UserRound, items: [
       { id: "profile", label: "Public profile", content: <TutorProfileEditor /> },
     ] },
   ];
-  return <WorkspaceShell title="Trainer Dashboard" sections={sections} active={active} onChange={setActive} />;
+  return <div className="trainer-workspace"><WorkspaceShell title="Trainer Dashboard" sections={sections} active={active} onChange={setActive} /></div>;
 }
 
 function Wrap({ children }: { children: React.ReactNode }) {

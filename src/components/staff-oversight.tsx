@@ -272,6 +272,7 @@ export function EventsAdmin() {
   const [f, setF] = useState(blankEv);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
   const [roster, setRoster] = useState<string | null>(null);
   const save = async () => {
@@ -283,7 +284,7 @@ export function EventsAdmin() {
     await toastErr(error, editing ? "Event updated" : "Event created");
     if (!error) { setF(blankEv); setEditing(null); setOpen(false); refresh(); }
   };
-  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "", is_private: !!ev.is_private }); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const edit = (ev: EventRow) => { setEditing(ev.id); setOpen(true); setMore(!!(ev.ends_at || ev.online_url || ev.speaker || ev.image_key || ev.agenda)); setF({ title: ev.title, description: ev.description, starts: toLocal(ev.starts_at), ends: toLocal(ev.ends_at), location: ev.location, url: ev.online_url ?? "", capacity: String(ev.capacity), category: ev.category, speaker: ev.speaker ?? "", speaker_role: ev.speaker_role ?? "", image_key: ev.image_key ?? "", agenda: ev.agenda ?? "", is_private: !!ev.is_private }); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const remove = async (id: string) => {
     if (!confirm("Delete this event and its sign-up list?")) return;
     await supabase.from("event_signups").delete().eq("event_id", id);
@@ -309,7 +310,7 @@ export function EventsAdmin() {
     <div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-muted-foreground">Plan open houses, workshops and talks. Everything here appears on the public <a href="/events" target="_blank" rel="noreferrer" className="text-primary underline">Events page</a>.</p>
-        <Button className="rounded-full" onClick={() => { setOpen(!open || !!editing); setEditing(null); setF(blankEv); }}>{open && !editing ? "Close" : "+ New event"}</Button>
+        <Button className="rounded-full" onClick={() => { setOpen(!open || !!editing); setEditing(null); setF(blankEv); setMore(false); }}>{open && !editing ? "Close" : "+ New event"}</Button>
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {[["Upcoming events", upcoming.length], ["Seats reserved", seatsTaken], ["Seats filled", seatsTotal ? `${Math.round(seatsTaken / seatsTotal * 100)}%` : "—"]].map(([l, v]) => (
@@ -322,18 +323,21 @@ export function EventsAdmin() {
           <label><span className={lbl}>Type</span><select className={`${sel} w-full`} value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>{EVENT_CATEGORIES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
           <label><span className={lbl}>Seats</span><Input type="number" min={1} value={f.capacity} onChange={e => setF({ ...f, capacity: e.target.value })} /></label>
           <label><span className={lbl}>Starts</span><Input type="datetime-local" value={f.starts} onChange={e => setF({ ...f, starts: e.target.value })} /></label>
-          <label><span className={lbl}>Ends (optional)</span><Input type="datetime-local" value={f.ends} onChange={e => setF({ ...f, ends: e.target.value })} /></label>
           <label><span className={lbl}>Location</span><Input value={f.location} onChange={e => setF({ ...f, location: e.target.value })} /></label>
+          <label className="sm:col-span-2"><span className={lbl}>Description</span><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={2} /></label>
+          <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={f.is_private} onChange={e => setF({ ...f, is_private: e.target.checked })} />Private event — hide from the website, homepage and Community (staff only)</label>
+        </div>
+        <button type="button" onClick={() => setMore(!more)} className="mt-3 text-sm font-medium text-primary underline underline-offset-2">{more ? "Hide extra details" : "More details — end time, online link, speaker, photo, agenda"}</button>
+        {more && <div className="mt-3 grid gap-3 border-t border-border pt-4 sm:grid-cols-2">
+          <label><span className={lbl}>Ends (optional)</span><Input type="datetime-local" value={f.ends} onChange={e => setF({ ...f, ends: e.target.value })} /></label>
           <label><span className={lbl}>Online link (makes it an online event)</span><Input value={f.url} onChange={e => setF({ ...f, url: e.target.value })} placeholder="https://" /></label>
           <label><span className={lbl}>Speaker</span><Input value={f.speaker} onChange={e => setF({ ...f, speaker: e.target.value })} /></label>
           <label><span className={lbl}>Speaker role</span><Input value={f.speaker_role} onChange={e => setF({ ...f, speaker_role: e.target.value })} placeholder="e.g. Academic Director" /></label>
           <label className="sm:col-span-2"><span className={lbl}>Cover photo</span>
             <div className="flex items-center gap-3"><img src={eventImage(f.image_key)} alt="" className="size-12 rounded object-cover" />
               <select className={`${sel} flex-1`} value={f.image_key} onChange={e => setF({ ...f, image_key: e.target.value })}><option value="">Default photo</option>{imageOptions.map(o => <option key={o.key} value={o.key}>{o.title}</option>)}</select></div></label>
-          <label className="sm:col-span-2"><span className={lbl}>Description</span><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={3} /></label>
-          <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" checked={f.is_private} onChange={e => setF({ ...f, is_private: e.target.checked })} />Private event — hide from the website, homepage and Community (staff only)</label>
           <label className="sm:col-span-2"><span className={lbl}>Agenda (one line per item, optional)</span><Textarea value={f.agenda} onChange={e => setF({ ...f, agenda: e.target.value })} rows={3} placeholder={"10:00 Welcome\n10:30 Demo"} /></label>
-        </div>
+        </div>}
         <div className="mt-4 flex gap-2"><Button className="rounded-full" onClick={() => void save()}>{editing ? "Save changes" : "Create event"}</Button><Button variant="ghost" onClick={() => { setOpen(false); setEditing(null); setF(blankEv); }}>Cancel</Button></div>
       </div>}
       <div className="mt-6 flex gap-2">{(["upcoming", "past", "calendar"] as const).map(v => <button key={v} onClick={() => setView(v)} className={`rounded-full border px-4 py-1.5 text-sm ${view === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{v === "upcoming" ? "Upcoming" : v === "past" ? "Past" : "Calendar"}</button>)}</div>

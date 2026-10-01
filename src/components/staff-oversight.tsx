@@ -139,13 +139,14 @@ type MemberProfile = { id: string; username: string; display_name: string; verif
 export function CommunityModeration() {
   const qc = useQueryClient();
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin-posts"] }); void qc.invalidateQueries({ queryKey: ["admin-comments"] }); void qc.invalidateQueries({ queryKey: ["admin-member-profiles"] }); };
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: posts = [] } = useQuery({
     queryKey: ["admin-posts"],
-    queryFn: async () => ((await supabase.from("posts").select("*, community_profiles(username,display_name)").order("created_at", { ascending: false }).limit(100)).data ?? []) as unknown as Post[],
+    queryFn: async () => ((await supabase.from("posts").select("*, community_profiles(username,display_name)").gte("created_at", weekAgo).order("created_at", { ascending: false }).limit(100)).data ?? []) as unknown as Post[],
   });
   const { data: comments = [] } = useQuery({
     queryKey: ["admin-comments"],
-    queryFn: async () => ((await supabase.from("post_comments").select("*, community_profiles(username,display_name)").order("created_at", { ascending: false }).limit(100)).data ?? []) as unknown as Comment[],
+    queryFn: async () => ((await supabase.from("post_comments").select("*, community_profiles(username,display_name)").gte("created_at", weekAgo).order("created_at", { ascending: false }).limit(100)).data ?? []) as unknown as Comment[],
   });
   const { data: profiles = [] } = useQuery({
     queryKey: ["admin-member-profiles"],
@@ -167,9 +168,9 @@ export function CommunityModeration() {
   if (!posts) return <ListSkeleton />;
   return (
     <div>
-      <p className="mt-4 text-muted-foreground">Hide or restore community posts and comments, and manage the verified member badge. Titles open in a new tab.</p>
-      <h3 className="mt-6 font-serif text-2xl text-primary">Posts</h3>
-      {posts.length === 0 ? <p className="mt-2 text-muted-foreground">No posts yet.</p> : (
+      <p className="mt-4 text-muted-foreground">Posts and comments from the past 7 days. Hide or restore them here, manage the verified member badge, or open a post in a new tab to hide or delete it directly on the community page.</p>
+      <h3 className="mt-6 font-serif text-2xl text-primary">Posts (past week)</h3>
+      {posts.length === 0 ? <p className="mt-2 text-muted-foreground">No posts in the past week.</p> : (
         <Table head={["Post", "Author", "Posted", "Visible"]}>{posts.map(p => (
           <tr key={p.id} className="border-t border-border">
             <td className={td}><a href={`/community/post/${p.id}`} target="_blank" rel="noopener noreferrer" className={link}>{p.title} ↗</a><div className="max-w-md truncate text-xs text-muted-foreground">{p.body}</div></td>
@@ -177,8 +178,8 @@ export function CommunityModeration() {
             <td className={td}>{date(p.created_at)}</td>
             <td className={td}><select className={selSm} value={p.hidden ? "hidden" : "visible"} onChange={e => void toggle("posts", p.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
-      <h3 className="mt-10 font-serif text-2xl text-primary">Comments</h3>
-      {comments.length === 0 ? <p className="mt-2 text-muted-foreground">No comments yet.</p> : (
+      <h3 className="mt-10 font-serif text-2xl text-primary">Comments (past week)</h3>
+      {comments.length === 0 ? <p className="mt-2 text-muted-foreground">No comments in the past week.</p> : (
         <Table head={["Comment", "Author", "Posted", "Visible"]}>{comments.map(c => (
           <tr key={c.id} className="border-t border-border">
             <td className={`${td} max-w-md`}><a href={`/community/post/${c.post_id}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{c.body}</a></td>

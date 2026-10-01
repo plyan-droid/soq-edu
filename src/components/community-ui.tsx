@@ -24,7 +24,9 @@ export function Avatar({ name, size = 40 }: { name: string; size?: number }) {
   return <span style={{ width: size, height: size }} className="grid shrink-0 place-items-center rounded-full bg-brand-navy font-serif text-lg text-brand-gold">{name.charAt(0).toUpperCase()}</span>;
 }
 
-export function PostCard({ post }: { post: PostRow }) {
+export function PostCard({ post, isStaff, onChanged }: { post: PostRow; isStaff?: boolean; onChanged?: () => void }) {
+  const hide = async () => { await supabase.from("posts").update({ hidden: !post.hidden }).eq("id", post.id); onChanged?.(); };
+  const del = async () => { if (!confirm("Delete this post permanently?")) return; await supabase.from("posts").delete().eq("id", post.id); onChanged?.(); };
   return (
     <article className="rounded-lg border border-border bg-card p-6 transition hover:border-brand-gold">
       {post.author && (
@@ -49,6 +51,12 @@ export function PostCard({ post }: { post: PostRow }) {
         <span className="flex items-center gap-1.5"><Heart className="size-4" />{countOf(post.post_likes)}</span>
         <span className="flex items-center gap-1.5"><MessageCircle className="size-4" />{countOf(post.post_comments)}</span>
         <span className="ml-auto">{readingTime(post.body)} min read</span>
+        {isStaff && (
+          <span className="flex items-center gap-2">
+            <button className="flex items-center gap-1 text-muted-foreground hover:text-primary" aria-label={post.hidden ? "Unhide post" : "Hide post"} title={post.hidden ? "Unhide" : "Hide"} onClick={() => void hide()}><EyeOff className="size-4" />{post.hidden ? "Unhide" : "Hide"}</button>
+            <button className="flex items-center gap-1 text-muted-foreground hover:text-destructive" aria-label="Delete post" title="Delete" onClick={() => void del()}><Trash2 className="size-4" /></button>
+          </span>
+        )}
       </div>
     </article>
   );

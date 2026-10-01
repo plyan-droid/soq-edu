@@ -871,6 +871,7 @@ export type Database = {
       custom_forms: {
         Row: {
           active: boolean
+          banner: string | null
           created_at: string
           fields: Json
           id: string
@@ -880,6 +881,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          banner?: string | null
           created_at?: string
           fields?: Json
           id?: string
@@ -889,6 +891,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          banner?: string | null
           created_at?: string
           fields?: Json
           id?: string

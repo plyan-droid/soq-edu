@@ -126,7 +126,7 @@ function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; on
               <NoticeFileList files={att} />
             </>}
           </article>
-        ))}
+        ); })}
       </div>
     </div>
   );

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrainerApplyForm } from "@/components/trainer-apply-form";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { approveTrainer } from "@/lib/trainer-approval.functions";
 import { courses } from "@/lib/site-content";
 import { courseTitle } from "@/components/student-dashboard";
 
@@ -52,6 +54,7 @@ type TrainerApp = { id: string; full_name: string; email: string; phone: string 
   cv_path: string | null; certs_path: string | null; years_experience: number | null; qualifications: string | null; teaching_mode: string | null; availability: string | null; languages: string | null; courses_interest: string | null; staff_note: string | null };
 export function TrainerApplications() {
   const qc = useQueryClient();
+  const approveTrainerFn = useServerFn(approveTrainer);
   const [adding, setAdding] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [filter, setFilter] = useState("pending");

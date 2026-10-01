@@ -121,7 +121,7 @@ function linkedInUrl(c: Cert) {
     issueYear: String(issued.getUTCFullYear()),
     issueMonth: String(issued.getUTCMonth() + 1),
     certId: c.code,
-    certUrl: `${window.location.origin}/verify-certificate?code=${encodeURIComponent(c.code)}`,
+    certUrl: `https://soq-edu.lovable.app/verify-certificate?code=${encodeURIComponent(c.code)}`,
   });
   return `https://www.linkedin.com/profile/add?${params.toString()}`;
 }

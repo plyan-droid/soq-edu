@@ -11,6 +11,7 @@ import { useAllCourses } from "@/lib/course-overrides";
 import { addApplicant } from "@/lib/applicants.functions";
 import { DIAL_CODES, NATIONALITIES, QUALIFICATIONS, SALES_MANAGERS, APP_STAGES } from "@/lib/applicant-options";
 import { ManualEnrol } from "@/components/staff-phase3";
+import { TrainerApplications } from "@/components/staff-tools";
 
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 type App = { id: string; course_slug: string; full_name: string; email: string; phone: string; citizenship: string | null; nationality: string | null; preferred_intake: string | null; message: string | null; status: string; source: string; sales_manager: string | null; created_at: string };
@@ -21,7 +22,8 @@ export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string)
   const qc = useQueryClient();
   const courses = useAllCourses(true);
   const titleOf = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
-  const [kind, setKind] = useState<"all" | "diploma" | "course">("all");
+  const [kind, setKind] = useState<"all" | "diploma" | "course" | "trainer">("all");
+  const { data: trainerWaiting = 0 } = useQuery({ queryKey: ["admin-trainers-waiting"], queryFn: async () => (await supabase.from("trainer_applications").select("id", { count: "exact", head: true }).eq("status", "pending")).count ?? 0 });
   const [stage, setStage] = useState("open");
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
@@ -76,11 +78,12 @@ export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string)
       </div>
       {bulk && <ManualEnrol />}
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Course type">
-        {([["all", "All"], ["diploma", "Diplomas"], ["course", "Short & certificate courses"]] as const).map(([k, l]) => (
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Application type">
+        {([["all", "All"], ["diploma", "Diplomas"], ["course", "Short & certificate courses"], ["trainer", `Trainers${trainerWaiting ? ` (${trainerWaiting} waiting)` : ""}`]] as const).map(([k, l]) => (
           <Button key={k} size="sm" variant={kind === k ? "default" : "outline"} className="rounded-full" onClick={() => setKind(k)}>{l}</Button>
         ))}
       </div>
+      {kind === "trainer" ? <TrainerApplications /> : <>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Stage">
         {[["open", "Open"], ...APP_STAGES, ["all", "Everything"]].map(([k, l]) => (
           <button key={k} type="button" onClick={() => setStage(k!)} className={`rounded-md border px-3 py-1.5 text-xs font-medium ${stage === k ? "border-brand-gold bg-brand-gold-soft/60 text-primary" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}>
@@ -117,6 +120,7 @@ export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string)
           </table>
         </div>
       )}
+      </>}
       {adding && <ApplicantForm courses={courses.map(c => ({ slug: c.slug, title: c.title }))} onClose={() => setAdding(false)} onDone={() => { setAdding(false); refresh(); }} />}
     </div>
   );

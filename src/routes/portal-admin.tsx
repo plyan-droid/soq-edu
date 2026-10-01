@@ -90,6 +90,7 @@ function Admin() {
             <option value="">Select a student…</option>
             {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
           </select>
+          {studentId && <StudentProfileForm userId={studentId} email={students.find(s => s.id === studentId)?.email} />}
           {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}
         </TabsContent>

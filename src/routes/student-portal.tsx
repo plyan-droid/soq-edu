@@ -14,6 +14,7 @@ import { ArrowRight, BookOpenCheck, CalendarClock, ClipboardCheck, FileText, Lif
 import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
 import { BusinessWorkspace } from "@/components/business-workspace";
+import { StudentProfileForm } from "@/components/student-profile-form";
 
 export const Route = createFileRoute("/student-portal")({
   head: () => ({

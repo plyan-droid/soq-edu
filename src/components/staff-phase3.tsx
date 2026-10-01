@@ -11,6 +11,8 @@ import { courses } from "@/lib/site-content";
 import { money } from "@/lib/cart";
 import { aiWrite } from "@/lib/ai-writer.functions";
 import { CertificateView, downloadCertificatePdf, TEMPLATES, useCertDesign, type CertDesign } from "@/components/certificate";
+import { addApplicant, type ApplicantInput } from "@/lib/applicants.functions";
+import { useAllCourses } from "@/lib/course-overrides";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const Box = ({ children }: { children: React.ReactNode }) => <div className="space-y-4 rounded-lg border border-border bg-card p-5">{children}</div>;
@@ -18,39 +20,125 @@ const H = ({ children }: { children: React.ReactNode }) => <h3 className="font-s
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 const fmt = (d: string) => new Date(d).toLocaleString("en-SG", { dateStyle: "medium", timeStyle: "short" });
 
-/* ---------- Manual enrol + CSV import ---------- */
+/* ---------- Spreadsheet import (CSV file → preview → import all) ---------- */
+const COLS = ["full_name", "email", "phone", "course", "nationality", "citizenship", "id_type", "id_number", "date_of_birth", "address", "qualification", "sales_manager"] as const;
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = []; let row: string[] = []; let cell = ""; let q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]!;
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ",") { row.push(cell.trim()); cell = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell.trim()); cell = ""; if (row.some(Boolean)) rows.push(row); row = []; }
+    else cell += ch;
+  }
+  row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+type Parsed = { line: number; name: string; email: string; courseTitle: string; data?: ApplicantInput; problems: string[]; result?: string };
+
 export function ManualEnrol() {
-  const [email, setEmail] = useState(""); const [slug, setSlug] = useState(courses[0]!.slug);
-  const [csv, setCsv] = useState(""); const [log, setLog] = useState<string[]>([]);
-  const enrol = async (em: string, sl: string) => {
-    const { data: p } = await supabase.from("profiles").select("id").ilike("email", em.trim()).maybeSingle();
-    if (!p) return `${em}: no account with this email — ask them to sign up first`;
-    if (!courses.some(c => c.slug === sl)) return `${em}: unknown course "${sl}"`;
-    const { data: ex } = await supabase.from("enrollments").select("id").eq("student_id", p.id).eq("course_slug", sl).maybeSingle();
-    if (ex) return `${em}: already enrolled in ${title(sl)}`;
-    const { error } = await supabase.from("enrollments").insert({ student_id: p.id, course_slug: sl, status: "active", start_date: new Date().toISOString().slice(0, 10) });
-    return error ? `${em}: ${error.message}` : `${em}: enrolled in ${title(sl)} ✓`;
+  const add = useServerFn(addApplicant);
+  const all = useAllCourses(true);
+  const [file, setFile] = useState(""); const [rows, setRows] = useState<Parsed[]>([]);
+  const [enrolNow, setEnrolNow] = useState(true); const [busy, setBusy] = useState(false);
+  const qc = useQueryClient();
+
+  const template = () => {
+    const csv = `${COLS.join(",")}\nJane Tan,jane@example.com,+65 91234567,${all[0]?.slug ?? "course-code"},SINGAPORE CITIZEN,SC,NRIC,S1234567A,15-04-1990,"123 Orchard Road, #04-01",Diploma,Jeff Lim\n`;
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = "soq-applicants-template.csv"; a.click();
   };
-  const runCsv = async () => {
-    const rows = csv.split("\n").map(r => r.split(",").map(x => x.trim())).filter(r => r[0] && r[0].includes("@"));
-    const out: string[] = [];
-    for (const [em, sl] of rows) out.push(await enrol(em!, sl ?? ""));
-    setLog(out);
+
+  const load = async (f: File) => {
+    setFile(f.name);
+    const grid = parseCsv(await f.text());
+    if (grid.length < 2) { setRows([]); toast.error("The file has no student rows"); return; }
+    const head = grid[0]!.map(h => h.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""));
+    const idx = (k: string) => head.indexOf(k);
+    setRows(grid.slice(1).map((r, i) => {
+      const g = (k: string) => (idx(k) >= 0 ? r[idx(k)] ?? "" : "");
+      const p: string[] = [];
+      const cRaw = g("course") || g("course_slug");
+      const course = all.find(c => c.slug === cRaw.toLowerCase() || c.title.toLowerCase() === cRaw.toLowerCase());
+      if (!course) p.push(cRaw ? `unknown course "${cRaw}"` : "course missing");
+      const email = g("email").toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) p.push("email invalid");
+      const name = g("full_name") || g("name");
+      if (name.length < 2) p.push("name missing");
+      if (g("phone").replace(/\D/g, "").length < 6) p.push("phone missing");
+      const cz = g("citizenship").toUpperCase();
+      const citizenship = cz === "SC" || cz.includes("CITIZEN") ? "singapore_citizen" : cz === "PR" || cz.includes("PERMANENT") ? "permanent_resident" : cz ? "foreigner" : null;
+      if (!citizenship) p.push("citizenship missing");
+      const idt = g("id_type").toUpperCase();
+      if (!["NRIC", "FIN", "PASSPORT"].includes(idt)) p.push("ID type must be NRIC, FIN or PASSPORT");
+      if (g("id_number").length < 3) p.push("ID number missing");
+      const d = g("date_of_birth") || g("dob");
+      const m1 = d.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/); const m2 = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const dob = m2 ? d : m1 ? `${m1[3]}-${m1[2]!.padStart(2, "0")}-${m1[1]!.padStart(2, "0")}` : "";
+      if (!dob) p.push("date of birth must be dd-mm-yyyy");
+      if (!g("nationality")) p.push("nationality missing");
+      if (g("address").length < 3) p.push("address missing");
+      if (!g("qualification")) p.push("qualification missing");
+      return {
+        line: i + 2, name, email, courseTitle: course?.title ?? cRaw, problems: p,
+        data: p.length ? undefined : {
+          course_slug: course!.slug, full_name: name, phone: g("phone"), nationality: g("nationality").toUpperCase(),
+          citizenship: citizenship!, id_type: idt as "NRIC", id_number: g("id_number").toUpperCase(), date_of_birth: dob,
+          email, address: g("address"), qualification: g("qualification"), sales_manager: g("sales_manager"),
+          newsletter: false, enrol_now: true, notes: "Imported from spreadsheet",
+        },
+      };
+    }));
   };
+
+  const ready = rows.filter(r => r.data && !r.result);
+  const importAll = async () => {
+    setBusy(true);
+    const next = [...rows];
+    for (const r of next) {
+      if (!r.data || r.result) continue;
+      try { const res = await add({ data: { ...r.data, enrol_now: enrolNow } }); r.result = `Saved${res.created ? " · new account" : ""}${res.enrolled ? " · enrolled" : ""}`; }
+      catch (e) { r.result = `Failed: ${e instanceof Error ? e.message : "error"}`; }
+      setRows([...next]);
+    }
+    setBusy(false);
+    toast.success("Import finished");
+    void qc.invalidateQueries({ queryKey: ["admin-applications"] }); void qc.invalidateQueries({ queryKey: ["admin-app-accounts"] }); void qc.invalidateQueries({ queryKey: ["admin-students"] });
+  };
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Box><H>Enrol one student</H>
-        <Input placeholder="Student email" value={email} onChange={e => setEmail(e.target.value)} />
-        <select className={`${sel} w-full`} value={slug} onChange={e => setSlug(e.target.value)}>{courses.map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select>
-        <Button className="rounded-full" onClick={async () => setLog([await enrol(email, slug)])}>Enrol</Button>
-      </Box>
-      <Box><H>Import from spreadsheet (CSV)</H>
-        <p className="text-sm text-muted-foreground">One student per line: <code>email,course-code</code>. Course codes are the last part of the course page address, e.g. <code>{courses[0]!.slug}</code>.</p>
-        <Textarea rows={6} value={csv} onChange={e => setCsv(e.target.value)} placeholder={`jane@example.com,${courses[0]!.slug}`} />
-        <div className="flex gap-2"><Input type="file" accept=".csv,text/csv" onChange={async e => { const f = e.target.files?.[0]; if (f) setCsv(await f.text()); }} /><Button className="rounded-full" onClick={() => void runCsv()}>Import</Button></div>
-      </Box>
-      {log.length > 0 && <ul className="rounded-lg border border-border bg-muted/40 p-4 text-sm lg:col-span-2">{log.map((l, i) => <li key={i}>{l}</li>)}</ul>}
-    </div>
+    <Box>
+      <H>Import from spreadsheet</H>
+      <p className="text-sm text-muted-foreground">Choose a CSV file saved from Excel or Google Sheets. Each row becomes an applicant, with an account created for new emails. Not sure of the columns? Download the template first.</p>
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex h-10 cursor-pointer items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          Choose file from computer
+          <input type="file" accept=".csv,text/csv" className="sr-only" onChange={e => { const f = e.target.files?.[0]; if (f) void load(f); e.target.value = ""; }} />
+        </label>
+        <Button variant="outline" className="rounded-full" onClick={template}>Download template</Button>
+        {file && <span className="text-sm text-muted-foreground">{file}</span>}
+      </div>
+      {rows.length > 0 && (
+        <>
+          <p className="text-sm"><b>{rows.filter(r => r.data).length}</b> ready · <b>{rows.filter(r => !r.data).length}</b> need fixing in the file</p>
+          <div className="max-h-80 overflow-auto rounded-md border border-border">
+            <table className="w-full text-left text-sm">
+              <thead className="sticky top-0 bg-muted"><tr>{["Row", "Name", "Email", "Course", "Status"].map(h => <th key={h} className="p-2 font-medium">{h}</th>)}</tr></thead>
+              <tbody>{rows.map(r => (
+                <tr key={r.line} className="border-t border-border align-top">
+                  <td className="p-2">{r.line}</td><td className="p-2">{r.name || "—"}</td><td className="p-2">{r.email || "—"}</td><td className="p-2">{r.courseTitle || "—"}</td>
+                  <td className={`p-2 text-xs ${r.problems.length || r.result?.startsWith("Failed") ? "text-destructive" : "text-muted-foreground"}`}>{r.result ?? (r.problems.length ? r.problems.join("; ") : "Ready")}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={enrolNow} onChange={e => setEnrolNow(e.target.checked)} /> Enrol straight away</label>
+            <Button disabled={busy || ready.length === 0} className="rounded-full bg-brand-gold text-brand-navy hover:bg-brand-gold/85" onClick={() => void importAll()}>{busy ? "Importing…" : `Import ${ready.length} applicant${ready.length === 1 ? "" : "s"}`}</Button>
+          </div>
+        </>
+      )}
+    </Box>
   );
 }
 

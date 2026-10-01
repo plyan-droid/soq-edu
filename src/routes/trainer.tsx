@@ -101,23 +101,24 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   };
   const del = async (id: string) => { if (!confirm("Delete this lesson?")) return; await supabase.from("lessons").delete().eq("id", id); void qc.invalidateQueries({ queryKey: ["t-lessons", slug] }); };
   return (
-    <div className="mt-6 grid gap-8 lg:grid-cols-2">
-      <div className="space-y-3 rounded-lg border border-border bg-card p-5">
+    <div className="mt-6 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="space-y-3 self-start rounded-md border border-border bg-card p-4 sm:p-5">
+        <h2 className="font-serif text-lg font-semibold text-primary">New lesson</h2>
         <label className="text-sm font-medium">Course</label><CoursePicker value={slug} onChange={setSlug} />
         <Input placeholder="Lesson title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
         <Textarea placeholder="Lesson notes" rows={5} value={f.body} onChange={e => setF({ ...f, body: e.target.value })} />
         <Input placeholder="Video link (YouTube or Vimeo)" value={f.video_url} onChange={e => setF({ ...f, video_url: e.target.value })} />
         <Input placeholder="Materials link (Google Drive, PDF…)" value={f.file_url} onChange={e => setF({ ...f, file_url: e.target.value })} />
         <label className="block text-sm">Unlock on (optional — leave empty to open straight away)<Input type="datetime-local" value={f.unlock_at} onChange={e => setF({ ...f, unlock_at: e.target.value })} /></label>
-        <Button className="rounded-full" onClick={() => void add()}>Add lesson</Button>
+        <Button onClick={() => void add()}>Add lesson</Button>
         <p className="text-xs text-muted-foreground">Only students enrolled in this course can open its lessons.</p>
       </div>
       <div>
         <h2 className="font-serif text-2xl text-primary">{courseName(slug)}</h2>
         {data.length === 0 ? <EmptyState text="No lessons for this course yet. Add a title and notes on the left to create the first one." /> : (
           <ol className="mt-3 space-y-2">{data.map((l, i) => (
-            <li key={l.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</span>
-              {(l.created_by === userId || isAdmin) && <button onClick={() => void del(l.id)} aria-label="Delete lesson"><Trash2 className="size-4 text-muted-foreground" /></button>}</li>))}</ol>
+            <li key={l.id} className="flex items-center justify-between gap-3 border-b border-border py-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</span>
+              {(l.created_by === userId || isAdmin) && <Button variant="ghost" size="icon" onClick={() => void del(l.id)} aria-label={`Delete ${l.title}`}><Trash2 className="size-4 text-muted-foreground" /></Button>}</li>))}</ol>
         )}
       </div>
     </div>
@@ -137,17 +138,18 @@ function Live({ userId }: { userId: string }) {
   };
   const setStatus = async (id: string, status: string) => { await supabase.from("live_sessions").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["t-live", userId] }); };
   return (
-    <div className="mt-6 grid gap-8 lg:grid-cols-2">
-      <div className="space-y-3 rounded-lg border border-border bg-card p-5">
+    <div className="mt-6 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="space-y-3 self-start rounded-md border border-border bg-card p-4 sm:p-5">
+        <h2 className="font-serif text-lg font-semibold text-primary">Schedule a class</h2>
         <CoursePicker value={f.slug} onChange={slug => setF({ ...f, slug })} />
         <Input placeholder="Class title, e.g. Q&A: colour theory" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
         <div className="grid grid-cols-2 gap-3"><Input type="datetime-local" value={f.starts_at} onChange={e => setF({ ...f, starts_at: e.target.value })} /><Input type="number" min={15} placeholder="Minutes" value={f.duration_min} onChange={e => setF({ ...f, duration_min: e.target.value })} /></div>
         <Input placeholder="Meeting link (Zoom, Google Meet, Teams)" value={f.meeting_url} onChange={e => setF({ ...f, meeting_url: e.target.value })} />
-        <Button className="rounded-full" onClick={() => void add()}>Schedule class</Button>
+        <Button onClick={() => void add()}>Schedule class</Button>
       </div>
-      <div className="space-y-3"><PendingSeatRequests userId={userId} /><ul className="space-y-2">{data.length === 0 ? <EmptyState text="No live classes yet. Use the form to schedule your first one — students can then request a seat." /> : data.map(s => (
-        <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
-          {s.status !== "cancelled" && <button className="mt-1 text-xs underline" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</button>}{s.status !== "cancelled" && <SessionRequests sessionId={s.id} />}</li>))}</ul></div>
+      <div className="min-w-0 space-y-4"><PendingSeatRequests userId={userId} /><section><h2 className="font-serif text-lg font-semibold text-primary">Scheduled classes</h2><ul className="mt-2 divide-y divide-border border-t border-border">{data.length === 0 ? <EmptyState text="No live classes yet. Schedule your first one so students can request a seat." /> : data.map(s => (
+        <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
+          {s.status !== "cancelled" && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</Button>}{s.status !== "cancelled" && <SessionRequests sessionId={s.id} />}</li>))}</ul></section></div>
     </div>
   );
 }

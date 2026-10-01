@@ -86,11 +86,8 @@ function Admin() {
         <TabsContent value="events"><EventsAdmin /></TabsContent>
         <TabsContent value="students">
           <Button asChild variant="outline" className="mt-4 rounded-full"><Link to="/staff-courses">Edit course content (syllabus, fees, outcomes)</Link></Button>
-          <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Choose one to manage their courses.</p>
-          <select className={`${sel} mt-6 w-full max-w-md`} value={studentId} onChange={e => setStudentId(e.target.value)}>
-            <option value="">Select a student…</option>
-            {students.map(s => <option key={s.id} value={s.id}>{s.full_name ? `${s.full_name} — ` : ""}{s.email}</option>)}
-          </select>
+          <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Search by name, email or student ID, then pick one to manage their details and courses.</p>
+          <StudentSearch students={students} studentId={studentId} onPick={setStudentId} />
           {studentId && <StudentProfileForm userId={studentId} email={students.find(s => s.id === studentId)?.email} />}
           {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}

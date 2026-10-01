@@ -56,7 +56,7 @@ function Admin() {
   const [studentId, setStudentId] = useState<string>("");
   const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
-  const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
+  const setActiveTool = useToolParam(id => id === "community" || isTool(id), id => setToolState((id === "community" ? "moderation" : id) as AdminTool)) as (id: AdminTool) => void;
   const ownerToolIds = new Set<string>(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0] as string));
   const visibleSections = isTopAdmin ? adminSections : adminSections.filter(s => s.name !== "Owner");
   const dashboardTitle = isTopAdmin ? "Admin Dashboard" : "Staff Dashboard";
@@ -285,4 +285,3 @@ function EnrollmentCard({ e, tasks, onChange }: { e: Enrollment; tasks: Task[]; 
   );
 }
 
-type Member = { id: string; username: string; display_name: string; member_type: string; verified: boolean };

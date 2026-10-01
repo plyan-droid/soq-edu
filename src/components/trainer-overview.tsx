@@ -84,7 +84,7 @@ export function TrainerStudents({ userId }: { userId: string }) {
   const [q, setQ] = useState("");
   const shown = roster.filter(r => (course === "all" || r.course_slug === course) && (!q || `${r.student_name} ${r.student_email}`.toLowerCase().includes(q.toLowerCase())));
   if (isLoading) return <ListSkeleton />;
-  if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach on the Overview tab first.</p>;
+  if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach in My courses first.</p>;
   return (
     <div className="mt-6 max-w-6xl">
       <div className="flex flex-wrap items-center gap-3"><select aria-label="Filter by course" className={`${sel} max-w-sm`} value={course} onChange={e => setCourse(e.target.value)}><option value="all">All my courses</option>{mine.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select><Input aria-label="Search students" className="max-w-xs" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} /><span className="text-xs text-muted-foreground">{shown.length} students</span></div>
@@ -176,22 +176,23 @@ export function TrainerCalendar({ userId }: { userId: string }) {
   const setStatus = async (id: string, status: string) => { await supabase.from("live_sessions").update({ status }).eq("id", id); refresh(); };
   const list = day ? byDay.get(day) ?? [] : [];
   return (
-    <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
-      <div className="rounded-xl border border-border bg-card p-4">
+    <div className="mt-6 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0 rounded-md border border-border bg-card p-2 sm:p-4">
         <div className="mb-3 flex items-center justify-between">
           <Button variant="ghost" size="icon" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="Previous month"><ChevronLeft /></Button>
           <p className="font-serif text-2xl text-primary">{month.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}</p>
           <Button variant="ghost" size="icon" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} aria-label="Next month"><ChevronRight /></Button>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <div key={d} className="py-1">{d}</div>)}</div>
-        <div className="grid grid-cols-7 gap-1">{cells.map((d, i) => {
+        <div className="grid grid-cols-7 gap-0.5 text-center text-xs font-medium text-muted-foreground sm:gap-1">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <div key={d} className="py-1">{d}</div>)}</div>
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">{cells.map((d, i) => {
           if (!d) return <div key={`e${i}`} />;
            const k = dayKey(d); const items = byDay.get(k) ?? [];
           return (
-             <Button key={k} variant="outline" onClick={() => setDay(k)} className={`h-auto min-h-20 min-w-0 flex-col items-stretch justify-start whitespace-normal rounded-md p-1.5 text-left text-xs shadow-none ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
+             <Button key={k} variant="outline" onClick={() => setDay(k)} aria-label={`${d.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}, ${items.length} session${items.length === 1 ? "" : "s"}`} className={`h-auto min-h-12 min-w-0 flex-col items-stretch justify-start overflow-hidden whitespace-normal rounded-sm p-0.5 text-left text-xs shadow-none sm:min-h-20 sm:p-1.5 ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
               <span className={`inline-flex size-6 items-center justify-center rounded-full ${k === today ? "bg-primary text-primary-foreground" : ""}`}>{d.getDate()}</span>
-               {items.slice(0, 2).map(item => <span key={item.data.id} className={`mt-0.5 block w-full truncate rounded px-1 ${item.kind === "class" ? "bg-brand-gold/20" : "bg-secondary text-primary"}`}>{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {item.kind === "class" ? item.data.title : `1-to-1 · ${item.data.topic}`}</span>)}
-              {items.length > 2 && <p className="mt-0.5 text-muted-foreground">+{items.length - 2} more</p>}
+               {items.slice(0, 2).map(item => <span key={item.data.id} className={`mt-0.5 hidden w-full truncate rounded px-1 sm:block ${item.kind === "class" ? "bg-brand-gold/20" : "bg-secondary text-primary"}`}>{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {item.kind === "class" ? item.data.title : `1-to-1 · ${item.data.topic}`}</span>)}
+              {items.length > 0 && <span className="text-[10px] text-muted-foreground sm:hidden">{items.length} item{items.length === 1 ? "" : "s"}</span>}
+              {items.length > 2 && <span className="mt-0.5 hidden text-muted-foreground sm:block">+{items.length - 2} more</span>}
              </Button>
           );
         })}</div>

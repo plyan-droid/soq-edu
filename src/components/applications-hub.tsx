@@ -14,6 +14,7 @@ import { ManualEnrol } from "@/components/staff-phase3";
 
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 type App = { id: string; course_slug: string; full_name: string; email: string; phone: string; citizenship: string | null; nationality: string | null; preferred_intake: string | null; message: string | null; status: string; source: string; sales_manager: string | null; created_at: string };
+const L = ({ t, children }: { t: string; children: React.ReactNode }) => <label className="block text-sm"><span className="mb-1 block font-medium text-foreground">{t}</span>{children}</label>;
 const isDiploma = (t: string) => /diploma/i.test(t);
 
 export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string) => void }) {
@@ -165,7 +166,6 @@ function ApplicantForm({ courses, onClose, onDone }: { courses: { slug: string; 
     setBusy(false);
   };
   const err = (k: string) => errors[k] && <p className="mt-1 text-xs text-destructive">{errors[k]}</p>;
-  const L = ({ t, children }: { t: string; children: React.ReactNode }) => <label className="block text-sm"><span className="mb-1 block font-medium text-foreground">{t}</span>{children}</label>;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-foreground/40" role="dialog" aria-modal="true" aria-label="New applicant">

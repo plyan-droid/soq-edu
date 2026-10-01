@@ -14,11 +14,12 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { StaffMessages } from "@/components/staff-messages";
 import { StudentProfileForm } from "@/components/student-profile-form";
-import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
+import { BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
-import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
+import { ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 import { LiveClassesOversight, TutorSlotsOversight, CommunityModeration, OrganisationsAdmin, EventsAdmin, LearningOversight } from "@/components/staff-oversight";
 import { CoursesAndIntakes } from "@/components/course-manager";
+import { ApplicationsHub } from "@/components/applications-hub";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({
@@ -40,7 +41,7 @@ const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
 const adminSections = [
   { name: "Home", icon: Home, items: [["start", "Today"], ["reports", "Reports"]] },
-  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Course applications"], ["admissions", "Diploma admissions"], ["enrol", "Enrol students"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
+  { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Applications & enrolment"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["waitlist", "Waitlists"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses", icon: BookOpen, items: [["intakes", "Courses & intakes"], ["live-classes", "Live classes & 1-to-1"], ["events", "Events"], ["trainers", "Trainer applications"], ["drafts", "Trainer courses"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
   { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community moderation"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
@@ -92,7 +93,7 @@ function Admin() {
           {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}
         </TabsContent>
-        <TabsContent value="applications"><Applications /></TabsContent>
+        <TabsContent value="applications"><ApplicationsHub onOpenStudent={id => { setStudentId(id); setActiveTool("students"); }} /></TabsContent>
         <TabsContent value="intakes"><CoursesAndIntakes /></TabsContent>
         <TabsContent value="certificates"><CertificatesAdmin /></TabsContent>
         <TabsContent value="trainers"><TrainerApplications /></TabsContent>
@@ -108,7 +109,6 @@ function Admin() {
         <TabsContent value="pages"><PagesEditor /></TabsContent>
         <TabsContent value="templates"><TemplatesEditor /></TabsContent>
         <TabsContent value="settings"><SettingsHub /></TabsContent>
-        <TabsContent value="enrol"><ManualEnrol /></TabsContent>
         <TabsContent value="orgs"><OrganisationsAdmin /></TabsContent>
         <TabsContent value="learning"><LearningOversight /></TabsContent>
         <TabsContent value="payments"><BankPayments /></TabsContent>
@@ -120,7 +120,6 @@ function Admin() {
         <TabsContent value="logins"><LoginHistory /></TabsContent>
         <TabsContent value="ai"><AIWriter /></TabsContent>
         <TabsContent value="referrals"><ReferralsAdmin /></TabsContent>
-        <TabsContent value="admissions"><AdmissionsPipeline /></TabsContent>
         <TabsContent value="exemptions"><ExemptionsAdmin /></TabsContent>
         <TabsContent value="sfc"><SfcClaims /></TabsContent>
         <TabsContent value="whatsapp"><WhatsAppReminders /></TabsContent>
@@ -132,6 +131,15 @@ function Admin() {
       </Tabs>
     </div>
   );
+}
+
+/** Page numbers with 0 marking an ellipsis gap, e.g. 1 2 … 8 9 10 … 20. */
+function pageList(cur: number, total: number): number[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const set = new Set([1, total, cur - 1, cur, cur + 1].filter(n => n >= 1 && n <= total));
+  const nums = [...set].sort((a, b) => a - b); const out: number[] = [];
+  nums.forEach((n, i) => { if (i && n - nums[i - 1]! > 1) out.push(0); out.push(n); });
+  return out;
 }
 
 function StudentDirectory({ students, studentId, onPick }: { students: Profile[]; studentId: string; onPick: (id: string) => void }) {
@@ -179,9 +187,12 @@ function StudentDirectory({ students, studentId, onPick }: { students: Profile[]
               </ul>
               <div className="mt-3 flex max-w-3xl items-center justify-between">
                 <p className="text-xs text-muted-foreground">Page {current} of {pages} · {matches.length} {matches.length === 1 ? "student" : "students"}</p>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="rounded-full" disabled={current <= 1} onClick={() => setPage(current - 1)}>Previous</Button>
-                  <Button variant="outline" size="sm" className="rounded-full" disabled={current >= pages} onClick={() => setPage(current + 1)}>Next</Button>
+                <div className="flex flex-wrap items-center gap-1">
+                  <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Previous page" disabled={current <= 1} onClick={() => setPage(current - 1)}>&lt;</Button>
+                  {pageList(current, pages).map((n, i) => n === 0 ? <span key={`gap-${i}`} className="px-1 text-xs text-muted-foreground">…</span> : (
+                    <Button key={n} size="icon" variant="outline" aria-label={`Page ${n}`} aria-current={n === current ? "page" : undefined} className={`size-8 rounded-full text-xs ${n === current ? "border-brand-gold bg-brand-gold text-brand-navy hover:bg-brand-gold/85" : ""}`} onClick={() => setPage(n)}>{n}</Button>
+                  ))}
+                  <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Next page" disabled={current >= pages} onClick={() => setPage(current + 1)}>&gt;</Button>
                 </div>
               </div>
             </>
@@ -271,58 +282,6 @@ function EnrollmentCard({ e, tasks, onChange }: { e: Enrollment; tasks: Task[]; 
         <Input type="datetime-local" className="w-56" value={due} onChange={ev => setDue(ev.target.value)} />
         <Button variant="outline" className="rounded-full" onClick={addTask}>Add item</Button>
       </div>
-    </div>
-  );
-}
-
-type Application = { id: string; course_slug: string; full_name: string; email: string; phone: string; citizenship: string | null; preferred_intake: string | null; message: string | null; status: string; created_at: string };
-
-function Applications() {
-  const qc = useQueryClient();
-  const { data = [] } = useQuery({
-    queryKey: ["admin-applications"],
-    queryFn: async () => ((await supabase.from("course_applications").select("*").order("created_at", { ascending: false }).limit(200)).data ?? []) as Application[],
-  });
-  const { data: prog = {} } = useQuery({
-    queryKey: ["admin-app-progress", data.map(a => a.id).join()], enabled: data.length > 0,
-    queryFn: async () => {
-      const { data: ps } = await supabase.from("profiles").select("id,email");
-      const { data: en } = await supabase.from("enrollments").select("student_id,course_slug,progress");
-      const byEmail = new Map((ps ?? []).map(p => [p.email.toLowerCase(), p.id]));
-      const out: Record<string, number | undefined> = {};
-      for (const a of data) { const id = byEmail.get(a.email.toLowerCase()); out[a.id] = en?.find(e => e.student_id === id && e.course_slug === a.course_slug)?.progress; }
-      return out;
-    },
-  });
-  const setStatus = async (id: string, status: string) => { await supabase.from("course_applications").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-applications"] }); };
-  const approveEnrol = async (a: Application) => {
-    const { data: p } = await supabase.from("profiles").select("id").ilike("email", a.email.trim()).maybeSingle();
-    if (!p) { await setStatus(a.id, "approved"); alert(`Approved. ${a.email} has no account yet — ask them to sign up with this email, then click "Approve & enrol" again to give them their place.`); return; }
-    const { data: ex } = await supabase.from("enrollments").select("id").eq("student_id", p.id).eq("course_slug", a.course_slug).maybeSingle();
-    if (!ex) { const { error } = await supabase.from("enrollments").insert({ student_id: p.id, course_slug: a.course_slug, status: "active", start_date: new Date().toISOString().slice(0, 10) }); if (error) { alert(error.message); return; } }
-    await setStatus(a.id, "enrolled"); void qc.invalidateQueries({ queryKey: ["admin-app-progress"] });
-  };
-  return (
-    <div className="mt-14">
-      <h2 className="font-serif text-4xl text-primary">Course applications ({data.filter(a => a.status === "new").length} new)</h2>
-      {data.length === 0 ? <p className="mt-3 text-muted-foreground">No applications yet.</p> : (
-        <div className="mt-5 overflow-x-auto rounded-lg border border-border">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-muted"><tr>{["Date", "Name", "Contact", "Course", "Intake / notes", "Status", "Progress"].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
-            <tbody>{data.map(a => (
-              <tr key={a.id} className="border-t border-border align-top">
-                <td className="p-3 whitespace-nowrap">{new Date(a.created_at).toLocaleDateString("en-SG")}</td>
-                <td className="p-3">{a.full_name}<div className="text-xs text-muted-foreground">{a.citizenship?.replace(/_/g, " ")}</div></td>
-                <td className="p-3"><a className="underline" href={`mailto:${a.email}`}>{a.email}</a><div>{a.phone}</div></td>
-                <td className="p-3">{courseTitle(a.course_slug)}</td>
-                <td className="p-3 max-w-64">{a.preferred_intake}<div className="text-xs text-muted-foreground">{a.message}</div></td>
-                <td className="p-3"><select className={sel} value={a.status} onChange={e => void setStatus(a.id, e.target.value)}>{["new", "contacted", "approved", "enrolled", "closed"].map(s => <option key={s}>{s}</option>)}</select>{a.status !== "enrolled" && <Button size="sm" className="mt-2 block rounded-full" onClick={() => void approveEnrol(a)}>Approve &amp; enrol</Button>}</td>
-                <td className="p-3">{prog[a.id] !== undefined ? `${prog[a.id]}%` : "—"}</td>
-              </tr>
-            ))}</tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }

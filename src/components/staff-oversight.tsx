@@ -139,6 +139,20 @@ function pageList(cur: number, total: number): number[] {
   sorted.forEach((n, i) => { if (i && n - sorted[i - 1]! > 1) out.push(0); out.push(n); });
   return out;
 }
+function Pager({ page, total, count, noun, onPage }: { page: number; total: number; count: number; noun: string; onPage: (n: number) => void }) {
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <p className="text-xs text-muted-foreground">Page {page} of {total} · {count} {noun}</p>
+      <nav className="flex flex-wrap items-center gap-1" aria-label={`${noun} pages`}>
+        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Previous page" disabled={page <= 1} onClick={() => onPage(page - 1)}>&lt;</Button>
+        {pageList(page, total).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-1 text-xs text-muted-foreground">…</span> : (
+          <Button key={n} size="icon" variant="outline" aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined} className={`size-8 rounded-full text-xs ${n === page ? "border-brand-gold bg-brand-gold text-brand-navy hover:bg-brand-gold/85" : ""}`} onClick={() => onPage(n)}>{n}</Button>
+        ))}
+        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Next page" disabled={page >= total} onClick={() => onPage(page + 1)}>&gt;</Button>
+      </nav>
+    </div>
+  );
+}
 type Post = { id: string; title: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type Comment = { id: string; post_id: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type MemberProfile = { id: string; username: string; display_name: string; verified: boolean; member_type: string };
@@ -171,9 +185,14 @@ export function CommunityModeration() {
   const [q, setQ] = useState("");
   const [mtype, setMtype] = useState("all");
   const [page, setPage] = useState(1);
+  const [pPage, setPPage] = useState(1);
+  const [cPage, setCPage] = useState(1);
   const PER = 50;
   const shown = profiles.filter(p => (mtype === "all" || p.member_type === mtype) && (`${p.display_name} ${p.username}`.toLowerCase().includes(q.toLowerCase())));
   const pages = Math.max(1, Math.ceil(shown.length / PER));
+  const mp = Math.min(page, pages);
+  const pPages = Math.max(1, Math.ceil(posts.length / PER)); const pp = Math.min(pPage, pPages);
+  const cPages = Math.max(1, Math.ceil(comments.length / PER)); const cp = Math.min(cPage, cPages);
   const link = "font-medium text-primary underline-offset-2 hover:underline";
   if (!posts) return <ListSkeleton />;
   return (
@@ -181,22 +200,24 @@ export function CommunityModeration() {
       <p className="mt-4 text-muted-foreground">Posts and comments from the past 7 days. Hide or restore them here, manage the verified member badge, or open a post in a new tab to hide or delete it directly on the community page.</p>
       <h3 className="mt-6 font-serif text-2xl text-primary">Posts (past week)</h3>
       {posts.length === 0 ? <p className="mt-2 text-muted-foreground">No posts in the past week.</p> : (
-        <Table head={["Post", "Author", "Posted", "Visible"]}>{posts.map(p => (
+        <Table head={["Post", "Author", "Posted", "Visible"]}>{posts.slice((pp - 1) * PER, pp * PER).map(p => (
           <tr key={p.id} className="border-t border-border">
             <td className={td}><a href={`/community/post/${p.id}`} target="_blank" rel="noopener noreferrer" className={link}>{p.title} ↗</a><div className="max-w-md truncate text-xs text-muted-foreground">{p.body}</div></td>
             <td className={td}>{p.community_profiles?.display_name ?? "—"}</td>
             <td className={td}>{date(p.created_at)}</td>
             <td className={td}><select className={selSm} value={p.hidden ? "hidden" : "visible"} onChange={e => void toggle("posts", p.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
+      <Pager page={pp} total={pPages} count={posts.length} noun={posts.length === 1 ? "post" : "posts"} onPage={setPPage} />
       <h3 className="mt-10 font-serif text-2xl text-primary">Comments (past week)</h3>
       {comments.length === 0 ? <p className="mt-2 text-muted-foreground">No comments in the past week.</p> : (
-        <Table head={["Comment", "Author", "Posted", "Visible"]}>{comments.map(c => (
+        <Table head={["Comment", "Author", "Posted", "Visible"]}>{comments.slice((cp - 1) * PER, cp * PER).map(c => (
           <tr key={c.id} className="border-t border-border">
             <td className={`${td} max-w-md`}><a href={`/community/post/${c.post_id}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{c.body}</a></td>
             <td className={td}>{c.community_profiles?.display_name ?? "—"}</td>
             <td className={td}>{date(c.created_at)}</td>
             <td className={td}><select className={selSm} value={c.hidden ? "hidden" : "visible"} onChange={e => void toggle("post_comments", c.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
+      <Pager page={cp} total={cPages} count={comments.length} noun={comments.length === 1 ? "comment" : "comments"} onPage={setCPage} />
       <h3 className="mt-10 font-serif text-2xl text-primary">Members & verified badges</h3>
       <p className="mt-1 text-sm text-muted-foreground">Every community member, sorted A to Z, 50 per page. Search by name to find someone fast. Give the Verified SOQ badge only to checked trainers and partner businesses.</p>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -207,17 +228,13 @@ export function CommunityModeration() {
         <span className="self-center text-xs text-muted-foreground">{shown.length} of {profiles.length}</span>
       </div>
       {shown.length === 0 ? <p className="mt-2 text-muted-foreground">No matching members.</p> : (
-        <><Table head={["Member", "Type", "Verified"]}>{shown.slice((Math.min(page, pages) - 1) * PER, Math.min(page, pages) * PER).map(p => (
+        <Table head={["Member", "Type", "Verified"]}>{shown.slice((mp - 1) * PER, mp * PER).map(p => (
           <tr key={p.id} className="border-t border-border">
             <td className={td}><a href={`/community/u/${p.username}`} target="_blank" rel="noopener noreferrer" className={link}>{p.display_name}</a><div className="text-xs text-muted-foreground">@{p.username}</div></td>
             <td className={td}>{p.member_type}</td>
             <td className={td}><select className={selSm} value={p.verified ? "yes" : "no"} onChange={e => void setVerified(p.id, e.target.value === "yes")}><option value="yes">Verified</option><option value="no">Not verified</option></select></td>
-          </tr>))}</Table>
-        {pages > 1 && <nav className="mt-4 flex flex-wrap items-center justify-center gap-1" aria-label="Member pages">
-          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label="Previous page">&lt;</Button>
-          {pageList(Math.min(page, pages), pages).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-1 text-muted-foreground">…</span> : <Button key={n} size="sm" variant={n === Math.min(page, pages) ? "default" : "outline"} onClick={() => setPage(n)}>{n}</Button>)}
-          <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)} aria-label="Next page">&gt;</Button>
-        </nav>}</>)}
+          </tr>))}</Table>)}
+      <Pager page={mp} total={pages} count={shown.length} noun={shown.length === 1 ? "member" : "members"} onPage={setPage} />
     </div>
   );
 }

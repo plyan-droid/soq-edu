@@ -133,7 +133,7 @@ export function TutorSlotsOversight() {
 
 /* ---------- Community moderation ---------- */
 type Post = { id: string; title: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
-type Comment = { id: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
+type Comment = { id: string; post_id: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type MemberProfile = { id: string; username: string; display_name: string; verified: boolean; member_type: string };
 
 export function CommunityModeration() {
@@ -160,15 +160,19 @@ export function CommunityModeration() {
     const { error } = await supabase.from("community_profiles").update({ verified, verified_at: verified ? new Date().toISOString() : null, verified_by: uid }).eq("id", id);
     await toastErr(error, verified ? "Badge granted" : "Badge removed"); refresh();
   };
+  const [q, setQ] = useState("");
+  const [mtype, setMtype] = useState("all");
+  const shown = profiles.filter(p => (mtype === "all" || p.member_type === mtype) && (`${p.display_name} ${p.username}`.toLowerCase().includes(q.toLowerCase())));
+  const link = "font-medium text-primary underline-offset-2 hover:underline";
   if (!posts) return <ListSkeleton />;
   return (
     <div>
-      <p className="mt-4 text-muted-foreground">Hide or restore community posts and comments, and manage the verified member badge.</p>
+      <p className="mt-4 text-muted-foreground">Hide or restore community posts and comments, and manage the verified member badge. Titles open in a new tab.</p>
       <h3 className="mt-6 font-serif text-2xl text-primary">Posts</h3>
       {posts.length === 0 ? <p className="mt-2 text-muted-foreground">No posts yet.</p> : (
         <Table head={["Post", "Author", "Posted", "Visible"]}>{posts.map(p => (
           <tr key={p.id} className="border-t border-border">
-            <td className={td}>{p.title}<div className="max-w-md truncate text-xs text-muted-foreground">{p.body}</div></td>
+            <td className={td}><a href={`/community/post/${p.id}`} target="_blank" rel="noopener noreferrer" className={link}>{p.title} ↗</a><div className="max-w-md truncate text-xs text-muted-foreground">{p.body}</div></td>
             <td className={td}>{p.community_profiles?.display_name ?? "—"}</td>
             <td className={td}>{date(p.created_at)}</td>
             <td className={td}><select className={selSm} value={p.hidden ? "hidden" : "visible"} onChange={e => void toggle("posts", p.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
@@ -177,16 +181,23 @@ export function CommunityModeration() {
       {comments.length === 0 ? <p className="mt-2 text-muted-foreground">No comments yet.</p> : (
         <Table head={["Comment", "Author", "Posted", "Visible"]}>{comments.map(c => (
           <tr key={c.id} className="border-t border-border">
-            <td className={`${td} max-w-md`}>{c.body}</td>
+            <td className={`${td} max-w-md`}><a href={`/community/post/${c.post_id}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{c.body}</a></td>
             <td className={td}>{c.community_profiles?.display_name ?? "—"}</td>
             <td className={td}>{date(c.created_at)}</td>
             <td className={td}><select className={selSm} value={c.hidden ? "hidden" : "visible"} onChange={e => void toggle("post_comments", c.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
       <h3 className="mt-10 font-serif text-2xl text-primary">Verified badges</h3>
-      {profiles.length === 0 ? <p className="mt-2 text-muted-foreground">No member profiles yet.</p> : (
-        <Table head={["Member", "Type", "Verified"]}>{profiles.map(p => (
+      <div className="mt-3 flex flex-wrap gap-2">
+        <input className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm" placeholder="Search name or @username" value={q} onChange={e => setQ(e.target.value)} />
+        <select className={selSm} value={mtype} onChange={e => setMtype(e.target.value)}>
+          <option value="all">All types</option><option value="trainer">Trainers</option><option value="business">Business</option><option value="student">Students</option><option value="alumni">Alumni</option><option value="member">Members</option>
+        </select>
+        <span className="self-center text-xs text-muted-foreground">{shown.length} of {profiles.length}</span>
+      </div>
+      {shown.length === 0 ? <p className="mt-2 text-muted-foreground">No matching members.</p> : (
+        <Table head={["Member", "Type", "Verified"]}>{shown.map(p => (
           <tr key={p.id} className="border-t border-border">
-            <td className={td}>{p.display_name}<div className="text-xs text-muted-foreground">@{p.username}</div></td>
+            <td className={td}><a href={`/community/u/${p.username}`} target="_blank" rel="noopener noreferrer" className={link}>{p.display_name}</a><div className="text-xs text-muted-foreground">@{p.username}</div></td>
             <td className={td}>{p.member_type}</td>
             <td className={td}><select className={selSm} value={p.verified ? "yes" : "no"} onChange={e => void setVerified(p.id, e.target.value === "yes")}><option value="yes">Verified</option><option value="no">Not verified</option></select></td>
           </tr>))}</Table>)}

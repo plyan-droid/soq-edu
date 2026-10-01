@@ -16,6 +16,7 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Certificate preview and PDF share one design record and the official SOQ logo asset; this keeps issued downloads consistent with staff-selected templates.
 - Demo portal records are linked only to demo accounts and visibly marked DEMO; never seed genuine certificate validation or confirmed funding because those imply verified achievements or entitlements.
 - Role portals use WorkspaceShell: 4–6 main areas, visible tool tabs, urgent-first Home cards and a dismissible checklist; keeps tasks obvious on desktop and phones.
+- Trainer workspace keeps task-first Home and trainer-scoped typography/colour overrides while preserving tool IDs; this simplifies teaching workflows without changing other portals or shared links.
 - Staff Messages shows live Contact tickets alongside explicitly DEMO-only WhatsApp conversations; private WhatsApp tables remain empty until a verified Business connection and receiver exist, preventing mock chats from being mistaken for customer messages.
 - Partner previews are detailed read-only samples; signed-in organisations use account-linked learning records, while sample commerce, referral and hiring figures never imply real transactions.
 - Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.

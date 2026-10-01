@@ -13,7 +13,7 @@ import { aiWrite } from "@/lib/ai-writer.functions";
 import { CertificateView, downloadCertificatePdf, TEMPLATES, useCertDesign, type CertDesign } from "@/components/certificate";
 import { addApplicant, type ApplicantInput } from "@/lib/applicants.functions";
 import { useAllCourses } from "@/lib/course-overrides";
-import { bannerSrc } from "@/lib/form-banner";
+import { bannerSrc, fileToBanner, BANNER_W, BANNER_H } from "@/lib/form-banner";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const Box = ({ children }: { children: React.ReactNode }) => <div className="space-y-4 rounded-lg border border-border bg-card p-5">{children}</div>;
@@ -230,7 +230,6 @@ export function FormBuilder() {
   const { data = [] } = useQuery({ queryKey: ["forms-admin"], queryFn: async () => (await supabase.from("custom_forms").select("*").order("created_at")).data ?? [] });
   const { data: resp = [] } = useQuery({ enabled: !!view, queryKey: ["form-resp", view], queryFn: async () => (await supabase.from("form_responses").select("*").eq("form_id", view!).order("created_at", { ascending: false })).data ?? [] });
   const save = async () => {
-    if (f.banner && !bannerSrc(f.banner)) return void toast.error("Picture link must start with https://");
     const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields, banner: f.banner || null });
     if (error) return void toast.error(error.message.includes("slug") ? "Page address must be 2–60 lowercase letters, numbers or dashes, and unused." : error.message);
     setF({ title: "", slug: "", intro: "", banner: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");
@@ -242,9 +241,12 @@ export function FormBuilder() {
     <Textarea placeholder="Intro text" value={f.intro} onChange={e => setF({ ...f, intro: e.target.value })} />
     <div className="space-y-2">
       <p className="text-sm font-medium">Banner picture <span className="font-normal text-muted-foreground">(optional)</span></p>
-      {preview && <div className="relative"><img src={preview} alt="Banner preview" className="h-36 w-full rounded-md object-cover" /><Button size="sm" variant="secondary" className="absolute right-2 top-2" onClick={() => setF({ ...f, banner: "" })}>Remove</Button></div>}
-      <div className="flex gap-2 overflow-x-auto pb-1">{courses.map(c => <button type="button" key={c.slug} onClick={() => setF({ ...f, banner: c.slug })} aria-label={`Use photo from ${c.title}`} className={`shrink-0 overflow-hidden rounded-md border-2 ${f.banner === c.slug ? "border-primary" : "border-transparent"}`}><img src={c.image} alt="" className="h-14 w-20 object-cover" loading="lazy" /></button>)}</div>
-      <Input placeholder="…or paste a picture link (https://…)" value={/^https?:/i.test(f.banner) ? f.banner : ""} onChange={e => setF({ ...f, banner: e.target.value.trim() })} />
+      {preview && <div className="relative"><img src={preview} alt="Banner preview" className="aspect-[3/1] w-full rounded-md object-cover" /><Button size="sm" variant="secondary" className="absolute right-2 top-2" onClick={() => setF({ ...f, banner: "" })}>Remove</Button></div>}
+      <label className="inline-flex h-10 cursor-pointer items-center rounded-full border border-input px-5 text-sm hover:bg-muted">
+        {preview ? "Change picture" : "Upload picture"}
+        <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={async e => { const file = e.target.files?.[0]; e.target.value = ""; if (!file) return; if (file.size > 10 * 1024 * 1024) return void toast.error("Picture must be under 10 MB"); try { setF({ ...f, banner: await fileToBanner(file) }); } catch { toast.error("Couldn't read that picture"); } }} />
+      </label>
+      <p className="text-xs text-muted-foreground">Best size: {BANNER_W} × {BANNER_H} px (wide, 3:1). JPG, PNG or WebP. Larger pictures are cropped to fit automatically.</p>
     </div>
     {fields.map((x, i) => <div key={i} className="flex flex-wrap items-center gap-2"><Input className="w-48" value={x.label} onChange={e => upd(i, { label: e.target.value })} />
       <select className={sel} value={x.type} onChange={e => upd(i, { type: e.target.value as Field["type"] })}><option value="text">Short answer</option><option value="email">Email</option><option value="textarea">Long answer</option><option value="select">Drop-down</option></select>

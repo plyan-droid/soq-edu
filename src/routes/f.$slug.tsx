@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { bannerSrc } from "@/lib/form-banner";
 
 export const Route = createFileRoute("/f/$slug")({
   head: () => ({ meta: [
@@ -33,7 +34,9 @@ function Page() {
     const { error } = await supabase.from("form_responses").insert({ form_id: form.id, data });
     if (error) return void toast.error("Couldn't send. Please try again."); setDone(true);
   };
+  const banner = bannerSrc(form.banner);
   return <section className="mx-auto max-w-2xl px-5 py-16">
+    {banner && <img src={banner} alt="" className="mb-8 aspect-[3/1] w-full rounded-lg object-cover" />}
     <h1 className="font-serif text-5xl text-primary">{form.title}</h1>{form.intro && <p className="mt-3 text-muted-foreground">{form.intro}</p>}
     {done ? <p className="mt-8 rounded-lg bg-brand-gold-soft p-6 text-primary">Thank you — your answers have been sent to SOQ.</p> :
       <div className="mt-8 space-y-4">{fields.map(f => <label key={f.label} className="block text-sm font-medium">{f.label}{f.required && " *"}

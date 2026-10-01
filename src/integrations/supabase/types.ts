@@ -59,6 +59,7 @@ export type Database = {
           body: string
           created_at: string
           feedback: string | null
+          files: Json
           id: string
           link: string | null
           score: number | null
@@ -71,6 +72,7 @@ export type Database = {
           body?: string
           created_at?: string
           feedback?: string | null
+          files?: Json
           id?: string
           link?: string | null
           score?: number | null
@@ -83,6 +85,7 @@ export type Database = {
           body?: string
           created_at?: string
           feedback?: string | null
+          files?: Json
           id?: string
           link?: string | null
           score?: number | null
@@ -724,6 +727,7 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
+          pinned: boolean
           title: string
         }
         Insert: {
@@ -734,6 +738,7 @@ export type Database = {
           created_at?: string
           created_by: string
           id?: string
+          pinned?: boolean
           title: string
         }
         Update: {
@@ -744,6 +749,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           id?: string
+          pinned?: boolean
           title?: string
         }
         Relationships: []

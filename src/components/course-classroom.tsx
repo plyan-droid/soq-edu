@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ExternalLink, FileText, ClipboardCheck, HelpCircle, MapPin, Video, Plus, Bold, Italic, Underline, List, Strikethrough, Upload, Palette, Megaphone } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, FileText, ClipboardCheck, HelpCircle, MapPin, Video, Plus, Bold, Italic, Underline, List, Strikethrough, Upload, Palette, Megaphone, Pin } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
@@ -10,6 +10,9 @@ import { useTrainerCourses } from "@/components/trainer-overview";
 import { noticeColor } from "@/components/trainer-tools";
 import { NoticeFileList, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
+import { AssignmentMarking } from "@/components/assignment-marking";
+import { ClassroomForum } from "@/components/classroom-forum";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +25,7 @@ const safe = (u: string) => (u.startsWith("http") ? u : `https://${u}`);
 export const modeLabel: Record<string, string> = { online: "Online", in_person: "In person", hybrid: "Hybrid" };
 
 type Tab = "stream" | "classwork" | "people" | "grades";
-type Sub = { id: string; assignment_id: string; body: string; link: string | null; score: number | null; feedback: string | null; status: string; student_name: string; created_at: string };
+type Sub = { id: string; assignment_id: string; body: string; link: string | null; files: unknown; score: number | null; feedback: string | null; status: string; student_name: string; created_at: string };
 type Asg = { id: string; title: string; instructions: string | null; due_at: string | null; max_score: number; assignment_submissions: Sub[] };
 type Quiz = { id: string; title: string; pass_mark: number; gives_certificate: boolean; quiz_questions: { id: string; prompt: string; options: string[]; position: number; kind: string }[]; quiz_attempts: { score: number; passed: boolean }[] };
 type Session = { id: string; title: string; starts_at: string; duration_min: number; meeting_url: string | null; status: string; mode?: string; location?: string | null };
@@ -62,13 +65,23 @@ type Draft = { id: string | null; text: string; color: string; keep: NoticeFile[
 const blankDraft: Draft = { id: null, text: "", color: "navy", keep: [], added: [], removed: [] };
 
 function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; onNavigate: (t: string) => void }) {
+  const { user } = useAuth();
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const { data: notices = [] } = useQuery({ queryKey: ["t-notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   const { data: next = [] } = useQuery({ queryKey: ["c-next", slug, userId], queryFn: async () => ((await supabase.from("live_sessions").select("*").eq("course_slug", slug).eq("trainer_id", userId).neq("status", "cancelled").gte("starts_at", new Date().toISOString()).order("starts_at").limit(3)).data ?? []) as Session[] });
-  const refresh = () => void qc.invalidateQueries({ queryKey: ["t-notices", slug] });
+  const refresh = () => { void qc.invalidateQueries({ queryKey: ["t-notices", slug] }); void qc.invalidateQueries({ queryKey: ["notices", slug] }); };
+  const pin = async (id: string, current: boolean) => {
+    if (!current) {
+      const existing = notices.find(n => n.pinned);
+      if (existing) { const { error } = await supabase.from("course_notices").update({ pinned: false }).eq("id", existing.id); if (error) return void toast.error("Couldn't change the pinned announcement"); }
+    }
+    const { error } = await supabase.from("course_notices").update({ pinned: !current }).eq("id", id);
+    if (error) return void toast.error("Couldn't change the pinned announcement");
+    refresh();
+  };
 
   const wrap = (pre: string, post = pre) => {
     const ta = taRef.current; if (!ta || !draft) return;
@@ -119,8 +132,9 @@ function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; on
         <Button variant="link" size="sm" className="h-auto p-0" onClick={() => onNavigate("live")}>Schedule a class</Button>
       </aside>
       <div className="space-y-4">
+        {user && <ClassroomForum slug={slug} user={user} isStaff />}
         <button onClick={() => setDraft(blankDraft)} className="flex w-full items-center gap-3 rounded-full border border-border px-4 py-3 text-left text-sm text-muted-foreground shadow-sm hover:bg-muted/50">
-          <Megaphone className="size-4 shrink-0 text-primary" /> Announce something to your class
+          <Megaphone className="size-4 shrink-0 text-primary" /> Post a trainer announcement
         </button>
         <Dialog open={!!draft} onOpenChange={o => !o && setDraft(null)}>
           <DialogContent className="sm:max-w-2xl">
@@ -162,10 +176,10 @@ function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; on
             </>}
           </DialogContent>
         </Dialog>
-        {notices.length === 0 ? <p className="text-sm text-muted-foreground">No announcements yet.</p> : notices.map(n => { const att = asFiles((n as { attachments?: unknown }).attachments); return (
+        {notices.length === 0 ? <p className="text-sm text-muted-foreground">No announcements yet.</p> : [...notices].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(n => { const att = asFiles((n as { attachments?: unknown }).attachments); return (
           <article key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color] ?? ""}`}>
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium">{n.title}</p><p className="text-xs text-muted-foreground">{fmtDateTime(n.created_at)}</p></div>
-              <div className="flex shrink-0 gap-3 text-xs"><button className="text-primary underline" onClick={() => setDraft({ id: n.id, text: n.body ?? n.title, color: n.color, keep: att, added: [], removed: [] })}>Edit</button><button className="text-muted-foreground underline hover:text-destructive" onClick={() => void del(n.id, att)}>Delete</button></div></div>
+            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium">{n.pinned && <Pin className="mr-1 inline size-3" />} {n.title}</p><p className="text-xs text-muted-foreground">{n.pinned && "Pinned · "}{fmtDateTime(n.created_at)}</p></div>
+              <div className="flex shrink-0 gap-3 text-xs"><Button variant="link" size="sm" className="h-auto p-0" onClick={() => void pin(n.id, n.pinned)}>{n.pinned ? "Unpin" : "Pin"}</Button><Button variant="link" size="sm" className="h-auto p-0" onClick={() => setDraft({ id: n.id, text: n.body ?? n.title, color: n.color, keep: att, added: [], removed: [] })}>Edit</Button><Button variant="link" size="sm" className="h-auto p-0" onClick={() => void del(n.id, att)}>Delete</Button></div></div>
             {n.body && <NoticeBody text={n.body} className="mt-2 text-sm" />}
             <NoticeFileList files={att} />
           </article>
@@ -286,17 +300,9 @@ function AsgView({ a, slug }: { a: Asg; slug: string }) {
 
 /* ---------- SpeedGrader ---------- */
 function SpeedGrader({ subs, max, slug, start = 0 }: { subs: Sub[]; max: number; slug: string; start?: number }) {
-  const qc = useQueryClient();
   const [i, setI] = useState(start);
   const s = subs[Math.min(i, subs.length - 1)]!;
-  const [g, setG] = useState<Record<string, { score: string; feedback: string }>>({});
-  const cur = g[s.id] ?? { score: s.score?.toString() ?? "", feedback: s.feedback ?? "" };
-  const save = async (advance: boolean) => {
-    const { error } = await supabase.from("assignment_submissions").update({ score: cur.score === "" ? null : Math.min(max, +cur.score), feedback: cur.feedback, status: "graded" }).eq("id", s.id);
-    if (error) return void toast.error("Couldn't save the grade");
-    toast.success("Grade saved"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
-    if (advance && i < subs.length - 1) setI(i + 1);
-  };
+  const { user } = useAuth();
   return (
     <div className="mt-3 rounded-md border border-border">
       <div className="flex items-center justify-between border-b border-border px-3 py-2 text-sm">
@@ -306,11 +312,8 @@ function SpeedGrader({ subs, max, slug, start = 0 }: { subs: Sub[]; max: number;
       </div>
       <div className="space-y-3 p-3 text-sm">
         <p className="text-xs text-muted-foreground">Handed in {fmtDateTime(s.created_at)}</p>
-        {s.body ? <p className="max-h-60 overflow-y-auto whitespace-pre-line rounded bg-muted/50 p-3">{s.body}</p> : <p className="text-muted-foreground">No written answer.</p>}
-        {s.link && <a href={safe(s.link)} target="_blank" rel="noreferrer" className="text-primary underline">Open their file</a>}
-        <div className="flex items-center gap-2"><Input className="w-24" type="number" placeholder="Score" value={cur.score} onChange={e => setG({ ...g, [s.id]: { ...cur, score: e.target.value } })} /><span className="text-muted-foreground">/ {max}</span></div>
-        <Textarea placeholder="Feedback for the student" value={cur.feedback} onChange={e => setG({ ...g, [s.id]: { ...cur, feedback: e.target.value } })} />
-        <div className="flex gap-2"><Button size="sm" onClick={() => void save(false)}>Save</Button>{i < subs.length - 1 && <Button size="sm" variant="outline" onClick={() => void save(true)}>Save & next</Button>}</div>
+        {user && <AssignmentMarking key={s.id} submission={s} max={max} slug={slug} trainerId={user.id} />}
+        <Button size="sm" variant="outline" disabled={i >= subs.length - 1} onClick={() => setI(i + 1)}>Next learner</Button>
       </div>
     </div>
   );

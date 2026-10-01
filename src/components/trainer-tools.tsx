@@ -9,6 +9,7 @@ import { useTrainerCourses } from "@/components/trainer-overview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AssignmentMarking } from "@/components/assignment-marking";
 
 const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const card = "rounded-lg border border-border bg-card p-5";
@@ -91,19 +92,12 @@ export function TrainerAssignments({ userId, isAdmin }: { userId: string; isAdmi
   const qc = useQueryClient();
   const [slug, setSlug] = useState("");
   const [f, setF] = useState({ title: "", instructions: "", due: "", max: 100 });
-  const [grade, setGrade] = useState<Record<string, { score: string; feedback: string }>>({});
   const { data = [] } = useQuery({ enabled: !!slug, queryKey: ["t-asg", slug], queryFn: async () => (await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   const add = async () => {
     if (!f.title.trim()) { toast.error("Give the assignment a title"); return; }
     const { error } = await supabase.from("assignments").insert({ course_slug: slug, title: f.title.trim(), instructions: f.instructions, due_at: f.due ? new Date(f.due).toISOString() : null, max_score: f.max, created_by: userId });
     if (error) { toast.error("Couldn't save"); return; }
     setF({ title: "", instructions: "", due: "", max: 100 }); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
-  };
-  const saveGrade = async (id: string) => {
-    const g = grade[id]; if (!g) return;
-    const { error } = await supabase.from("assignment_submissions").update({ score: g.score === "" ? null : +g.score, feedback: g.feedback, status: "graded" }).eq("id", id);
-    if (error) { toast.error("Couldn't save the grade"); return; }
-    toast.success("Grade saved"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
   };
   return (
     <div className="mt-6 grid gap-8 lg:grid-cols-[380px_1fr]">
@@ -124,14 +118,9 @@ export function TrainerAssignments({ userId, isAdmin }: { userId: string; isAdmi
             <ul className="mt-3 space-y-3">
               {(a.assignment_submissions ?? []).length === 0 && <li className="text-sm text-muted-foreground">No submissions yet.</li>}
               {(a.assignment_submissions ?? []).map(s => {
-                const g = grade[s.id] ?? { score: s.score?.toString() ?? "", feedback: s.feedback ?? "" };
                 return <li key={s.id} className="rounded-md bg-muted/50 p-3 text-sm">
                   <p className="font-medium">{s.student_name} <span className="text-xs text-muted-foreground">· {fmtDateTime(s.created_at)}{a.due_at && new Date(s.created_at) > new Date(a.due_at) && " · LATE"}</span></p>
-                  {s.body && <p className="mt-1 whitespace-pre-line">{s.body}</p>}
-                  {s.link && <a href={s.link.startsWith("http") ? s.link : `https://${s.link}`} target="_blank" rel="noreferrer" className="text-primary underline">Open their file</a>}
-                  <div className="mt-2 flex flex-wrap gap-2"><Input className="w-24" placeholder="Score" type="number" value={g.score} onChange={e => setGrade({ ...grade, [s.id]: { ...g, score: e.target.value } })} />
-                    <Input className="min-w-48 flex-1" placeholder="Feedback" value={g.feedback} onChange={e => setGrade({ ...grade, [s.id]: { ...g, feedback: e.target.value } })} />
-                    <Button size="sm" onClick={() => void saveGrade(s.id)}>{s.status === "graded" ? "Update" : "Grade"}</Button></div>
+                  <AssignmentMarking submission={s} max={a.max_score} slug={slug} trainerId={userId} />
                 </li>;
               })}
             </ul>

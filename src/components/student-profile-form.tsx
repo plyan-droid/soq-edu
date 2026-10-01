@@ -23,7 +23,7 @@ const empty: Profile = { full_name: "", phone: "", date_of_birth: "", citizenshi
 
 const field = "h-11 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring";
 
-export function StudentProfileForm({ userId, email, heading = "Student details" }: { userId: string; email?: string; heading?: string }) {
+export function StudentProfileForm({ userId, email, heading = "Student details" }: { userId: string; email?: string | undefined; heading?: string }) {
   const qc = useQueryClient();
   const [form, setForm] = useState<Profile>(empty);
   const [errors, setErrors] = useState<Record<string, string>>({});

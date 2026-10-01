@@ -45,37 +45,28 @@ export function TrainerOverview({ userId }: { userId: string }) {
     await supabase.from("trainer_courses").delete().eq("trainer_id", userId).eq("course_slug", slug);
     void qc.invalidateQueries({ queryKey: ["t-courses", userId] }); void qc.invalidateQueries({ queryKey: ["t-roster", userId] });
   };
-  const stats = [
-    { Icon: BookOpen, label: "Courses I teach", value: mine.length },
-    { Icon: Users, label: "Enrolled students", value: roster.length },
-    { Icon: CalendarDays, label: "Upcoming sessions", value: next.length },
-    { Icon: CheckCircle2, label: "Avg. progress", value: roster.length ? `${Math.round(roster.reduce((a, r) => a + r.progress, 0) / roster.length)}%` : "—" },
-  ];
   return (
-    <div className="mt-6 space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{stats.map(({ Icon, label, value }) => (
-        <div key={label} className="rounded-xl border border-border bg-card p-5"><Icon className="size-5 text-brand-gold" /><p className="mt-3 font-serif text-4xl text-primary">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>
-      ))}</div>
-      <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+    <div className="mt-6 max-w-6xl space-y-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,320px)]">
         <section>
           <h2 className="font-serif text-2xl text-primary">My courses</h2>
           {mine.length === 0 && <p className="mt-2 text-sm text-muted-foreground">Add the courses you teach to see their students here.</p>}
-          <ul className="mt-3 grid gap-3 sm:grid-cols-2">{mine.map(slug => {
+          <ul className="mt-3 divide-y divide-border border-y border-border">{mine.map(slug => {
             const n = roster.filter(r => r.course_slug === slug).length;
             return (
-              <li key={slug} className="rounded-lg border border-border bg-card p-4">
+              <li key={slug} className="py-3">
                 <div className="flex items-start justify-between gap-2"><Link to="/courses/$slug" params={{ slug }} className="font-medium hover:underline">{courseName(slug)}</Link><button onClick={() => void remove(slug)} aria-label="Remove course"><X className="size-4 text-muted-foreground" /></button></div>
                 <p className="mt-1 text-sm text-muted-foreground">{n} student{n === 1 ? "" : "s"} · {next.filter(s => s.course_slug === slug).length} upcoming</p>
               </li>
             );
           })}</ul>
-          <div className="mt-4 flex gap-2"><select className={sel} value={pick} onChange={e => setPick(e.target.value)}><option value="">Add a course I teach…</option>{courses.filter(c => !mine.includes(c.slug)).map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select><Button className="rounded-full" onClick={() => void add()}>Add</Button></div>
+          <div className="mt-4 flex gap-2"><select className={sel} value={pick} onChange={e => setPick(e.target.value)}><option value="">Add a course I teach…</option>{courses.filter(c => !mine.includes(c.slug)).map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select><Button disabled={!pick} onClick={() => void add()}>Add</Button></div>
         </section>
         <section>
           <h2 className="font-serif text-2xl text-primary">Next sessions</h2>
           {next.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Nothing scheduled. Use the Calendar tab.</p> : (
-            <ul className="mt-3 space-y-2">{next.slice(0, 5).map(s => (
-              <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-muted-foreground">{fmtDateTime(s.starts_at)} · {courseName(s.course_slug)}</p>
+            <ul className="mt-3 divide-y divide-border border-y border-border">{next.slice(0, 5).map(s => (
+              <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-muted-foreground">{fmtDateTime(s.starts_at)} · {courseName(s.course_slug)}</p>
                 {s.meeting_url && <a href={s.meeting_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs underline"><ExternalLink className="size-3" />Start & host</a>}</li>
             ))}</ul>
           )}
@@ -95,10 +86,10 @@ export function TrainerStudents({ userId }: { userId: string }) {
   if (isLoading) return <ListSkeleton />;
   if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach on the Overview tab first.</p>;
   return (
-    <div className="mt-6">
-      <div className="flex flex-wrap gap-3"><select className={`${sel} max-w-sm`} value={course} onChange={e => setCourse(e.target.value)}><option value="all">All my courses</option>{mine.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select><Input className="max-w-xs" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} /></div>
+    <div className="mt-6 max-w-6xl">
+      <div className="flex flex-wrap items-center gap-3"><select aria-label="Filter by course" className={`${sel} max-w-sm`} value={course} onChange={e => setCourse(e.target.value)}><option value="all">All my courses</option>{mine.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select><Input aria-label="Search students" className="max-w-xs" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} /><span className="text-xs text-muted-foreground">{shown.length} students</span></div>
       {shown.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">No enrolled students yet. Staff enrol students from the Staff admin page.</p> : (
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border"><table className="w-full text-sm">
+        <div className="mt-4 overflow-x-auto rounded-md border border-border bg-card"><table className="w-full min-w-[780px] text-sm">
           <thead className="bg-muted text-left"><tr>{["Student", "Course", "Progress", "Lessons done", "Dates", "Status"].map(h => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
           <tbody>{shown.map(r => (
             <tr key={r.enrollment_id} className="border-t border-border">

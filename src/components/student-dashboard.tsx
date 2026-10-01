@@ -6,7 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 
-type Enrollment = { id: string; course_slug: string; progress: number; start_date: string | null; end_date: string | null; status: string };
+export type Task = { id: string; enrollment_id: string; kind: string; title: string; due_at: string; status: string; result: string | null };
+export type Enrollment = { id: string; course_slug: string; progress: number; start_date: string | null; end_date: string | null; status: string };
 type Application = { id: string; course_slug: string; preferred_intake: string | null; status: string; created_at: string };
 const statusLabel: Record<string, string> = { new: "Received", contacted: "Adviser contacted you", enrolled: "Enrolled", closed: "Closed", waitlist: "Waitlisted" };
 export const courseTitle = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;

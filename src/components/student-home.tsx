@@ -73,7 +73,7 @@ async function loadStudentHome(userId: string, email: string) {
 function Agenda({ items }: { items: AgendaItem[] }) {
   return items.length ? <ul className="divide-y divide-border">{items.map(item => <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
     <div className="min-w-0"><span className="text-xs font-semibold uppercase text-muted-foreground">{item.kind} · {dateText(item.date)}</span><p className="font-medium text-foreground">{item.title}</p><p className="text-xs text-muted-foreground">{item.detail}</p></div>
-    {item.slug && <Button asChild variant="ghost" size="icon" title={`Open ${item.title}`}><Link to="/learn/$slug" params={{ slug: item.slug }} hash={item.target ? `#${item.target}` : undefined} aria-label={`Open ${item.title}`}><ArrowRight className="size-4" /></Link></Button>}
+    {item.slug && <Button asChild variant="ghost" size="icon" title={`Open ${item.title}`}><Link to="/learn/$slug" params={{ slug: item.slug }} {...(item.target ? { hash: item.target } : {})} aria-label={`Open ${item.title}`}><ArrowRight className="size-4" /></Link></Button>}
   </li>)}</ul> : <p className="py-4 text-sm text-muted-foreground">Nothing scheduled yet.</p>;
 }
 

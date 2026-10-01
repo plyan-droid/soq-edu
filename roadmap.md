@@ -108,4 +108,4 @@
 - [x] Merge course applications, diploma admissions and enrolment into Learners → Applications & enrolment (full grant form, auto account), numbered student pages
 - [x] Website application form uses the full grant form and auto-creates accounts; old diploma admissions merged
 - [x] Student Home and My courses prioritise enrolled classes, next work and upcoming sessions
-- [x] Student class workspace offers Stream, Classwork, People and My work with direct assignment and quiz links
+- [x] Student class workspace offers Stream with discussion, Classwork and Grades in Community; People stays trainer-only and direct assignment/quiz links remain available

@@ -16,7 +16,7 @@ import { NoticeBody } from "@/components/notice-body";
 const card = "rounded-lg border border-border bg-card p-5";
 
 export function CourseNoticesList({ slug }: { slug: string }) {
-  const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false }).limit(5)).data ?? [] });
+  const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   if (data.length === 0) return null;
   return <div className="mb-6 space-y-2">{data.map(n => (
     <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.title}</p>{n.body && <NoticeBody text={n.body} className="mt-1 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>

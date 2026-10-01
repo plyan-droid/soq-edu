@@ -25,7 +25,7 @@ function CourseDiscussion() {
     queryKey: ["course-discussion-access", user?.id, slug],
     queryFn: async () => {
       const [enrolled, teaching] = await Promise.all([
-        supabase.from("enrollments").select("id").eq("student_id", user?.id ?? "").eq("course_slug", slug).limit(1),
+        supabase.from("enrollments").select("id").eq("student_id", user?.id ?? "").eq("course_slug", slug).neq("status", "withdrawn").limit(1),
         supabase.from("trainer_courses").select("course_slug").eq("trainer_id", user?.id ?? "").eq("course_slug", slug).limit(1),
       ]);
       return !!enrolled.data?.length || !!teaching.data?.length;

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
 import { BusinessWorkspace } from "@/components/business-workspace";
 import { StudentProfileForm } from "@/components/student-profile-form";
+import { MyInvoices } from "@/components/my-invoices";
 
 export const Route = createFileRoute("/student-portal")({
   head: () => ({
@@ -51,7 +52,8 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
       { id: "certs", label: "Certificates", content: <MyCertificates userId={userId} /> },
     ] },
     { name: "Payments", icon: Wallet, items: [
-      { id: "pay", label: "Instalments", content: <MyInstalments userId={userId} /> },
+      { id: "pay", label: "Payments", content: <MyInstalments userId={userId} /> },
+      { id: "invoices", label: "Invoices", content: <MyInvoices userId={userId} /> },
       { id: "sfc", label: "SkillsFuture Credit", content: <MySkillsFuture userId={userId} email={email} /> },
       ...(!isAdmin ? [{ id: "staff", label: "Request staff access", content: <RequestStaffAccess userId={userId} email={email} /> }] : []),
     ] },

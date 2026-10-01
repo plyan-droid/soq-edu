@@ -109,3 +109,6 @@
 - [x] Website application form uses the full grant form and auto-creates accounts; old diploma admissions merged
 - [x] Student Home and My courses prioritise enrolled classes, next work and upcoming sessions
 - [x] Student class workspace offers Stream with discussion, Classwork and Grades in Community; People stays trainer-only and direct assignment/quiz links remain available
+- [x] Issued valid certificates can be added to LinkedIn Licences & certifications with verification details (requires a genuine issued certificate to test live)
+- [x] Student payments have a viewable, downloadable invoice record with unconfirmed transfers clearly distinguished
+- [x] Open class lands in Community → My Courses → class discussion

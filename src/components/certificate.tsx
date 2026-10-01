@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Award, BadgeCheck, Download } from "lucide-react";
+import { Award, BadgeCheck, Download, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,6 +112,19 @@ export async function downloadCertificatePdf(d: CertDesign, c: { name: string; c
 
 /* Student portal: My certificates */
 type Cert = { id: string; code: string; student_name: string; course_slug: string; issued_on: string; status: string };
+function linkedInUrl(c: Cert) {
+  const issued = new Date(c.issued_on);
+  const params = new URLSearchParams({
+    startTask: "CERTIFICATION_NAME",
+    name: courseName(c.course_slug),
+    organizationName: "SOQ International Academy",
+    issueYear: String(issued.getUTCFullYear()),
+    issueMonth: String(issued.getUTCMonth() + 1),
+    certId: c.code,
+    certUrl: `https://soq-edu.lovable.app/verify-certificate?code=${encodeURIComponent(c.code)}`,
+  });
+  return `https://www.linkedin.com/profile/add?${params.toString()}`;
+}
 export function MyCertificates({ userId }: { userId: string }) {
   const { data: design } = useCertDesign();
   const { data = [] } = useQuery({ queryKey: ["my-certs", userId], queryFn: async () => ((await supabase.from("certificates").select("id,code,student_name,course_slug,issued_on,status").eq("student_id", userId).order("issued_on", { ascending: false })).data ?? []) as Cert[] });
@@ -125,9 +138,10 @@ export function MyCertificates({ userId }: { userId: string }) {
               {design && <CertificateView design={design} name={c.student_name} course={courseName(c.course_slug)} code={c.code} date={c.issued_on} />}
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                 <div><p className="font-medium">{courseName(c.course_slug)}</p><p className="text-xs text-muted-foreground">{c.code} · {c.status === "valid" ? "Valid" : "Revoked"}</p></div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" className="rounded-full"><Link to="/verify-certificate" search={{ code: c.code }}><BadgeCheck /> Verify</Link></Button>
                   <Button size="sm" className="rounded-full" disabled={!design || c.status !== "valid"} onClick={() => { if (design) void downloadCertificatePdf(design, { name: c.student_name, course: courseName(c.course_slug), code: c.code, date: c.issued_on }).catch(() => toast.error("Couldn't create the PDF")); }}><Download /> Download PDF</Button>
+                  {c.status === "valid" && <Button asChild variant="outline" size="sm" className="rounded-full"><a href={linkedInUrl(c)} target="_blank" rel="noopener noreferrer" aria-label={`Add ${courseName(c.course_slug)} to LinkedIn Licences and certifications`}>Add to LinkedIn <ExternalLink className="size-4" /></a></Button>}
                 </div>
               </div>
             </div>

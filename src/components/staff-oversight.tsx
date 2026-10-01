@@ -342,26 +342,57 @@ export function LearningOversight() {
     queryKey: ["admin-attendance"],
     queryFn: async () => ((await supabase.from("attendance").select("session_id,student_id,status,live_sessions(title,starts_at,course_slug)").limit(500)).data ?? []) as unknown as Att[],
   });
+  const { data: links = [] } = useQuery({
+    queryKey: ["admin-trainer-links"],
+    queryFn: async () => {
+      const tc = ((await supabase.from("trainer_courses").select("trainer_id,course_slug")).data ?? []) as { trainer_id: string; course_slug: string }[];
+      const ids = [...new Set(tc.map(t => t.trainer_id))];
+      const profs = ids.length ? (((await supabase.from("profiles").select("id,full_name,email").in("id", ids)).data ?? []) as { id: string; full_name: string | null; email: string }[]) : [];
+      const name = new Map(profs.map(p => [p.id, p.full_name || p.email]));
+      return tc.map(t => ({ ...t, name: name.get(t.trainer_id) ?? "Trainer" }));
+    },
+  });
+  const [trainer, setTrainer] = useState("");
+  const [course, setCourse] = useState("");
+  const trainersFor = (slug: string) => links.filter(l => l.course_slug === slug).map(l => l.name).join(", ") || "No trainer assigned";
+  const trainerOptions = [...new Map(links.map(l => [l.trainer_id, l.name])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  const allSlugs = [...new Set([...asgs.map(a => a.course_slug), ...(quizList?.quizzes ?? []).map(q => q.course_slug), ...attendance.map(a => a.live_sessions?.course_slug).filter(Boolean) as string[]])].sort((a, b) => courseTitle(a).localeCompare(courseTitle(b)));
+  const show = (slug: string | undefined | null) => !!slug && (!course || slug === course) && (!trainer || links.some(l => l.trainer_id === trainer && l.course_slug === slug));
   const grade = async (id: string, patch: Partial<Sub>) => {
     const { error } = await supabase.from("assignment_submissions").update(patch).eq("id", id);
     await toastErr(error, "Submission graded"); refresh();
   };
   if (!asgs) return <ListSkeleton />;
+  const shownAsgs = asgs.filter(a => show(a.course_slug));
+  const shownQuizzes = (quizList?.quizzes ?? []).filter(q => show(q.course_slug));
+  const shownAtt = attendance.filter(r => show(r.live_sessions?.course_slug));
+  const selCls = "h-10 rounded-md border border-input bg-background px-3 text-sm";
   return (
     <div>
-      <p className="mt-4 text-muted-foreground">Assignments and submissions across all courses — view work, record a score and feedback.</p>
-      {asgs.length === 0 ? <p className="mt-2 text-muted-foreground">No assignments set yet.</p> : (
-        <div className="mt-5 space-y-3">{asgs.map(a => <AssignmentCard key={a.id} a={a} onGrade={grade} />)}</div>)}
+      <p className="mt-4 text-muted-foreground">Assignments, quizzes and attendance across all courses, with the trainer for each course. Filter by trainer or course.</p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <select aria-label="Filter by trainer" className={selCls} value={trainer} onChange={e => setTrainer(e.target.value)}>
+          <option value="">All trainers</option>{trainerOptions.map(([id, n]) => <option key={id} value={id}>{n}</option>)}
+        </select>
+        <select aria-label="Filter by course" className={`${selCls} max-w-xs`} value={course} onChange={e => setCourse(e.target.value)}>
+          <option value="">All courses</option>{allSlugs.map(s => <option key={s} value={s}>{courseTitle(s)}</option>)}
+        </select>
+        {(trainer || course) && <button className="text-sm text-primary underline" onClick={() => { setTrainer(""); setCourse(""); }}>Clear filters</button>}
+      </div>
+      <h3 className="mt-8 font-serif text-2xl text-primary">Assignments</h3>
+      {shownAsgs.length === 0 ? <p className="mt-2 text-muted-foreground">No assignments match.</p> : (
+        <div className="mt-5 space-y-3">{shownAsgs.map(a => <AssignmentCard key={a.id} a={a} trainers={trainersFor(a.course_slug)} onGrade={grade} />)}</div>)}
       <h3 className="mt-10 font-serif text-2xl text-primary">Quizzes</h3>
-      {quizList?.quizzes?.length ? (
-        <Table head={["Course", "Quiz", "Pass mark", "Attempts", "Passes"]}>{quizList.quizzes.map(q => (
+      {shownQuizzes.length ? (
+        <Table head={["Course", "Trainer", "Quiz", "Pass mark", "Attempts", "Passes"]}>{shownQuizzes.map(q => (
           <tr key={q.id} className="border-t border-border">
             <td className={td}>{courseTitle(q.course_slug)}</td>
+            <td className={td}>{trainersFor(q.course_slug)}</td>
             <td className={td}>{q.title}</td>
             <td className={td}>{q.pass_mark}%</td>
             <td className={td}>{quizList.attempts.filter(x => x.quiz_id === q.id).length}</td>
             <td className={td}>{quizList.attempts.filter(x => x.quiz_id === q.id && x.passed).length}</td>
-          </tr>))}</Table>) : <p className="mt-2 text-muted-foreground">No quizzes yet.</p>}
+          </tr>))}</Table>) : <p className="mt-2 text-muted-foreground">No quizzes match.</p>}
       <h3 className="mt-10 font-serif text-2xl text-primary">Attendance</h3>
       {attendance.length === 0 ? <p className="mt-2 text-muted-foreground">No attendance recorded yet.</p> : (() => {
         const bySession = new Map<string, Att[]>();

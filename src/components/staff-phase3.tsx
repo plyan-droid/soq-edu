@@ -235,6 +235,19 @@ export function FormBuilder() {
     setF({ title: "", slug: "", intro: "", banner: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");
   };
   const upd = (i: number, p: Partial<Field>) => setFields(fields.map((x, j) => j === i ? { ...x, ...p } : x));
+  const downloadExcel = async () => {
+    const form = data.find(x => x.id === view);
+    const XLSX = await import("xlsx");
+    const keys = [...new Set(resp.flatMap(r => Object.keys(r.data as Record<string, string>)))];
+    const rows = resp.map(r => {
+      const d = r.data as Record<string, string>;
+      return { "Submitted": fmt(r.created_at), ...Object.fromEntries(keys.map(k => [k, d[k] ?? ""])) };
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Responses");
+    XLSX.writeFile(wb, `${(form?.slug ?? "form")}-responses.xlsx`);
+  };
   const preview = bannerSrc(f.banner);
   return <div className="space-y-6"><Box><H>Build a form</H>
     <div className="grid gap-3 sm:grid-cols-2"><Input placeholder="Form title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} /><Input placeholder="Page address, e.g. open-house-rsvp" value={f.slug} onChange={e => setF({ ...f, slug: e.target.value })} /></div>
@@ -257,7 +270,10 @@ export function FormBuilder() {
   </Box>
     <Box><H>Your forms</H><ul className="divide-y divide-border text-sm">{data.map(x => <li key={x.id} className="flex flex-wrap items-center justify-between gap-2 py-2"><span><strong>{x.title}</strong> · <a className="underline" href={`/f/${x.slug}`} target="_blank" rel="noreferrer">/f/{x.slug}</a></span>
       <span className="flex gap-2"><Button size="sm" variant="outline" onClick={() => setView(view === x.id ? null : x.id)}>Responses</Button><button aria-label="Delete" onClick={async () => { await supabase.from("custom_forms").delete().eq("id", x.id); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); }}><Trash2 className="size-4" /></button></span></li>)}</ul>
-      {view && (resp.length === 0 ? <p className="text-sm text-muted-foreground">No responses yet.</p> : <ul className="space-y-2 text-sm">{resp.map(r => <li key={r.id} className="rounded-md bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{fmt(r.created_at)}</p>{Object.entries(r.data as Record<string, string>).map(([k, v]) => <p key={k}><strong>{k}:</strong> {v}</p>)}</li>)}</ul>)}
+      {view && (resp.length === 0 ? <p className="text-sm text-muted-foreground">No responses yet.</p> : <>
+        <Button size="sm" variant="outline" className="mb-3 rounded-full" onClick={() => void downloadExcel()}>Download Excel</Button>
+        <ul className="space-y-2 text-sm">{resp.map(r => <li key={r.id} className="rounded-md bg-muted/40 p-3"><p className="text-xs text-muted-foreground">{fmt(r.created_at)}</p>{Object.entries(r.data as Record<string, string>).map(([k, v]) => <p key={k}><strong>{k}:</strong> {v}</p>)}</li>)}</ul>
+      </>)}
     </Box></div>;
 }
 

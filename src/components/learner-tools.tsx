@@ -127,8 +127,8 @@ export function JoinWaitlist({ slug }: { slug: string }) {
   const [open, setOpen] = useState(false); const [done, setDone] = useState(false);
   const [f, setF] = useState({ name: "", email: "", phone: "" });
   const join = async () => {
-    if (f.name.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(f.email)) return void toast.error("Enter your name and a valid email.");
-    const { error } = await supabase.from("course_waitlist").insert({ course_slug: slug, name: f.name.trim().slice(0, 120), email: f.email.trim().slice(0, 200), phone: f.phone.trim().slice(0, 30) || null });
+    if (f.name.trim().length < 2 || !/^\S+@\S+\.\S+$/.test(f.email) || f.phone.trim().length < 6) return void toast.error("Enter your name, a valid email and your mobile number.");
+    const { error } = await supabase.from("course_applications").insert({ course_slug: slug, full_name: f.name.trim().slice(0, 120), email: f.email.trim().slice(0, 200), phone: f.phone.trim().slice(0, 30), status: "waitlist", source: "website", message: "Joined the waitlist" });
     if (error) return void toast.error("Couldn't join the waitlist. Please try again.");
     setDone(true);
   };

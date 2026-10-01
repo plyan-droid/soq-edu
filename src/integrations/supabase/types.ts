@@ -1974,6 +1974,56 @@ export type Database = {
           },
         ]
       }
+      session_plans: {
+        Row: {
+          activities: string
+          assessment: string
+          created_at: string
+          id: string
+          materials: string
+          objectives: string
+          session_id: string
+          staff_note: string | null
+          status: string
+          trainer_id: string
+          updated_at: string
+        }
+        Insert: {
+          activities?: string
+          assessment?: string
+          created_at?: string
+          id?: string
+          materials?: string
+          objectives?: string
+          session_id: string
+          staff_note?: string | null
+          status?: string
+          trainer_id: string
+          updated_at?: string
+        }
+        Update: {
+          activities?: string
+          assessment?: string
+          created_at?: string
+          id?: string
+          materials?: string
+          objectives?: string
+          session_id?: string
+          staff_note?: string | null
+          status?: string
+          trainer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_plans_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sfc_balances: {
         Row: {
           balance: number

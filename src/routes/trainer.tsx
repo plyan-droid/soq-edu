@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { WorkspaceShell, type WorkspaceSection } from "@/components/workspace-shell";
-import { TrainerQuizzes, TrainerAssignments, TrainerAttendance, TrainerNotices, TrainerStats, TrainerSlots } from "@/components/trainer-tools";
+import { TrainerQuizzes, TrainerAssignments, TrainerAttendance, TrainerStats, TrainerSlots } from "@/components/trainer-tools";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { categories, courses } from "@/lib/site-content";
@@ -67,7 +67,6 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
       { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
       { id: "quizzes", label: "Quizzes", content: <TrainerQuizzes userId={userId} isAdmin={isAdmin} /> },
       { id: "assignments", label: "Assignments", content: <TrainerAssignments userId={userId} isAdmin={isAdmin} /> },
-      { id: "notices", label: "Notices", content: <TrainerNotices userId={userId} isAdmin={isAdmin} /> },
       { id: "drafts", label: "Propose a course", content: isTrainer ? <Drafts userId={userId} /> : <p className="mt-6 text-muted-foreground">Only trainer accounts write course proposals. Review them on the Staff admin page.</p> },
     ] },
     { name: "Students", icon: Users, items: [
@@ -79,7 +78,7 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
       { id: "profile", label: "Public profile", content: <TutorProfileEditor /> },
     ] },
   ];
-  return <div className="trainer-workspace"><WorkspaceShell title="Trainer Dashboard" sections={sections} active={active} onChange={setActive} /></div>;
+  return <div className="trainer-workspace"><WorkspaceShell title="Trainer Dashboard" sections={sections} active={active} onChange={setActive} aliases={{ notices: "classroom" }} /></div>;
 }
 
 function Wrap({ children }: { children: React.ReactNode }) {

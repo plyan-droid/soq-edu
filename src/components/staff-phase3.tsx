@@ -226,9 +226,7 @@ type Field = { label: string; type: "text" | "email" | "textarea" | "select"; re
 export function FormBuilder() {
   const qc = useQueryClient();
   const [f, setF] = useState({ title: "", slug: "", intro: "", banner: "" }); const [fields, setFields] = useState<Field[]>([{ label: "Full name", type: "text", required: true }, { label: "Email", type: "email", required: true }]);
-  const [view, setView] = useState<string | null>(null);
   const { data = [] } = useQuery({ queryKey: ["forms-admin"], queryFn: async () => (await supabase.from("custom_forms").select("*").order("created_at")).data ?? [] });
-  const { data: resp = [] } = useQuery({ enabled: !!view, queryKey: ["form-resp", view], queryFn: async () => (await supabase.from("form_responses").select("*").eq("form_id", view!).order("created_at", { ascending: false })).data ?? [] });
   const save = async () => {
     const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields, banner: f.banner || null });
     if (error) return void toast.error(error.message.includes("slug") ? "Page address must be 2–60 lowercase letters, numbers or dashes, and unused." : error.message);

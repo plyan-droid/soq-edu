@@ -92,7 +92,7 @@ function Admin() {
           {studentId && <StudentEditor studentId={studentId} />}
         </TabsContent>
         <TabsContent value="applications"><Applications /></TabsContent>
-        <TabsContent value="intakes"><IntakesEditor /></TabsContent>
+        <TabsContent value="intakes"><CoursesAndIntakes /></TabsContent>
         <TabsContent value="certificates"><CertificatesAdmin /></TabsContent>
         <TabsContent value="trainers"><TrainerApplications /></TabsContent>
         <TabsContent value="drafts"><CourseDraftsReview /></TabsContent>

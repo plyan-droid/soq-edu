@@ -25,3 +25,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Course-specific Community discussions use separate private threads and replies scoped by course membership, keeping public community posts distinct from classroom conversations.
 - Student class links open the Community course workspace with Stream, Classwork and Grades; /learn/$slug shares that workspace for existing assessment deep links, while People remains trainer-only.
 - The official SOQ logo is bundled locally for shared chrome, chat and certificate PDF; this avoids intermittent CDN asset-proxy failures that broke the visible brand and PDF downloads.
+- Student invoice PDFs derive from account-scoped transfer or order records and label unconfirmed transfers and demo orders explicitly; a generated document never claims payment is verified.

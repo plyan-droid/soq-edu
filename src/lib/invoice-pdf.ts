@@ -35,13 +35,13 @@ export async function downloadInvoicePdf(payment: InvoiceRecord) {
   pdf.setFontSize(21); pdf.text("INVOICE", 18, 56);
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(10);
   const issue = new Date(payment.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const state = payment.status === "approved" ? (payment.plan === "full" ? "Transfer confirmed" : "Transfer confirmed; instalments may remain") : payment.status === "rejected" ? "Transfer not confirmed" : "Awaiting transfer confirmation";
+  const state = payment.status === "demo" ? "Demo order - not a payment receipt" : payment.status === "approved" ? (payment.plan === "full" ? "Transfer confirmed" : "Transfer confirmed; instalments may remain") : payment.status === "rejected" ? "Transfer not confirmed" : "Awaiting transfer confirmation";
   const rows = [
     `Invoice number: SOQ-${payment.id.slice(0, 8).toUpperCase()}`,
     `Date: ${issue}`,
     `Bill to: ${payment.full_name}`,
     payment.email,
-    `Payment method: ${payment.method === "paynow" ? "PayNow" : "Bank transfer"}`,
+    `Payment method: ${payment.method === "paynow" ? "PayNow" : payment.method === "card" ? "Demo card checkout" : "Bank transfer"}`,
     `Transfer reference: ${payment.reference}`,
     `Status: ${state}`,
     `Payment plan: ${payment.plan === "full" ? "Full amount" : `${payment.plan} instalments`}`,

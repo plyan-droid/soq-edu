@@ -166,11 +166,11 @@ export function NoticesStrip() {
 export function MyInstalments({ userId }: { userId: string }) {
   const { data: pays = [] } = useQuery({ queryKey: ["my-bank", userId], queryFn: async () => (await supabase.from("bank_payments").select("*").order("created_at", { ascending: false })).data ?? [] });
   const { data: inst = [] } = useQuery({ queryKey: ["my-inst", userId], queryFn: async () => (await supabase.from("instalments").select("*").order("due_date")).data ?? [] });
-  if (!pays.length) return null;
+  if (!pays.length) return <section className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><h2 className="font-serif text-3xl text-primary">My payments</h2><p className="mt-3 text-sm text-muted-foreground">No transfers or instalments recorded.</p></section>;
   return <section className="mx-auto max-w-7xl px-5 pb-12 lg:px-8"><h2 className="font-serif text-3xl text-primary">My payments</h2>
     <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-card text-sm">{pays.map(p => <li key={p.id} className="p-4">
       <div className="flex flex-wrap justify-between gap-2"><span>{(p.items as { title: string }[]).map(i => i.title).join(", ")} · {p.method === "paynow" ? "PayNow" : "Bank transfer"} ref {p.reference}</span>
         <span className="font-medium">${Number(p.total).toFixed(2)} · {p.status === "pending" ? "Waiting for SOQ to confirm" : p.status}</span></div>
       {inst.filter(i => i.payment_id === p.id).length > 0 && <ul className="mt-2 grid gap-1 sm:grid-cols-3">{inst.filter(i => i.payment_id === p.id).map(i => <li key={i.id} className={i.paid ? "text-muted-foreground line-through" : ""}>#{i.seq} · {i.due_date} · ${Number(i.amount).toFixed(2)}{i.paid ? " paid" : ""}</li>)}</ul>}
-    </li>)}</ul></section>;
+    </li>)}</ul><Button asChild variant="link" className="mt-4 px-0"><Link to="/student-portal" search={{ tool: "invoices" }}>View invoices →</Link></Button></section>;
 }

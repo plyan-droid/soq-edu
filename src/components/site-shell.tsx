@@ -110,6 +110,55 @@ export function Brand({ size = "md" }: { size?: "md" | "lg"; light?: boolean }) 
   );
 }
 
+function ResourcesMenu() {
+  return (
+    <div className="group relative">
+      <Link
+        to="/resources"
+        className="flex items-center gap-1 text-sm text-foreground/80 transition-colors group-hover:text-primary hover:text-primary"
+        activeProps={{ className: "text-primary font-semibold" }}
+      >
+        Resources
+        <ChevronDown className="size-4 transition-transform group-hover:rotate-180" />
+      </Link>
+      <div className="invisible absolute left-1/2 top-full z-50 w-[22rem] -translate-x-1/2 pt-3 opacity-0 transition-all duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+        <div className="rounded-xl border border-border bg-background p-2 shadow-lg">
+          {resourceLinks.map(({ icon: Icon, label, desc, to, href }) => {
+            const inner = (
+              <>
+                <Icon className="mt-0.5 size-5 shrink-0 text-brand-gold" />
+                <span>
+                  <span className="block text-sm font-medium text-primary">{label}</span>
+                  <span className="block text-xs text-muted-foreground">{desc}</span>
+                </span>
+              </>
+            );
+            return to ? (
+              <Link
+                key={label}
+                to={to}
+                className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-muted"
+              >
+                {inner}
+              </Link>
+            ) : (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="flex gap-3 rounded-lg p-3 transition-colors hover:bg-muted"
+              >
+                {inner}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { user, isAdmin, isTrainer, isOrg, loading } = useAuth();

@@ -18,6 +18,7 @@ import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmi
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";
 import { LiveClassesOversight, TutorSlotsOversight, CommunityModeration, OrganisationsAdmin, EventsAdmin, LearningOversight } from "@/components/staff-oversight";
+import { CoursesAndIntakes } from "@/components/course-manager";
 
 export const Route = createFileRoute("/portal-admin")({
   head: () => ({

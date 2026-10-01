@@ -70,14 +70,20 @@ export function StudentAssignments({ slug }: { slug: string }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [f, setF] = useState<Record<string, { body: string; link: string }>>({});
+  const [open, setOpen] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-asg", slug, user?.id], queryFn: async () => (await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("due_at", { nullsFirst: false })).data ?? [] });
   if (!user || data.length === 0) return null;
   const submit = async (id: string) => {
     const v = f[id]; if (!v || (!v.body.trim() && !v.link.trim())) { toast.error("Write an answer or add a link to your file"); return; }
+    if (v.link.trim() && !/^https?:\/\//i.test(v.link.trim())) { toast.error("Use a full https:// link for your file"); return; }
+    if (saving) return;
+    setSaving(true);
     const name = (user.user_metadata?.["full_name"] as string) || user.email || "Student";
     const { error } = await supabase.from("assignment_submissions").insert({ assignment_id: id, student_id: user.id, student_name: name, body: v.body.trim(), link: v.link.trim() || null });
+    setSaving(false);
     if (error) { toast.error("Couldn't submit"); return; }
-    toast.success("Submitted"); void qc.invalidateQueries({ queryKey: ["s-asg", slug] });
+    toast.success("Handed in"); setOpen(null); void qc.invalidateQueries({ queryKey: ["s-asg", slug] });
   };
   return (
     <div className={card}>
@@ -86,16 +92,13 @@ export function StudentAssignments({ slug }: { slug: string }) {
         const mine = (a.assignment_submissions ?? []).find(s => s.student_id === user.id);
         const v = f[a.id] ?? { body: "", link: "" };
         return <li key={a.id} className="text-sm">
-          <p className="font-medium">{a.title}</p>
-          <p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"}</p>
-          {a.instructions && <p className="mt-1 whitespace-pre-line">{a.instructions}</p>}
-          {mine ? (
-            <p className="mt-2 rounded-md bg-muted/50 p-2">{mine.status === "graded" ? <>Grade: <b>{mine.score}/{a.max_score}</b>{mine.feedback && ` — ${mine.feedback}`}</> : "Submitted. Waiting for your trainer to grade it."}</p>
-          ) : (
-            <div className="mt-2 space-y-2"><Textarea placeholder="Your answer" value={v.body} onChange={e => setF({ ...f, [a.id]: { ...v, body: e.target.value } })} maxLength={10000} />
-              <Input placeholder="Link to your file (Google Drive, OneDrive…)" value={v.link} onChange={e => setF({ ...f, [a.id]: { ...v, link: e.target.value } })} maxLength={500} />
-              <Button size="sm" className="rounded-full" onClick={() => void submit(a.id)}>Submit</Button></div>
-          )}
+          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Graded" : "Handed in" : "To do"}</span></Button>
+          <p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"} · {a.max_score} marks</p>
+          {open === a.id && <div className="mt-3 space-y-3 border-t border-border pt-3">
+            {a.instructions && <p className="whitespace-pre-line">{a.instructions}</p>}
+            {mine ? <div className="rounded-md bg-muted/50 p-3"><p className="font-medium">{mine.status === "graded" ? `Marked: ${mine.score}/${a.max_score}` : "Handed in · waiting for marking"}</p>{mine.body && <p className="mt-2 whitespace-pre-line">{mine.body}</p>}{mine.link && <a href={mine.link} target="_blank" rel="noreferrer" className="mt-2 block text-primary underline">Your submitted link</a>}{mine.feedback && <p className="mt-2 whitespace-pre-line"><b>Trainer feedback:</b> {mine.feedback}</p>}</div>
+            : <div className="space-y-2"><Textarea aria-label={`Answer for ${a.title}`} placeholder="Your answer" value={v.body} onChange={e => setF({ ...f, [a.id]: { ...v, body: e.target.value } })} maxLength={10000} /><Input aria-label={`File link for ${a.title}`} placeholder="File link (Google Drive, OneDrive…)" value={v.link} onChange={e => setF({ ...f, [a.id]: { ...v, link: e.target.value } })} maxLength={500} /><Button size="sm" disabled={saving || (!v.body.trim() && !v.link.trim())} onClick={() => void submit(a.id)}>Hand in assignment</Button></div>}
+          </div>}
         </li>;
       })}</ul>
     </div>

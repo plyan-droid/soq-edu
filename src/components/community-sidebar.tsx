@@ -30,7 +30,7 @@ const other = [
 ] as const;
 
 const item = (active: boolean) =>
-  `flex items-center gap-3 rounded-md px-3 py-2 text-sm ${active ? "bg-brand-gold-soft font-medium text-primary" : "text-foreground/80 hover:bg-brand-gold-soft hover:text-primary"}`;
+  `flex min-w-0 items-center gap-3 rounded-md px-3 py-2 text-sm ${active ? "bg-brand-gold-soft font-medium text-primary" : "text-foreground/80 hover:bg-brand-gold-soft hover:text-primary"}`;
 
 type Props = { active: string; who?: string | undefined };
 
@@ -38,7 +38,7 @@ export function CommunitySidebar({ active, who }: Props) {
   const [open, setOpen] = useState(true);
   const myCourses = useMyCourses();
   return (
-    <aside className="hidden content-start gap-6 lg:grid">
+    <aside className="hidden min-w-0 content-start gap-6 lg:grid">
       <nav className="grid gap-0.5">
         <p className="eyebrow mb-1 px-3">Community</p>
         <Link to="/community" className={item(active === "home")}><Home className="size-4 text-brand-gold" />Home</Link>
@@ -49,7 +49,7 @@ export function CommunitySidebar({ active, who }: Props) {
         <Link to="/community/members" className={item(active === "members")}><Users className="size-4 text-brand-gold" />Members</Link>
         <Link to="/community/saved" className={item(active === "saved")}><Bookmark className="size-4 text-brand-gold" />Saved posts</Link>
       </nav>
-      {myCourses.length > 0 && <nav className="grid gap-0.5"><p className="eyebrow mb-1 px-3">My Courses</p>{myCourses.map(slug => <Link key={slug} to="/community/course/$slug" params={{ slug }} className={item(active === `course:${slug}`)}><BookHeart className="size-4 shrink-0 text-brand-gold" /><span className="min-w-0 truncate">{courses.find(c => c.slug === slug)?.title ?? slug}</span></Link>)}</nav>}
+      {myCourses.length > 0 && <nav className="grid min-w-0 gap-0.5"><p className="eyebrow mb-1 px-3">My Courses</p>{myCourses.map(slug => { const title = courses.find(c => c.slug === slug)?.title ?? slug; return <Link key={slug} to="/community/course/$slug" params={{ slug }} title={title} className={item(active === `course:${slug}`)}><BookHeart className="size-4 shrink-0 text-brand-gold" /><span className="min-w-0 truncate">{title}</span></Link>; })}</nav>}
       <div>
         <button type="button" onClick={() => setOpen(o => !o)} className="eyebrow mb-1 flex w-full items-center justify-between px-3">
           Learn with SOQ <ChevronDown className={`size-4 transition ${open ? "" : "-rotate-90"}`} />

@@ -104,3 +104,4 @@
 - [x] Learning oversight (assignments + grading, quizzes and attempts, attendance)
 - [x] Full student details form: profiles gained phone/DOB/citizenship/address/emergency contact/referral fields; student "My details" tab, staff student detail form, application pre-fill
 - [x] Merge course applications, diploma admissions and enrolment into Learners → Applications & enrolment (full grant form, auto account), numbered student pages
+- [x] Website application form uses the full grant form and auto-creates accounts; old diploma admissions merged

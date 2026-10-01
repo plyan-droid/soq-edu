@@ -45,7 +45,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
   useEffect(() => {
     // Stale page files after an update: reload once to fetch fresh ones.
-    const msg = String(error?.message ?? "");
+    const msg = String((error as Error | undefined)?.message ?? "");
     if (/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module/i.test(msg)) {
       const KEY = "soq-chunk-reload";
       const last = Number(sessionStorage.getItem(KEY) || 0);

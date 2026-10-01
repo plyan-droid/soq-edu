@@ -115,8 +115,11 @@ function PostPage() {
               {c.author && <MemberBadge type={c.author.member_type} verified={c.author.verified} />}
               <span className="text-muted-foreground">· {timeAgo(c.created_at)}</span>
               {c.hidden && <span className="text-xs text-destructive">hidden</span>}
+              {isAdmin && (
+                <button className="ml-auto text-muted-foreground hover:text-primary" aria-label={c.hidden ? "Unhide comment" : "Hide comment"} title={c.hidden ? "Unhide" : "Hide"} onClick={async () => { await supabase.from("post_comments").update({ hidden: !c.hidden }).eq("id", c.id); refresh(); }}><EyeOff className="size-4" /></button>
+              )}
               {user && (user.id === c.author_id || isAdmin) && (
-                <button className="ml-auto text-muted-foreground hover:text-destructive" aria-label="Delete comment" onClick={async () => { await supabase.from("post_comments").delete().eq("id", c.id); refresh(); }}><Trash2 className="size-4" /></button>
+                <button className={`${isAdmin ? "" : "ml-auto "}text-muted-foreground hover:text-destructive`} aria-label="Delete comment" onClick={async () => { await supabase.from("post_comments").delete().eq("id", c.id); refresh(); }}><Trash2 className="size-4" /></button>
               )}
             </div>
             <p className="mt-2 whitespace-pre-line leading-7">{c.body}</p>

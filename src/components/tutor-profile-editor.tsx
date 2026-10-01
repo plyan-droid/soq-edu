@@ -25,14 +25,16 @@ export function TutorProfileEditor() {
   const qc = useQueryClient();
   const { data } = useQuery({ queryKey: ["my-tutor", user?.id], enabled: !!user, queryFn: async () => (await supabase.from("tutor_profiles").select("*").eq("user_id", user!.id).maybeSingle()).data as Tutor | null });
   const [f, setF] = useState<Tutor | null>(null);
-  const v: Tutor = f ?? data ?? { user_id: user!.id, display_name: "", bio: "", subjects: [], days: [], times: [], location: "Anson Road campus", online: true, visible: true };
+  const v: Tutor = f ?? data ?? { user_id: user?.id ?? "", display_name: "", bio: "", subjects: [], days: [], times: [], location: "Anson Road campus", online: true, visible: true };
   const set = (p: Partial<Tutor>) => setF({ ...v, ...p });
   const save = async () => {
+    if (!user) { toast.error("Please log in to save your trainer listing"); return; }
     if (!v.display_name.trim()) { toast.error("Add your display name"); return; }
-    const { error } = await supabase.from("tutor_profiles").upsert({ ...v, user_id: user!.id, updated_at: new Date().toISOString() });
+    const { error } = await supabase.from("tutor_profiles").upsert({ ...v, user_id: user.id, updated_at: new Date().toISOString() });
     if (error) { toast.error("Couldn't save"); return; }
     toast.success("Your trainer listing is saved"); void qc.invalidateQueries({ queryKey: ["tutors"] }); void qc.invalidateQueries({ queryKey: ["start-here"] });
   };
+  if (!user) return <p className="mt-6 text-sm text-muted-foreground">Please log in to edit your trainer listing.</p>;
   return (
     <div className="mt-6 rounded-lg border border-border bg-card p-6">
       <p className="text-sm text-muted-foreground">This is what visitors see on the Book a 1-to-1 tutor page and in Tutor Finder.</p>

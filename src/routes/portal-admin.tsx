@@ -13,6 +13,7 @@ import { courseTitle, type Enrollment, type Task } from "@/components/student-da
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CertificatesAdmin, Reports, ReviewModeration, Subscribers, TrainerApplications, CourseDraftsReview, UsersAdmin, Sales, DiscountCodes, PagesEditor, TemplatesEditor, SettingsHub } from "@/components/staff-tools";
 import { StaffMessages } from "@/components/staff-messages";
+import { StudentProfileForm } from "@/components/student-profile-form";
 import { ManualEnrol, BankPayments, WaitlistAdmin, NoticeboardAdmin, BundlesAdmin, FormBuilder, CertificateDesigner, LoginHistory, AIWriter, ReferralsAdmin } from "@/components/staff-phase3";
 import { StaffRequests, StudentOverview, OrgMembersAdmin } from "@/components/staff-phase5";
 import { AdmissionsPipeline, ExemptionsAdmin, SfcClaims, WhatsAppReminders, LeadsAdmin, IntegrationsStatus } from "@/components/staff-phase4";

@@ -140,15 +140,19 @@ function pageList(cur: number, total: number): number[] {
   return out;
 }
 function Pager({ page, total, count, noun, onPage }: { page: number; total: number; count: number; noun: string; onPage: (n: number) => void }) {
+  const pageBtn = "inline-flex size-6 items-center justify-center rounded text-xs transition-colors";
   return (
     <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
       <p className="text-xs text-muted-foreground">Page {page} of {total} · {count} {noun}</p>
-      <nav className="flex flex-wrap items-center gap-1" aria-label={`${noun} pages`}>
-        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Previous page" disabled={page <= 1} onClick={() => onPage(page - 1)}>&lt;</Button>
-        {pageList(page, total).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-1 text-xs text-muted-foreground">…</span> : (
-          <Button key={n} size="icon" variant="outline" aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined} className={`size-8 rounded-full text-xs ${n === page ? "border-brand-gold bg-brand-gold text-brand-navy hover:bg-brand-gold/85" : ""}`} onClick={() => onPage(n)}>{n}</Button>
+      <nav className="flex items-center gap-0.5" aria-label={`${noun} pages`}>
+        <button aria-label="Previous page" disabled={page <= 1} onClick={() => onPage(page - 1)}
+          className={`${pageBtn} text-muted-foreground hover:bg-muted disabled:opacity-30`}>&lt;</button>
+        {pageList(page, total).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-0.5 text-xs text-muted-foreground">…</span> : (
+          <button key={n} aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined} onClick={() => onPage(n)}
+            className={`${pageBtn} ${n === page ? "font-semibold text-brand-gold" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{n}</button>
         ))}
-        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Next page" disabled={page >= total} onClick={() => onPage(page + 1)}>&gt;</Button>
+        <button aria-label="Next page" disabled={page >= total} onClick={() => onPage(page + 1)}
+          className={`${pageBtn} text-muted-foreground hover:bg-muted disabled:opacity-30`}>&gt;</button>
       </nav>
     </div>
   );

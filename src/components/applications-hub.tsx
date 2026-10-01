@@ -148,8 +148,6 @@ function ApplicantForm({ courses, onClose, onDone }: { courses: { slug: string; 
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) er.email = "Enter a valid email";
     if (f.address.trim().length < 3) er.address = "Enter the address";
     if (!f.qualification) er.qualification = "Select highest qualification";
-    if (!f.truth) er.truth = "Please confirm the details are correct";
-    if (!f.terms) er.terms = "The Terms and Data Protection Policy must be accepted";
     setErrors(er);
     if (Object.keys(er).length) return;
     setBusy(true);
@@ -192,10 +190,7 @@ function ApplicantForm({ courses, onClose, onDone }: { courses: { slug: string; 
           <div className="sm:col-span-2"><L t="Staff notes (optional)"><Textarea rows={2} maxLength={2000} value={f.notes} onChange={set("notes")} /></L></div>
         </div>
 
-        <div className="mt-5 space-y-3 text-sm">
-          <label className="flex gap-3"><input type="checkbox" className="mt-1" checked={f.newsletter} onChange={set("newsletter")} />I would like to receive newsletters, promotions, offers and alerts of my favourite course's new run dates via email.</label>
-          <label className="flex gap-3"><input type="checkbox" className="mt-1" checked={f.truth} onChange={set("truth")} /><span>By submitting this form, I confirm that all information provided is true, accurate and complete, and that I have double-checked the details. I acknowledge that SOQ International Academy will use the email address and contact details provided for course-related communications, and that incorrect or incomplete details may mean I miss course confirmations and reminders.</span></label>{err("truth")}
-          <label className="flex gap-3"><input type="checkbox" className="mt-1" checked={f.terms} onChange={set("terms")} /><span>I have read and agree to SOQ International Academy's <a className="underline" href="https://soq.edu.sg/terms-of-service" target="_blank" rel="noreferrer">Terms of Service</a> and <a className="underline" href="https://soq.edu.sg/data-policy" target="_blank" rel="noreferrer">Data Protection Policy</a>, and consent to the collection, use and disclosure of my personal data in accordance with the PDPA for course administration and related purposes.</span></label>{err("terms")}
+        <div className="mt-5 text-sm">
           <label className="flex gap-3 rounded-md border border-border bg-card p-3"><input type="checkbox" className="mt-1" checked={f.enrol_now} onChange={set("enrol_now")} /><span><b>Enrol straight away</b> — tick to give them a place now. Untick to only record the application as New.</span></label>
         </div>
 

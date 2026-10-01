@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TrainerApplyForm } from "@/components/trainer-apply-form";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 import { courseTitle } from "@/components/student-dashboard";
@@ -47,14 +48,16 @@ export function Reports() {
 }
 
 /* ---------- Trainer applications ---------- */
-type TrainerApp = { id: string; full_name: string; email: string; phone: string | null; expertise: string; experience: string; portfolio_url: string | null; status: string; created_at: string };
+type TrainerApp = { id: string; full_name: string; email: string; phone: string | null; expertise: string; experience: string; portfolio_url: string | null; status: string; created_at: string; user_id: string | null;
+  cv_path: string | null; certs_path: string | null; years_experience: number | null; qualifications: string | null; teaching_mode: string | null; availability: string | null; languages: string | null; courses_interest: string | null; staff_note: string | null };
 export function TrainerApplications() {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const [filter, setFilter] = useState("pending");
   const [msg, setMsg] = useState<string | null>(null);
-  const { data = [] } = useQuery({ queryKey: ["admin-trainers"], queryFn: async () => ((await supabase.from("trainer_applications").select("*").order("created_at", { ascending: false })).data ?? []) as (TrainerApp & { user_id: string | null })[] });
-  const setStatus = async (a: TrainerApp & { user_id: string | null }, status: string) => {
+  const { data = [] } = useQuery({ queryKey: ["admin-trainers"], queryFn: async () => ((await supabase.from("trainer_applications").select("*").order("created_at", { ascending: false })).data ?? []) as TrainerApp[] });
+  const setStatus = async (a: TrainerApp, status: string) => {
     const { error } = await supabase.from("trainer_applications").update({ status }).eq("id", a.id);
     if (error) { setMsg(`Couldn't update: ${error.message}`); return; }
     if (status === "approved" && a.user_id) {
@@ -64,46 +67,55 @@ export function TrainerApplications() {
     else setMsg(null);
     void qc.invalidateQueries({ queryKey: ["admin-trainers"] });
   };
-  const add = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); setBusy(true);
-    const f = new FormData(e.currentTarget); const g = (k: string) => String(f.get(k) ?? "").trim();
-    const { error } = await supabase.from("trainer_applications").insert({ full_name: g("full_name"), email: g("email"), phone: g("phone") || null, expertise: g("expertise"), experience: g("experience"), portfolio_url: g("portfolio_url") || null, status: g("status") || "pending" });
-    setBusy(false);
-    if (error) { setMsg(`Couldn't save: ${error.message}`); return; }
-    setMsg(`Application for ${g("full_name")} added.`); setAdding(false); void qc.invalidateQueries({ queryKey: ["admin-trainers"] });
+  const saveNote = async (id: string, staff_note: string) => { await supabase.from("trainer_applications").update({ staff_note }).eq("id", id); void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); setMsg("Note saved."); };
+  const openFile = async (path: string) => {
+    const { data: s, error } = await supabase.storage.from("trainer-cvs").createSignedUrl(path, 120);
+    if (error || !s) { setMsg("Couldn't open the file."); return; }
+    window.open(s.signedUrl, "_blank", "noopener");
   };
-  const inp = "w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
+  const shown = filter === "all" ? data : data.filter(a => a.status === filter);
+  const row = (k: string, v: React.ReactNode) => v ? <div><dt className="text-xs text-muted-foreground">{k}</dt><dd className="whitespace-pre-line text-sm">{v}</dd></div> : null;
   return (
     <div>
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <Button size="sm" className="rounded-full" onClick={() => setAdding(v => !v)}>{adding ? "Cancel" : "+ Add trainer application"}</Button>
-        <span className="text-sm text-muted-foreground">{data.filter(a => a.status === "pending").length} waiting for review · Public form at /teach</span>
+      <p className="mt-4 text-sm text-muted-foreground">People who want to teach at SOQ apply on the website's <a href="/teach" target="_blank" rel="noreferrer" className="underline">Teach at SOQ</a> page (linked from the homepage and footer). Their applications land here. Click a name to see the full details, CV and certificates.</p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {["pending", "approved", "rejected", "all"].map(f => <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} className="rounded-full capitalize" onClick={() => setFilter(f)}>{f === "pending" ? "Waiting" : f} ({f === "all" ? data.length : data.filter(a => a.status === f).length})</Button>)}
+        <Button size="sm" className="ml-auto rounded-full" onClick={() => setAdding(v => !v)}>{adding ? "Cancel" : "+ Add trainer application"}</Button>
       </div>
       {msg && <p className="mt-3 rounded-md bg-secondary p-3 text-sm">{msg}</p>}
-      {adding && (
-        <form onSubmit={add} className="mt-4 grid gap-3 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
-          <input name="full_name" required minLength={2} placeholder="Full name" className={inp} />
-          <input name="email" type="email" required placeholder="Email" className={inp} />
-          <input name="phone" placeholder="Mobile (optional)" className={inp} />
-          <input name="expertise" required minLength={2} placeholder="Expertise, e.g. Lash extension, AI marketing" className={inp} />
-          <textarea name="experience" required minLength={20} rows={3} placeholder="Teaching / industry experience and qualifications" className={`${inp} sm:col-span-2`} />
-          <input name="portfolio_url" placeholder="Portfolio or LinkedIn link (optional)" className={inp} />
-          <select name="status" className={inp} defaultValue="pending"><option value="pending">Pending review</option><option value="approved">Approved</option></select>
-          <Button type="submit" disabled={busy} className="rounded-full sm:col-span-2">{busy ? "Saving..." : "Save application"}</Button>
-        </form>
-      )}
-      {!data.length ? <p className="mt-6 text-muted-foreground">No trainer applications yet.</p> :
-      <Table head={["Date", "Applicant", "Expertise", "Experience", "Decision"]}>{data.map(a => (
-        <tr key={a.id} className="border-t border-border">
-          <td className={td}>{date(a.created_at)}</td>
-          <td className={td}>{a.full_name}<div><a className="underline" href={`mailto:${a.email}`}>{a.email}</a></div><div>{a.phone}</div>{a.portfolio_url && <a className="text-xs underline" href={a.portfolio_url.startsWith("http") ? a.portfolio_url : `https://${a.portfolio_url}`} target="_blank" rel="noreferrer">Portfolio</a>}</td>
-          <td className={td}>{a.expertise}</td>
-          <td className={`${td} max-w-sm whitespace-pre-line text-xs`}>{a.experience}</td>
-          <td className={td}>
-            {a.status === "pending" ? <div className="flex gap-2"><Button size="sm" className="rounded-full" onClick={() => void setStatus(a, "approved")}>Approve</Button><Button size="sm" variant="outline" className="rounded-full" onClick={() => void setStatus(a, "rejected")}>Reject</Button></div>
-              : <div><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${a.status === "approved" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{a.status}</span><button className="ml-2 text-xs underline" onClick={() => void setStatus(a, "pending")}>Undo</button></div>}
-          </td>
-        </tr>))}</Table>}
+      {adding && <div className="mt-4 rounded-lg border border-border bg-card p-5"><TrainerApplyForm staff onDone={n => { setMsg(`Application for ${n} added.`); setAdding(false); void qc.invalidateQueries({ queryKey: ["admin-trainers"] }); }} /></div>}
+      {!shown.length ? <p className="mt-6 text-muted-foreground">No applications here.</p> :
+      <div className="mt-5 grid gap-3">{shown.map(a => (
+        <div key={a.id} className="rounded-lg border border-border bg-card">
+          <button onClick={() => setOpen(open === a.id ? null : a.id)} className="flex w-full flex-wrap items-center gap-3 p-4 text-left">
+            <div className="min-w-48 flex-1"><p className="font-medium text-primary underline-offset-2 hover:underline">{a.full_name}</p><p className="text-xs text-muted-foreground">{a.expertise}{a.years_experience != null ? ` · ${a.years_experience} yrs` : ""} · applied {date(a.created_at)}</p></div>
+            {a.cv_path && <span className="rounded bg-muted px-2 py-0.5 text-xs">CV attached</span>}
+            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${a.status === "approved" ? "bg-primary text-primary-foreground" : a.status === "pending" ? "bg-brand-gold-soft text-primary" : "bg-muted text-muted-foreground"}`}>{a.status === "pending" ? "Waiting" : a.status}</span>
+          </button>
+          {open === a.id && <div className="grid gap-5 border-t border-border p-4 md:grid-cols-[1fr_260px]">
+            <dl className="grid gap-3 sm:grid-cols-2">
+              {row("Email", <a className="underline" href={`mailto:${a.email}`}>{a.email}</a>)}
+              {row("Mobile", a.phone)}
+              {row("Languages", a.languages)}
+              {row("Teaching mode", a.teaching_mode)}
+              {row("Availability", a.availability)}
+              {row("Courses of interest", a.courses_interest)}
+              <div className="sm:col-span-2">{row("Qualifications", a.qualifications)}</div>
+              <div className="sm:col-span-2">{row("Experience", a.experience)}</div>
+              {row("Portfolio", a.portfolio_url && <a className="underline" href={a.portfolio_url.startsWith("http") ? a.portfolio_url : `https://${a.portfolio_url}`} target="_blank" rel="noreferrer">Open link</a>)}
+              {row("Account", a.user_id ? "Has an SOQ account" : "No account yet")}
+            </dl>
+            <div className="grid content-start gap-3">
+              <div className="flex flex-wrap gap-2">
+                {a.cv_path ? <Button size="sm" variant="outline" onClick={() => void openFile(a.cv_path!)}>Open CV</Button> : <span className="text-xs text-muted-foreground">No CV attached</span>}
+                {a.certs_path && <Button size="sm" variant="outline" onClick={() => void openFile(a.certs_path!)}>Open certificates</Button>}
+              </div>
+              <textarea defaultValue={a.staff_note ?? ""} onBlur={e => { if (e.target.value !== (a.staff_note ?? "")) void saveNote(a.id, e.target.value); }} rows={3} placeholder="Staff notes (saved when you click away)" className="rounded-md border border-input bg-background p-2 text-sm" />
+              {a.status === "pending" ? <div className="flex gap-2"><Button size="sm" className="rounded-full" onClick={() => void setStatus(a, "approved")}>Approve</Button><Button size="sm" variant="outline" className="rounded-full" onClick={() => void setStatus(a, "rejected")}>Reject</Button></div>
+                : <button className="text-left text-xs underline" onClick={() => void setStatus(a, "pending")}>Move back to Waiting</button>}
+            </div>
+          </div>}
+        </div>))}</div>}
     </div>
   );
 }

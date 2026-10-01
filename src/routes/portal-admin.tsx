@@ -44,7 +44,7 @@ const adminSections = [
   { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Applications & enrolment"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses", icon: BookOpen, items: [["intakes", "Courses & intakes"], ["live-classes", "Live classes & 1-to-1"], ["events", "Events"], ["trainers", "Trainer applications"], ["drafts", "Course proposals"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
-  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community moderation"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community & members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
   { name: "Settings", icon: Settings, items: [["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"]] },
   { name: "Owner", icon: Crown, items: [["users", "Users & roles"], ["pages", "Site pages"], ["gov", "Gov & Xero"], ["settings", "Settings"]] },
 ] as const;
@@ -56,7 +56,7 @@ function Admin() {
   const [studentId, setStudentId] = useState<string>("");
   const [activeTool, setToolState] = useState<AdminTool>("start");
   const isTool = (t: string | null): t is AdminTool => !!t && adminSections.some(s => s.items.some(([id]) => id === t));
-  const setActiveTool = useToolParam(id => isTool(id), id => setToolState(id as AdminTool)) as (id: AdminTool) => void;
+  const setActiveTool = useToolParam(id => id === "community" || isTool(id), id => setToolState((id === "community" ? "moderation" : id) as AdminTool)) as (id: AdminTool) => void;
   const ownerToolIds = new Set<string>(adminSections.find(s => s.name === "Owner")!.items.map(i => i[0] as string));
   const visibleSections = isTopAdmin ? adminSections : adminSections.filter(s => s.name !== "Owner");
   const dashboardTitle = isTopAdmin ? "Admin Dashboard" : "Staff Dashboard";
@@ -101,7 +101,6 @@ function Admin() {
         <TabsContent value="inbox"><StaffMessages /></TabsContent>
         <TabsContent value="moderation"><CommunityModeration /></TabsContent>
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
-        <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>
         <TabsContent value="users"><div className="mt-4 grid gap-6 lg:grid-cols-2"><StaffRequests /><OrgMembersAdmin /></div><UsersAdmin selfId={user?.id} /></TabsContent>
         <TabsContent value="sales"><Sales /></TabsContent>
@@ -286,39 +285,3 @@ function EnrollmentCard({ e, tasks, onChange }: { e: Enrollment; tasks: Task[]; 
   );
 }
 
-type Member = { id: string; username: string; display_name: string; member_type: string; verified: boolean };
-
-function CommunityMembers() {
-  const qc = useQueryClient();
-  const [q, setQ] = useState("");
-  const { data = [] } = useQuery({
-    queryKey: ["admin-members"],
-    queryFn: async () => ((await supabase.from("community_profiles").select("id,username,display_name,member_type,verified").order("created_at", { ascending: false }).limit(500)).data ?? []) as Member[],
-  });
-  const toggle = async (m: Member) => {
-    const { error } = await supabase.from("community_profiles").update({ verified: !m.verified }).eq("id", m.id);
-    if (error) alert(error.message);
-    void qc.invalidateQueries({ queryKey: ["admin-members"] });
-  };
-  const list = data.filter(m => `${m.username} ${m.display_name}`.toLowerCase().includes(q.toLowerCase()));
-  return (
-    <div className="mt-14">
-      <h2 className="font-serif text-4xl text-primary">Community members</h2>
-      <p className="mt-2 text-muted-foreground">Verify real SOQ trainers and business partners. Only verified members get the "Verified SOQ" badge.</p>
-      <Input className="mt-4 max-w-md" placeholder="Search name or username" value={q} onChange={e => setQ(e.target.value)} />
-      <div className="mt-5 overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted"><tr>{["Member", "Label", "Status", ""].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
-          <tbody>{list.map(m => (
-            <tr key={m.id} className="border-t border-border">
-              <td className="p-3">{m.display_name}<div className="text-xs text-muted-foreground">@{m.username}</div></td>
-              <td className="p-3 capitalize">{m.member_type}</td>
-              <td className="p-3">{m.verified ? "Verified" : "Not verified"}</td>
-              <td className="p-3 text-right"><Button size="sm" variant={m.verified ? "outline" : "default"} className="rounded-full" onClick={() => void toggle(m)}>{m.verified ? "Remove verification" : "Verify"}</Button></td>
-            </tr>
-          ))}</tbody>
-        </table>
-      </div>
-    </div>
-  );
-}

@@ -272,6 +272,7 @@ export function EventsAdmin() {
   const [f, setF] = useState(blankEv);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
   const [view, setView] = useState<"upcoming" | "past" | "calendar">("upcoming");
   const [roster, setRoster] = useState<string | null>(null);
   const save = async () => {

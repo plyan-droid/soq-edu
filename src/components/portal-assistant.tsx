@@ -4,7 +4,7 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import { MessageCircle, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/soq-logo.png.asset.json";
+import logo from "@/assets/soq-logo-local.png";
 import {
   Conversation,
   ConversationContent,
@@ -71,7 +71,7 @@ function ThreadChat({
         <ConversationContent className="gap-4 p-4">
           {messages.length === 0 && (
             <div className="py-8 text-center">
-              <img src={logo.url} alt="SOQ" className="mx-auto size-14 object-contain" />
+              <img src={logo} alt="SOQ" className="mx-auto size-14 object-contain" />
               <h3 className="mt-3 font-serif text-2xl text-primary">How can I help?</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                  Ask about courses, funding, your learning, or where to go next.
@@ -199,7 +199,7 @@ export function PortalAssistant() {
         >
           <header className="flex items-center justify-between border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div className="flex items-center gap-2">
-              <img src={logo.url} alt="SOQ" className="size-8 object-contain" />
+              <img src={logo} alt="SOQ" className="size-8 object-contain" />
               <strong className="text-sm">SOQ portal assistant</strong>
             </div>
             <Button

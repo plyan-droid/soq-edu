@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
-import logo from "@/assets/soq-logo.png.asset.json";
+import logo from "@/assets/soq-logo-local.png";
 
 export type CertDesign = { heading: string; subtitle: string; body: string; signatory: string; signatory_title: string; accent: string; template: string };
 export const TEMPLATES = [["classic", "Academy Classic"], ["modern", "Contemporary"], ["heritage", "Heritage" ]] as const;
@@ -33,7 +33,7 @@ export function CertificateView({ design: d, name, course, code, date }: { desig
         {t === "modern" ? <div className="absolute inset-y-0 left-0 w-[3%] bg-primary" /> : <div className={`pointer-events-none absolute inset-[3%] border ${t === "heritage" ? "border-brand-gold" : "border-primary"}`} />}
         {t === "heritage" && <div className="pointer-events-none absolute inset-[4%] border border-brand-gold/45" />}
         <div className={`relative flex h-full flex-col ${t === "modern" ? "items-start px-[11%]" : "items-center px-[10%]"}`}>
-          <img src={logo.url} alt="SOQ International Academy" className={`object-contain ${t === "modern" ? "mt-[5%] h-[19%]" : "mt-[4%] h-[21%]"}`} />
+          <img src={logo} alt="SOQ International Academy" className={`object-contain ${t === "modern" ? "mt-[5%] h-[19%]" : "mt-[4%] h-[21%]"}`} />
           <p className="mt-[0.5%] font-sans text-[1.35cqw] font-semibold uppercase text-primary">SOQ International Academy</p>
           <p className="mt-[0.4%] font-sans text-[1.05cqw] text-muted-foreground">{d.subtitle}</p>
           <div className={`mt-[3%] h-px ${t === "modern" ? "w-[17%] bg-primary" : "w-[15%] bg-brand-gold"}`} />
@@ -56,7 +56,7 @@ export function CertificateView({ design: d, name, course, code, date }: { desig
 function hex(h: string): [number, number, number] { const n = parseInt(h.replace("#", "").padEnd(6, "0").slice(0, 6), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
 
 async function logoData() {
-  const response = await fetch(logo.url);
+  const response = await fetch(logo);
   if (!response.ok) throw new Error("SOQ logo could not be loaded");
   const blob = await response.blob();
   return await new Promise<string>((resolve, reject) => {

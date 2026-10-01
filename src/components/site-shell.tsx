@@ -4,7 +4,7 @@ import { CartLink } from "@/components/add-to-cart";
 import { SiteSettingsLayer } from "@/components/site-settings";
 import { RefCapture } from "@/components/learner-tools";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/soq-logo.png.asset.json";
+import logo from "@/assets/soq-logo-local.png";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -49,7 +49,7 @@ export function Brand({ size = "md" }: { size?: "md" | "lg"; light?: boolean }) 
   return (
     <Link to="/" className="block shrink-0" aria-label="SOQ International Academy home">
       <img
-        src={logo.url}
+        src={logo}
         alt="SOQ International Academy"
         width={120}
         height={120}

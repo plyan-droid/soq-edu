@@ -27,6 +27,7 @@ export function StudentQuizzes({ slug }: { slug: string }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => { const sync = () => { const id = window.location.hash.match(/^#quiz-(.+)$/)?.[1]; if (id) setOpen(id); }; sync(); window.addEventListener("hashchange", sync); return () => window.removeEventListener("hashchange", sync); }, []);
   const [ans, setAns] = useState<Record<string, number | string>>({});
   const [result, setResult] = useState<{ score: number; passed: boolean; certificate: string | null; right: number; total: number } | null>(null);
   const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-quizzes", slug, user?.id], queryFn: async () => (await supabase.from("quizzes").select("*, quiz_questions(id, prompt, options, position, kind), quiz_attempts(score, passed, certificate_code, created_at)").eq("course_slug", slug).order("created_at")).data ?? [] });
@@ -44,7 +45,7 @@ export function StudentQuizzes({ slug }: { slug: string }) {
         const best = tries.reduce((m, t) => Math.max(m, t.score), -1);
         const cert = tries.find(t => t.certificate_code)?.certificate_code;
         const qs = [...(q.quiz_questions ?? [])].sort((a, b) => a.position - b.position);
-        return <li key={q.id} className="text-sm">
+        return <li key={q.id} id={`quiz-${q.id}`} className="scroll-mt-24 text-sm">
           <div className="flex items-center justify-between gap-2"><span className="font-medium">{q.title}</span>
             <Button size="sm" variant="outline" onClick={() => { setOpen(open === q.id ? null : q.id); setAns({}); setResult(null); }}>{open === q.id ? "Close" : best >= 0 ? "Try again" : "Start"}</Button></div>
           <p className="text-xs text-muted-foreground">Pass mark {q.pass_mark}%{best >= 0 && ` · best ${best}%`}{cert && <> · <Link to="/verify-certificate" className="underline">Certificate {cert}</Link></>}</p>
@@ -73,6 +74,7 @@ export function StudentAssignments({ slug }: { slug: string }) {
   const qc = useQueryClient();
   const [f, setF] = useState<Record<string, { body: string; link: string }>>({});
   const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => { const sync = () => { const id = window.location.hash.match(/^#assignment-(.+)$/)?.[1]; if (id) setOpen(id); }; sync(); window.addEventListener("hashchange", sync); return () => window.removeEventListener("hashchange", sync); }, []);
   const [saving, setSaving] = useState(false);
   const { data = [] } = useQuery({ enabled: !!user, queryKey: ["s-asg", slug, user?.id], queryFn: async () => (await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("due_at", { nullsFirst: false })).data ?? [] });
   if (!user || data.length === 0) return null;
@@ -93,8 +95,8 @@ export function StudentAssignments({ slug }: { slug: string }) {
       <ul className="mt-3 space-y-4">{data.map(a => {
         const mine = (a.assignment_submissions ?? []).find(s => s.student_id === user.id);
         const v = f[a.id] ?? { body: "", link: "" };
-        return <li key={a.id} className="text-sm">
-          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Graded" : "Handed in" : "To do"}</span></Button>
+        return <li key={a.id} id={`assignment-${a.id}`} className="scroll-mt-24 text-sm">
+          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Marked" : "Handed in" : a.due_at && new Date(a.due_at) < new Date() ? "Overdue" : "To do"}</span></Button>
           <p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"} · {a.max_score} marks</p>
           {open === a.id && <div className="mt-3 space-y-3 border-t border-border pt-3">
             {a.instructions && <p className="whitespace-pre-line">{a.instructions}</p>}

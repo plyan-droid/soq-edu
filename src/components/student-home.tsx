@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarDays, CheckCircle2, ClipboardList, GraduationCap, Megaphone, Video } from "lucide-react";
+import { ArrowRight, CalendarDays, ClipboardList, Megaphone, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 import { useWorkspaceNavigate } from "@/components/workspace-shell";
+import { NoticeBody } from "@/components/notice-body";
 
 const courseName = (slug: string) => courses.find(c => c.slug === slug)?.title ?? slug;
 const dateText = (value: string) => new Date(value).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
-type AgendaItem = { id: string; date: string; title: string; detail: string; kind: string; slug?: string };
+type AgendaItem = { id: string; date: string; title: string; detail: string; kind: string; slug?: string; target?: string };
 
 async function loadStudentHome(userId: string, email: string) {
   const now = new Date().toISOString();
@@ -52,7 +53,7 @@ async function loadStudentHome(userId: string, email: string) {
   ]);
   const agenda: AgendaItem[] = [
     ...(tasks.data ?? []).filter(t => t.status === "upcoming" && t.due_at >= now).map(t => ({ id: `task-${t.id}`, date: t.due_at, title: t.title, detail: t.kind, kind: "Deadline", slug: rows.find(r => r.id === t.enrollment_id)?.course_slug })),
-    ...(assignments.data ?? []).filter(a => a.due_at && a.due_at >= now && !(submissions.data ?? []).some(s => s.assignment_id === a.id)).map(a => ({ id: `assignment-${a.id}`, date: a.due_at as string, title: a.title, detail: courseName(a.course_slug), kind: "Assignment", slug: a.course_slug })),
+    ...(assignments.data ?? []).filter(a => a.due_at && a.due_at >= now && !(submissions.data ?? []).some(s => s.assignment_id === a.id)).map(a => ({ id: `assignment-${a.id}`, date: a.due_at as string, title: a.title, detail: courseName(a.course_slug), kind: "Assignment", slug: a.course_slug, target: `assignment-${a.id}` })),
     ...(sessions.data ?? []).filter(s => (bookings.data ?? []).some(b => b.session_id === s.id && b.status === "confirmed")).map(s => ({ id: `class-${s.id}`, date: s.starts_at, title: s.title, detail: courseName(s.course_slug), kind: "Live class", slug: s.course_slug })),
     ...(meetings.data ?? []).map(m => ({ id: `meeting-${m.id}`, date: m.starts_at, title: m.topic, detail: m.trainer_name, kind: "Meeting" })),
     ...(events.data ?? []).map(e => ({ id: `event-${e.id}`, date: e.starts_at, title: e.title, detail: e.location, kind: "Event" })),
@@ -72,75 +73,41 @@ async function loadStudentHome(userId: string, email: string) {
 function Agenda({ items }: { items: AgendaItem[] }) {
   return items.length ? <ul className="divide-y divide-border">{items.map(item => <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
     <div className="min-w-0"><span className="text-xs font-semibold uppercase text-muted-foreground">{item.kind} · {dateText(item.date)}</span><p className="font-medium text-foreground">{item.title}</p><p className="text-xs text-muted-foreground">{item.detail}</p></div>
-    {item.slug && <Button asChild variant="ghost" size="icon" title={`Open ${item.title}`}><Link to="/learn/$slug" params={{ slug: item.slug }} aria-label={`Open ${item.title}`}><ArrowRight className="size-4" /></Link></Button>}
+    {item.slug && <Button asChild variant="ghost" size="icon" title={`Open ${item.title}`}><Link to="/learn/$slug" params={{ slug: item.slug }} {...(item.target ? { hash: item.target } : {})} aria-label={`Open ${item.title}`}><ArrowRight className="size-4" /></Link></Button>}
   </li>)}</ul> : <p className="py-4 text-sm text-muted-foreground">Nothing scheduled yet.</p>;
 }
 
 export function StudentHome({ userId, email }: { userId: string; email: string }) {
   const navigate = useWorkspaceNavigate();
-  const [monthOffset, setMonthOffset] = useState(0);
   const { data, isPending, error } = useQuery({ queryKey: ["student-home", userId, email], queryFn: () => loadStudentHome(userId, email) });
-  if (isPending) return <div className="mt-7 space-y-5"><Skeleton className="h-48 w-full" /><div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-60" /><Skeleton className="h-60" /></div></div>;
+  if (isPending) return <div className="mt-7 space-y-5"><Skeleton className="h-40 w-full" /><div className="grid gap-4 md:grid-cols-2"><Skeleton className="h-52" /><Skeleton className="h-52" /></div></div>;
   if (error || !data) return <p className="mt-8 text-sm text-destructive">Your learning overview could not be loaded. Please refresh and try again.</p>;
-  const current = data.rows.find(r => r.status === "active") ?? data.rows.find(r => r.status !== "completed") ?? data.rows[0];
-  const firstName = data.name?.split(" ")[0];
-  const lessonIds = new Set(data.lessons.map(l => l.id));
-  const completedLessons = data.progress.filter(p => lessonIds.has(p.lesson_id)).length;
   const enrolled = data.rows.filter(r => r.status !== "withdrawn");
-  const nextInstalment = data.instalments[0];
-  const upcoming = data.agenda.slice(0, 5);
-  const month = new Date(); month.setDate(1); month.setMonth(month.getMonth() + monthOffset);
-  const year = month.getFullYear(), monthNumber = month.getMonth();
-  const startDay = (new Date(year, monthNumber, 1).getDay() + 6) % 7;
-  const days = new Date(year, monthNumber + 1, 0).getDate();
-  const daysWithActivity = new Set(data.agenda.map(a => a.date.slice(0, 10)));
-  const section = "border-t border-border pt-6";
-  return <div className="mt-5 space-y-8">
-    <header className="border-b border-border pb-7">
-      <p className="text-xs font-semibold uppercase text-brand-gold">Your learning</p>
-      <h2 className="mt-2 font-serif text-3xl text-primary sm:text-4xl">Welcome back{firstName ? `, ${firstName}` : ""}</h2>
-      {data.organisation && <p className="mt-1 text-sm text-muted-foreground">Learning with {data.organisation}</p>}
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">{[
-        ["Courses", enrolled.length], ["Certificates", data.certificates], ["Quizzes passed", data.attempts.filter(a => a.passed).length], ["Upcoming meetings", data.meetings.length],
-      ].map(([label, value]) => <div key={label} className="border-l-2 border-brand-gold pl-3"><p className="font-serif text-3xl text-primary">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>)}</div>
-    </header>
-
-    <section aria-label="Continue learning" className="grid gap-5 border-b border-border pb-8 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-      <div><h3 className="font-serif text-2xl text-primary">Continue learning</h3>{current ? <div className="mt-4 flex gap-4">
-        {courses.find(c => c.slug === current.course_slug)?.image && <img src={courses.find(c => c.slug === current.course_slug)?.image} alt="" className="hidden size-24 shrink-0 rounded-md object-cover sm:block" />}
-        <div className="min-w-0 flex-1"><p className="font-semibold text-primary">{courseName(current.course_slug)}</p><p className="mt-1 text-sm text-muted-foreground">{current.progress}% complete · {current.status}</p><div className="mt-3 h-1.5 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.min(100, Math.max(0, current.progress))}%` }} /></div><Button asChild className="mt-4"><Link to="/learn/$slug" params={{ slug: current.course_slug }}>Continue course <ArrowRight className="size-4" /></Link></Button></div>
-      </div> : <div className="mt-4"><p className="text-sm text-muted-foreground">No course is linked to your account yet.</p><Button asChild className="mt-4"><Link to="/courses">Explore courses <ArrowRight className="size-4" /></Link></Button></div>}</div>
-      <div className="border-l-2 border-brand-gold pl-5"><h3 className="font-serif text-2xl text-primary">Learning activity</h3><p className="mt-3 text-sm text-muted-foreground">{completedLessons ? `${completedLessons} lessons marked complete across your courses.` : "No lessons completed yet."}</p><p className="mt-2 text-sm text-muted-foreground">{data.lessons.length ? `${data.lessons.length} lessons available in your enrolled courses.` : "Lessons will appear when your trainer adds them."}</p><Button variant="link" className="mt-2 px-0" onClick={() => navigate?.("courses")}>My courses <ArrowRight className="size-4" /></Button></div>
-    </section>
-
-    <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.85fr)]">
-      <div className="min-w-0 space-y-8">
-        <section><div className="flex items-center justify-between gap-2"><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><GraduationCap className="size-5 text-brand-gold" /> Course overview</h3><Button variant="link" onClick={() => navigate?.("courses")}>All courses <ArrowRight className="size-4" /></Button></div>
-          {enrolled.length ? <ul className="mt-2 divide-y divide-border">{enrolled.slice(0, 6).map(row => <li key={row.id} className="flex items-center gap-3 py-3"><img src={courses.find(c => c.slug === row.course_slug)?.image} alt="" className="size-12 shrink-0 rounded-sm object-cover" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium" title={courseName(row.course_slug)}>{courseName(row.course_slug)}</p><div className="mt-1 h-1.5 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.min(100, Math.max(0, row.progress))}%` }} /></div></div><span className="text-xs tabular-nums text-muted-foreground">{row.progress}%</span><Button asChild variant="ghost" size="icon"><Link to="/learn/$slug" params={{ slug: row.course_slug }} aria-label={`Open ${courseName(row.course_slug)}`}><ArrowRight className="size-4" /></Link></Button></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No enrolled courses yet.</p>}
-        </section>
-        <section className={section}><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><ClipboardList className="size-5 text-brand-gold" /> My assignments</h3>
-          {data.assignments.length ? <ul className="mt-2 divide-y divide-border">{data.assignments.slice(0, 6).map(a => { const submission = data.submissions.find(s => s.assignment_id === a.id); return <li key={a.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="text-sm font-medium">{a.title}</p><p className="text-xs text-muted-foreground">{courseName(a.course_slug)} · {a.due_at ? `Due ${dateText(a.due_at)}` : "No due date"}</p></div><div className="flex shrink-0 items-center gap-2"><span className="text-xs text-muted-foreground">{submission?.status === "graded" ? `Graded ${submission.score ?? "—"}/${a.max_score}` : submission ? "Submitted" : a.due_at && a.due_at < new Date().toISOString() ? "Past due" : "To do"}</span><Button asChild variant="ghost" size="icon"><Link to="/learn/$slug" params={{ slug: a.course_slug }} aria-label={`Open assignment ${a.title}`}><ArrowRight className="size-4" /></Link></Button></div></li>; })}</ul> : <p className="mt-3 text-sm text-muted-foreground">No assignments set for your courses.</p>}
-        </section>
-        <section className={section}><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><CheckCircle2 className="size-5 text-brand-gold" /> My quizzes</h3>
-          {data.quizzes.length ? <ul className="mt-2 divide-y divide-border">{data.quizzes.slice(0, 6).map(q => { const tries = data.attempts.filter(a => a.quiz_id === q.id); return <li key={q.id} className="flex items-center justify-between gap-3 py-3"><div className="min-w-0"><p className="text-sm font-medium">{q.title}</p><p className="text-xs text-muted-foreground">{courseName(q.course_slug)} · {tries.some(a => a.passed) ? "Passed" : tries.length ? `Best ${Math.max(...tries.map(a => a.score))}%` : "Not attempted"}</p></div><Button asChild variant="ghost" size="icon"><Link to="/learn/$slug" params={{ slug: q.course_slug }} aria-label={`Open quiz ${q.title}`}><ArrowRight className="size-4" /></Link></Button></li>; })}</ul> : <p className="mt-3 text-sm text-muted-foreground">No quizzes available for your courses.</p>}
-        </section>
-        <section className={section}><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><Megaphone className="size-5 text-brand-gold" /> Noticeboard</h3>
-          {data.courseNotices.length || data.notices.length ? <ul className="mt-2 divide-y divide-border">{[...data.courseNotices.map(n => ({ id: `course-${n.id}`, title: n.title, body: n.body, source: courseName(n.course_slug) })), ...data.notices.map(n => ({ id: `site-${n.id}`, title: n.title, body: n.body, source: "SOQ" }))].slice(0, 5).map(n => <li key={n.id} className="py-3 text-sm"><p className="font-medium">{n.title}</p><p className="text-xs text-muted-foreground">{n.source}</p>{n.body && <p className="mt-1 text-muted-foreground">{n.body}</p>}</li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No announcements at the moment.</p>}
-          <Button asChild variant="link" className="px-0"><Link to="/noticeboard">View noticeboard <ArrowRight className="size-4" /></Link></Button>
-        </section>
+  const now = Date.now();
+  const pending = data.assignments.filter(a => !data.submissions.some(s => s.assignment_id === a.id));
+  const overdue = pending.filter(a => a.due_at && new Date(a.due_at).getTime() < now);
+  const dueSoon = pending.filter(a => a.due_at && new Date(a.due_at).getTime() >= now).sort((a,b) => (a.due_at ?? "").localeCompare(b.due_at ?? ""));
+  const nextClass = data.sessions.find(s => data.bookings.some(b => b.session_id === s.id && b.status === "confirmed"));
+  const recentNotices = data.courseNotices.slice(0, 3);
+  return <div className="mt-5 space-y-9">
+    <header className="border-b border-border pb-6"><p className="text-xs font-semibold uppercase text-brand-gold">Your learning</p><h2 className="mt-2 font-serif text-3xl text-primary sm:text-4xl">Welcome back{data.name?.split(" ")[0] ? `, ${data.name.split(" ")[0]}` : ""}</h2>{data.organisation && <p className="mt-1 text-sm text-muted-foreground">Learning with {data.organisation}</p>}</header>
+    <section aria-label="Your next steps"><div className="flex flex-wrap items-end justify-between gap-2"><h3 className="font-serif text-2xl text-primary">Your next steps</h3><span className="text-xs text-muted-foreground">Across your classes</span></div>
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="border-t-2 border-destructive pt-4"><p className="text-xs font-semibold uppercase text-muted-foreground">Overdue</p><p className="mt-2 font-serif text-3xl text-primary">{overdue.length}</p>{overdue[0] ? <Button asChild variant="link" className="h-auto max-w-full justify-start px-0 text-left whitespace-normal"><Link to="/learn/$slug" params={{ slug: overdue[0].course_slug }} hash={`assignment-${overdue[0].id}`}>{overdue[0].title} <ArrowRight className="size-4 shrink-0" /></Link></Button> : <p className="mt-2 text-sm text-muted-foreground">Nothing overdue</p>}</div>
+        <div className="border-t-2 border-brand-gold pt-4"><p className="text-xs font-semibold uppercase text-muted-foreground">Due next</p>{dueSoon[0] ? <><p className="mt-2 font-medium">{dueSoon[0].title}</p><p className="mt-1 text-sm text-muted-foreground">{courseName(dueSoon[0].course_slug)} · {dateText(dueSoon[0].due_at as string)}</p><Button asChild variant="link" className="h-auto px-0"><Link to="/learn/$slug" params={{ slug: dueSoon[0].course_slug }} hash={`assignment-${dueSoon[0].id}`}>Open assignment <ArrowRight className="size-4" /></Link></Button></> : <p className="mt-2 text-sm text-muted-foreground">No work due soon</p>}</div>
+        <div className="border-t-2 border-primary pt-4"><p className="text-xs font-semibold uppercase text-muted-foreground">Next confirmed class</p>{nextClass ? <><p className="mt-2 font-medium">{nextClass.title}</p><p className="mt-1 text-sm text-muted-foreground">{dateText(nextClass.starts_at)}</p><Button asChild variant="link" className="h-auto px-0"><Link to="/learn/$slug" params={{ slug: nextClass.course_slug }} hash="live-classes">Class details <ArrowRight className="size-4" /></Link></Button></> : <p className="mt-2 text-sm text-muted-foreground">No class booked yet</p>}</div>
       </div>
-      <aside className="min-w-0 space-y-8">
-        <section><div className="flex items-center justify-between"><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><CalendarDays className="size-5 text-brand-gold" /> Calendar</h3><div className="flex gap-1"><Button variant="ghost" size="icon" aria-label="Previous month" onClick={() => setMonthOffset(x => x - 1)}>‹</Button><Button variant="ghost" size="icon" aria-label="Next month" onClick={() => setMonthOffset(x => x + 1)}>›</Button></div></div>
-          <p className="mt-2 text-center text-sm font-semibold">{month.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}</p><div className="mt-3 grid grid-cols-7 gap-1 text-center text-xs">{["M", "T", "W", "T", "F", "S", "S"].map((d, i) => <span key={i} className="py-2 text-muted-foreground">{d}</span>)}{Array.from({ length: startDay }, (_, i) => <span key={`blank-${i}`} />)}{Array.from({ length: days }, (_, i) => { const value = `${year}-${String(monthNumber + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`; const marked = daysWithActivity.has(value); return <span key={value} className={`relative grid aspect-square place-items-center rounded-sm ${marked ? "bg-brand-gold-soft font-semibold text-primary" : "text-muted-foreground"}`} title={marked ? `Activity on ${value}` : undefined}>{i + 1}{marked && <span className="absolute bottom-0.5 size-1 rounded-full bg-brand-gold" />}</span>; })}</div>
-          <p className="mt-3 text-xs text-muted-foreground">Highlighted dates are your confirmed bookings, events or deadlines.</p>
-        </section>
-        <section className={section}><h3 className="font-serif text-2xl text-primary">Coming up</h3><Agenda items={upcoming} /></section>
-        <section className={section}><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><Video className="size-5 text-brand-gold" /> Live sessions & meetings</h3>
-          {data.sessions.length || data.meetings.length ? <ul className="mt-2 divide-y divide-border">{data.sessions.slice(0, 3).map(s => <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-xs text-muted-foreground">{dateText(s.starts_at)} · {data.bookings.find(b => b.session_id === s.id)?.status === "confirmed" ? "Confirmed" : "Awaiting trainer confirmation"}</p><Button asChild variant="link" className="h-auto px-0"><Link to="/learn/$slug" params={{ slug: s.course_slug }}>Open class <ArrowRight className="size-4" /></Link></Button></li>)}{data.meetings.slice(0, 3).map(m => <li key={m.id} className="py-3 text-sm"><p className="font-medium">{m.topic}</p><p className="text-xs text-muted-foreground">{dateText(m.starts_at)} · {m.trainer_name}</p></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No classes or meetings booked yet.</p>}
-        </section>
-        <section className={section}><h3 className="font-serif text-2xl text-primary">Upcoming events</h3>{data.events.length ? <ul className="mt-2 divide-y divide-border">{data.events.slice(0, 3).map(e => <li key={e.id} className="py-3 text-sm"><p className="font-medium">{e.title}</p><p className="text-xs text-muted-foreground">{dateText(e.starts_at)} · {e.location}</p></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No events booked yet.</p>}<Button asChild variant="link" className="px-0"><Link to="/events">Explore events <ArrowRight className="size-4" /></Link></Button></section>
-        <section className={section}><h3 className="font-serif text-2xl text-primary">SkillsFuture Credit</h3><p className="mt-2 text-sm text-muted-foreground">{data.credit === null ? "No balance added yet." : `Your self-reported balance: S$${Number(data.credit).toLocaleString("en-SG", { minimumFractionDigits: 2 })}. This is not a verified government balance.`}</p><Button variant="link" className="px-0" onClick={() => navigate?.("sfc")}>View credit & claims <ArrowRight className="size-4" /></Button></section>
-        <section className={section}><h3 className="font-serif text-2xl text-primary">Payments</h3><p className="mt-2 text-sm text-muted-foreground">{nextInstalment ? `${data.instalments.length} unpaid instalment${data.instalments.length === 1 ? "" : "s"}. Next due ${new Date(`${nextInstalment.due_date}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}: S$${Number(nextInstalment.amount).toLocaleString("en-SG", { minimumFractionDigits: 2 })}.` : "No unpaid instalments recorded."}</p><Button variant="link" className="px-0" onClick={() => navigate?.("pay")}>View payments <ArrowRight className="size-4" /></Button></section>
+    </section>
+    <section className="border-t border-border pt-6"><div className="flex items-center justify-between gap-3"><h3 className="font-serif text-2xl text-primary">My courses</h3><Button variant="link" onClick={() => navigate?.("courses")}>All courses <ArrowRight className="size-4" /></Button></div>
+      {enrolled.length ? <div className="mt-4 grid gap-4 md:grid-cols-2">{enrolled.slice(0, 4).map(row => { const image = courses.find(c => c.slug === row.course_slug)?.image; const next = dueSoon.find(a => a.course_slug === row.course_slug) ?? overdue.find(a => a.course_slug === row.course_slug); return <article key={row.id} className="flex min-w-0 overflow-hidden rounded-md border border-border bg-card"><div className="hidden w-28 shrink-0 bg-secondary sm:block">{image && <img src={image} alt="" className="h-full w-full object-cover" />}</div><div className="flex min-w-0 flex-1 flex-col p-4"><p className="font-serif text-xl leading-tight text-primary">{courseName(row.course_slug)}</p><p className="mt-2 text-xs text-muted-foreground">{row.progress}% complete{next ? ` · Next: ${next.title}` : " · No work due soon"}</p><div className="mt-2 h-1.5 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${Math.max(0, Math.min(100, row.progress))}%` }} /></div><Button asChild variant="link" className="mt-auto h-auto self-start px-0 pt-3"><Link to="/learn/$slug" params={{ slug: row.course_slug }}>Open class <ArrowRight className="size-4" /></Link></Button></div></article>; })}</div> : <div className="mt-4"><p className="text-sm text-muted-foreground">No course is linked to your account yet.</p><Button asChild className="mt-4"><Link to="/courses">Explore courses <ArrowRight className="size-4" /></Link></Button></div>}
+    </section>
+    <div className="grid gap-8 border-t border-border pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(16rem,0.7fr)]">
+      <div className="space-y-8"><section><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><ClipboardList className="size-5 text-brand-gold" /> Coming up</h3><div className="mt-2"><Agenda items={data.agenda.slice(0, 5)} /></div></section>
+        <section className="border-t border-border pt-6"><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><Megaphone className="size-5 text-brand-gold" /> Class announcements</h3>{recentNotices.length ? <ul className="mt-2 divide-y divide-border">{recentNotices.map(n => <li key={n.id} className="py-3"><p className="text-xs text-muted-foreground">{courseName(n.course_slug)} · {dateText(n.created_at)}</p><div className="mt-1 line-clamp-3 text-sm"><NoticeBody text={n.body || n.title} /></div><Button asChild variant="link" className="h-auto px-0"><Link to="/learn/$slug" params={{ slug: n.course_slug }} hash="stream">Open Stream <ArrowRight className="size-4" /></Link></Button></li>)}</ul> : <p className="mt-3 text-sm text-muted-foreground">No class announcements yet.</p>}</section>
+      </div>
+      <aside className="space-y-7"><section><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><CalendarDays className="size-5 text-brand-gold" /> Schedule</h3><p className="mt-2 text-sm text-muted-foreground">Confirmed classes, meetings and deadlines appear in your upcoming list.</p></section>
+        <section className="border-t border-border pt-5"><h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><Video className="size-5 text-brand-gold" /> Live sessions</h3><p className="mt-2 text-sm text-muted-foreground">{nextClass ? `${nextClass.title} · ${dateText(nextClass.starts_at)}` : "No confirmed live session yet."}</p></section>
+        {data.instalments.length > 0 && <section className="border-t border-border pt-5"><h3 className="font-serif text-2xl text-primary">Payments</h3><p className="mt-2 text-sm text-muted-foreground">{data.instalments.length} unpaid instalment{data.instalments.length === 1 ? "" : "s"} recorded.</p><Button variant="link" className="px-0" onClick={() => navigate?.("pay")}>View payments <ArrowRight className="size-4" /></Button></section>}
       </aside>
     </div>
   </div>;

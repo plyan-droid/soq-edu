@@ -41,6 +41,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
   const sections: WorkspaceSection[] = [
     { name: "Home", icon: Home, items: [
        { id: "start", label: "Home", content: <StudentHome userId={userId} email={email} /> },
+       { id: "details", label: "My details", content: <StudentProfileForm userId={userId} email={email} heading="My details" /> },
     ] },
     { name: "My courses", icon: BookOpen, items: [
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },

@@ -9,6 +9,7 @@ import { useTrainerCourses } from "@/components/trainer-overview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AssignmentFileList, assignmentFiles } from "@/components/assignment-files";
 
 const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const card = "rounded-lg border border-border bg-card p-5";
@@ -101,9 +102,11 @@ export function TrainerAssignments({ userId, isAdmin }: { userId: string; isAdmi
   };
   const saveGrade = async (id: string) => {
     const g = grade[id]; if (!g) return;
-    const { error } = await supabase.from("assignment_submissions").update({ score: g.score === "" ? null : +g.score, feedback: g.feedback, status: "graded" }).eq("id", id);
+    const max = data.find(a => a.assignment_submissions?.some(s => s.id === id))?.max_score ?? 100;
+    if (g.score === "" || !Number.isInteger(+g.score) || +g.score < 0 || +g.score > max) return void toast.error(`Enter a mark between 0 and ${max}`);
+    const { error } = await supabase.from("assignment_submissions").update({ score: +g.score, feedback: g.feedback, status: "graded" }).eq("id", id);
     if (error) { toast.error("Couldn't save the grade"); return; }
-    toast.success("Grade saved"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
+    toast.success("Work returned to learner"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] }); void qc.invalidateQueries({ queryKey: ["s-asg", slug] }); void qc.invalidateQueries({ queryKey: ["learn", slug] });
   };
   return (
     <div className="mt-6 grid gap-8 lg:grid-cols-[380px_1fr]">
@@ -128,10 +131,11 @@ export function TrainerAssignments({ userId, isAdmin }: { userId: string; isAdmi
                 return <li key={s.id} className="rounded-md bg-muted/50 p-3 text-sm">
                   <p className="font-medium">{s.student_name} <span className="text-xs text-muted-foreground">· {fmtDateTime(s.created_at)}{a.due_at && new Date(s.created_at) > new Date(a.due_at) && " · LATE"}</span></p>
                   {s.body && <p className="mt-1 whitespace-pre-line">{s.body}</p>}
-                  {s.link && <a href={s.link.startsWith("http") ? s.link : `https://${s.link}`} target="_blank" rel="noreferrer" className="text-primary underline">Open their file</a>}
+                  {s.link && <a href={s.link.startsWith("http") ? s.link : `https://${s.link}`} target="_blank" rel="noreferrer" className="text-primary underline">Open their link</a>}
+                  <AssignmentFileList files={assignmentFiles(s.files)} />
                   <div className="mt-2 flex flex-wrap gap-2"><Input className="w-24" placeholder="Score" type="number" value={g.score} onChange={e => setGrade({ ...grade, [s.id]: { ...g, score: e.target.value } })} />
                     <Input className="min-w-48 flex-1" placeholder="Feedback" value={g.feedback} onChange={e => setGrade({ ...grade, [s.id]: { ...g, feedback: e.target.value } })} />
-                    <Button size="sm" onClick={() => void saveGrade(s.id)}>{s.status === "graded" ? "Update" : "Grade"}</Button></div>
+                    <Button size="sm" onClick={() => void saveGrade(s.id)}>{s.status === "graded" ? "Update returned mark" : "Return to learner"}</Button></div>
                 </li>;
               })}
             </ul>

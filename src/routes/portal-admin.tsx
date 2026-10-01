@@ -286,38 +286,3 @@ function EnrollmentCard({ e, tasks, onChange }: { e: Enrollment; tasks: Task[]; 
 }
 
 type Member = { id: string; username: string; display_name: string; member_type: string; verified: boolean };
-
-function CommunityMembers() {
-  const qc = useQueryClient();
-  const [q, setQ] = useState("");
-  const { data = [] } = useQuery({
-    queryKey: ["admin-members"],
-    queryFn: async () => ((await supabase.from("community_profiles").select("id,username,display_name,member_type,verified").order("created_at", { ascending: false }).limit(500)).data ?? []) as Member[],
-  });
-  const toggle = async (m: Member) => {
-    const { error } = await supabase.from("community_profiles").update({ verified: !m.verified }).eq("id", m.id);
-    if (error) alert(error.message);
-    void qc.invalidateQueries({ queryKey: ["admin-members"] });
-  };
-  const list = data.filter(m => `${m.username} ${m.display_name}`.toLowerCase().includes(q.toLowerCase()));
-  return (
-    <div className="mt-14">
-      <h2 className="font-serif text-4xl text-primary">Community members</h2>
-      <p className="mt-2 text-muted-foreground">Verify real SOQ trainers and business partners. Only verified members get the "Verified SOQ" badge.</p>
-      <Input className="mt-4 max-w-md" placeholder="Search name or username" value={q} onChange={e => setQ(e.target.value)} />
-      <div className="mt-5 overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted"><tr>{["Member", "Label", "Status", ""].map(h => <th key={h} className="p-3 font-medium">{h}</th>)}</tr></thead>
-          <tbody>{list.map(m => (
-            <tr key={m.id} className="border-t border-border">
-              <td className="p-3">{m.display_name}<div className="text-xs text-muted-foreground">@{m.username}</div></td>
-              <td className="p-3 capitalize">{m.member_type}</td>
-              <td className="p-3">{m.verified ? "Verified" : "Not verified"}</td>
-              <td className="p-3 text-right"><Button size="sm" variant={m.verified ? "outline" : "default"} className="rounded-full" onClick={() => void toggle(m)}>{m.verified ? "Remove verification" : "Verify"}</Button></td>
-            </tr>
-          ))}</tbody>
-        </table>
-      </div>
-    </div>
-  );
-}

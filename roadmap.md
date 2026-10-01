@@ -12,6 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Combine course content editing, new courses and intake dates into one "Courses & intakes" staff tool under Courses; /staff-courses now redirects there and the misplaced Learners shortcut is gone.
 - [x] Redesign staff/admin Today as a modern operations grid with actionable queues, four recorded figures and recent activity; move detailed order figures to Reports.
 - [x] Expand the organisation Home with package, seats, team progress, notices, events and upcoming classes; enrich affiliate, store and employer previews with clearly labelled sample learning, calendar, support and performance information.
 - [x] Expand admin and instructor Home with recorded sales windows, review queues, registrations, events, course progress, assessments, questions, meetings and notices; mark instructor earnings/visitors unavailable rather than inventing figures.

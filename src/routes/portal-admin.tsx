@@ -44,7 +44,7 @@ const adminSections = [
   { name: "Learners", icon: GraduationCap, items: [["students", "Students"], ["applications", "Applications & enrolment"], ["orgs", "Organisations"], ["learning", "Learning oversight"], ["exemptions", "Exemptions"], ["certificates", "Certificates"]] },
   { name: "Courses", icon: BookOpen, items: [["intakes", "Courses & intakes"], ["live-classes", "Live classes & 1-to-1"], ["events", "Events"], ["trainers", "Trainer applications"], ["drafts", "Course proposals"], ["reviews", "Reviews"], ["bundles", "Bundles"], ["certdesign", "Certificate design"]] },
   { name: "Money", icon: Wallet, items: [["sales", "Sales"], ["payments", "PayNow & instalments"], ["sfc", "SkillsFuture Credit"], ["codes", "Discount codes"], ["referrals", "Referrals"]] },
-  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community moderation"], ["community", "Community members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
+  { name: "Messages", icon: MessageSquare, items: [["inbox", "Inbox"], ["moderation", "Community & members"], ["newsletter", "Newsletter"], ["notices", "Noticeboard"], ["whatsapp", "WhatsApp reminders"], ["leads", "Leads"]] },
   { name: "Settings", icon: Settings, items: [["templates", "Message templates"], ["forms", "Forms"], ["logins", "Login history"], ["ai", "AI writer"]] },
   { name: "Owner", icon: Crown, items: [["users", "Users & roles"], ["pages", "Site pages"], ["gov", "Gov & Xero"], ["settings", "Settings"]] },
 ] as const;
@@ -101,7 +101,6 @@ function Admin() {
         <TabsContent value="inbox"><StaffMessages /></TabsContent>
         <TabsContent value="moderation"><CommunityModeration /></TabsContent>
         <TabsContent value="reviews"><ReviewModeration /></TabsContent>
-        <TabsContent value="community"><CommunityMembers /></TabsContent>
         <TabsContent value="newsletter"><Subscribers /></TabsContent>
         <TabsContent value="users"><div className="mt-4 grid gap-6 lg:grid-cols-2"><StaffRequests /><OrgMembersAdmin /></div><UsersAdmin selfId={user?.id} /></TabsContent>
         <TabsContent value="sales"><Sales /></TabsContent>

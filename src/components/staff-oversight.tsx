@@ -187,7 +187,8 @@ export function CommunityModeration() {
             <td className={td}>{date(c.created_at)}</td>
             <td className={td}><select className={selSm} value={c.hidden ? "hidden" : "visible"} onChange={e => void toggle("post_comments", c.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
-      <h3 className="mt-10 font-serif text-2xl text-primary">Verified badges</h3>
+      <h3 className="mt-10 font-serif text-2xl text-primary">Members & verified badges</h3>
+      <p className="mt-1 text-sm text-muted-foreground">Every community member. Give the Verified SOQ badge only to checked trainers and partner businesses.</p>
       <div className="mt-3 flex flex-wrap gap-2">
         <input className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm" placeholder="Search name or @username" value={q} onChange={e => setQ(e.target.value)} />
         <select className={selSm} value={mtype} onChange={e => setMtype(e.target.value)}>

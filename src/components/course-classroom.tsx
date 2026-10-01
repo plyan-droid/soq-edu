@@ -53,7 +53,7 @@ export function CourseClassroom({ userId, isAdmin, onNavigate }: { userId: strin
       {tab === "stream" && <Stream slug={slug} userId={userId} onNavigate={onNavigate} />}
       {tab === "classwork" && <Classwork slug={slug} userId={userId} isAdmin={isAdmin} onNavigate={onNavigate} />}
       {tab === "people" && <People slug={slug} userId={userId} />}
-      {tab === "grades" && <Grades slug={slug} />}
+      {tab === "grades" && <Grades slug={slug} trainerId={userId} />}
     </div>
   );
 }
@@ -296,18 +296,9 @@ function AsgView({ a, slug }: { a: Asg; slug: string }) {
 
 /* ---------- SpeedGrader ---------- */
 function SpeedGrader({ subs, max, slug, start = 0 }: { subs: Sub[]; max: number; slug: string; start?: number }) {
-  const qc = useQueryClient();
   const [i, setI] = useState(start);
   const s = subs[Math.min(i, subs.length - 1)]!;
-  const [g, setG] = useState<Record<string, { score: string; feedback: string }>>({});
-  const cur = g[s.id] ?? { score: s.score?.toString() ?? "", feedback: s.feedback ?? "" };
-  const save = async (advance: boolean) => {
-    if (cur.score !== "" && (!Number.isInteger(Number(cur.score)) || Number(cur.score) < 0 || Number(cur.score) > max)) return void toast.error(`Mark must be between 0 and ${max}`);
-    const { error } = await supabase.from("assignment_submissions").update({ score: cur.score === "" ? null : +cur.score, feedback: cur.feedback, status: "marked" }).eq("id", s.id);
-    if (error) return void toast.error("Couldn't save the grade");
-    toast.success("Mark saved privately"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
-    if (advance && i < subs.length - 1) setI(i + 1);
-  };
+  const { user } = useAuth();
   return (
     <div className="mt-3 rounded-md border border-border">
       <div className="flex items-center justify-between border-b border-border px-3 py-2 text-sm">
@@ -317,9 +308,7 @@ function SpeedGrader({ subs, max, slug, start = 0 }: { subs: Sub[]; max: number;
       </div>
       <div className="space-y-3 p-3 text-sm">
         <p className="text-xs text-muted-foreground">Handed in {fmtDateTime(s.created_at)}</p>
-        {s.body ? <p className="max-h-60 overflow-y-auto whitespace-pre-line rounded bg-muted/50 p-3">{s.body}</p> : <p className="text-muted-foreground">No written answer.</p>}
-        {s.link && <a href={safe(s.link)} target="_blank" rel="noreferrer" className="text-primary underline">Open their link</a>}
-        <AssignmentMarking submission={s} max={max} slug={slug} trainerId={trainerId} />
+        {user && <AssignmentMarking key={s.id} submission={s} max={max} slug={slug} trainerId={user.id} />}
         <Button size="sm" variant="outline" disabled={i >= subs.length - 1} onClick={() => setI(i + 1)}>Next learner</Button>
       </div>
     </div>
@@ -340,7 +329,7 @@ function People({ slug, userId }: { slug: string; userId: string }) {
 }
 
 /* ---------- Grades ---------- */
-function Grades({ slug }: { slug: string }) {
+function Grades({ slug, trainerId }: { slug: string; trainerId: string }) {
   const { data: asgs = [] } = useQuery({ queryKey: ["t-asg", slug], queryFn: async () => ((await supabase.from("assignments").select("*, assignment_submissions(*)").eq("course_slug", slug).order("created_at")).data ?? []) as unknown as Asg[] });
   const [open, setOpen] = useState<{ a: Asg; i: number } | null>(null);
   const students = [...new Set(asgs.flatMap(a => a.assignment_submissions.map(s => s.student_name)))].sort();

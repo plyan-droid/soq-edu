@@ -86,8 +86,8 @@ function Admin() {
         <TabsContent value="live-classes"><LiveClassesOversight /></TabsContent>
         <TabsContent value="events"><EventsAdmin /></TabsContent>
         <TabsContent value="students">
-          <p className="mt-4 text-muted-foreground">Students appear here after they create an account. Search by name, email or student ID, then pick one to manage their details and courses.</p>
-          <StudentSearch students={students} studentId={studentId} onPick={setStudentId} />
+          <p className="mt-4 text-muted-foreground">Every student account is listed here in alphabetical order. Type a name, email or student ID to narrow the list, then pick a student to manage their details and courses.</p>
+          <StudentDirectory students={students} studentId={studentId} onPick={setStudentId} />
           {studentId && <StudentProfileForm userId={studentId} email={students.find(s => s.id === studentId)?.email} />}
           {studentId && <StudentOverview studentId={studentId} />}
           {studentId && <StudentEditor studentId={studentId} />}
@@ -134,36 +134,57 @@ function Admin() {
   );
 }
 
-function StudentSearch({ students, studentId, onPick }: { students: Profile[]; studentId: string; onPick: (id: string) => void }) {
+function StudentDirectory({ students, studentId, onPick }: { students: Profile[]; studentId: string; onPick: (id: string) => void }) {
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 50;
   const selected = students.find(s => s.id === studentId);
   const term = q.trim().toLowerCase();
-  const matches = term ? students.filter(s => (s.full_name ?? "").toLowerCase().includes(term) || s.email.toLowerCase().includes(term) || s.id.toLowerCase().startsWith(term)).slice(0, 8) : [];
+  const sorted = [...students].sort((a, b) => (a.full_name || a.email).localeCompare(b.full_name || b.email, "en", { sensitivity: "base" }));
+  const matches = term ? sorted.filter(s => (s.full_name ?? "").toLowerCase().includes(term) || s.email.toLowerCase().includes(term) || s.id.toLowerCase().startsWith(term)) : sorted;
+  const pages = Math.max(1, Math.ceil(matches.length / perPage));
+  const current = Math.min(page, pages);
+  const shown = matches.slice((current - 1) * perPage, current * perPage);
+
   return (
-    <div className="mt-6 w-full max-w-md">
+    <div className="mt-6">
       {selected ? (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-brand-gold bg-brand-gold-soft/40 px-4 py-3">
+        <div className="flex max-w-xl items-center justify-between gap-3 rounded-md border border-brand-gold bg-brand-gold-soft/40 px-4 py-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-primary">{selected.full_name || selected.email}</p>
             <p className="truncate text-xs text-muted-foreground">{selected.email} · ID {selected.id.slice(0, 8)}</p>
           </div>
-          <Button variant="outline" size="sm" className="rounded-full" onClick={() => { onPick(""); setQ(""); }}>Change</Button>
+          <Button variant="outline" size="sm" className="rounded-full" onClick={() => { onPick(""); setQ(""); setPage(1); }}>Change</Button>
         </div>
       ) : (
         <>
-          <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Type a student's name, email or ID…" aria-label="Search students" />
-          {term && (
-            <ul className="mt-2 divide-y divide-border overflow-hidden rounded-md border border-border bg-card">
-              {matches.length === 0 && <li className="px-4 py-3 text-sm text-muted-foreground">No students match "{q}".</li>}
-              {matches.map(s => (
-                <li key={s.id}>
-                  <button type="button" className="block w-full px-4 py-3 text-left hover:bg-brand-gold-soft/40" onClick={() => { onPick(s.id); setQ(""); }}>
-                    <span className="block truncate text-sm font-medium text-primary">{s.full_name || s.email}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{s.email} · ID {s.id.slice(0, 8)}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <Input value={q} onChange={e => { setQ(e.target.value); setPage(1); }} placeholder="Type a student's name, email or ID…" aria-label="Search students" className="max-w-md" />
+          {term && <p className="mt-2 text-xs text-muted-foreground">{matches.length} {matches.length === 1 ? "student matches" : "students match"} "{q}"</p>}
+          {matches.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">No students match "{q}".</p>
+          ) : (
+            <>
+              <ul className="mt-3 max-w-3xl divide-y divide-border overflow-hidden rounded-md border border-border bg-card">
+                {shown.map(s => (
+                  <li key={s.id}>
+                    <button type="button" className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-brand-gold-soft/40" onClick={() => onPick(s.id)}>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium text-primary">{s.full_name || s.email}</span>
+                        <span className="block truncate text-xs text-muted-foreground">{s.email}</span>
+                      </span>
+                      <span className="shrink-0 font-mono text-xs text-muted-foreground">{s.id.slice(0, 8)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-3 flex max-w-3xl items-center justify-between">
+                <p className="text-xs text-muted-foreground">Page {current} of {pages} · {matches.length} {matches.length === 1 ? "student" : "students"}</p>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="rounded-full" disabled={current <= 1} onClick={() => setPage(current - 1)}>Previous</Button>
+                  <Button variant="outline" size="sm" className="rounded-full" disabled={current >= pages} onClick={() => setPage(current + 1)}>Next</Button>
+                </div>
+              </div>
+            </>
           )}
         </>
       )}

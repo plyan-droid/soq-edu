@@ -1304,6 +1304,7 @@ export type Database = {
           id: string
           position: number
           title: string
+          topic: string | null
           unlock_at: string | null
           video_url: string | null
         }
@@ -1316,6 +1317,7 @@ export type Database = {
           id?: string
           position?: number
           title: string
+          topic?: string | null
           unlock_at?: string | null
           video_url?: string | null
         }
@@ -1328,6 +1330,7 @@ export type Database = {
           id?: string
           position?: number
           title?: string
+          topic?: string | null
           unlock_at?: string | null
           video_url?: string | null
         }
@@ -1339,7 +1342,9 @@ export type Database = {
           created_at: string
           duration_min: number
           id: string
+          location: string | null
           meeting_url: string | null
+          mode: string
           starts_at: string
           status: string
           title: string
@@ -1350,7 +1355,9 @@ export type Database = {
           created_at?: string
           duration_min?: number
           id?: string
+          location?: string | null
           meeting_url?: string | null
+          mode?: string
           starts_at: string
           status?: string
           title: string
@@ -1361,7 +1368,9 @@ export type Database = {
           created_at?: string
           duration_min?: number
           id?: string
+          location?: string | null
           meeting_url?: string | null
+          mode?: string
           starts_at?: string
           status?: string
           title?: string
@@ -1773,14 +1782,17 @@ export type Database = {
       }
       quiz_answer_keys: {
         Row: {
+          accepted: string[] | null
           correct: number
           question_id: string
         }
         Insert: {
-          correct: number
+          accepted?: string[] | null
+          correct?: number
           question_id: string
         }
         Update: {
+          accepted?: string[] | null
           correct?: number
           question_id?: string
         }
@@ -1835,6 +1847,7 @@ export type Database = {
       quiz_questions: {
         Row: {
           id: string
+          kind: string
           options: string[]
           position: number
           prompt: string
@@ -1842,6 +1855,7 @@ export type Database = {
         }
         Insert: {
           id?: string
+          kind?: string
           options: string[]
           position?: number
           prompt: string
@@ -1849,6 +1863,7 @@ export type Database = {
         }
         Update: {
           id?: string
+          kind?: string
           options?: string[]
           position?: number
           prompt?: string

@@ -1000,35 +1000,53 @@ export type Database = {
       }
       events: {
         Row: {
+          agenda: string | null
           capacity: number
+          category: string
           created_at: string
           created_by: string
           description: string
+          ends_at: string | null
           id: string
+          image_key: string | null
           location: string
           online_url: string | null
+          speaker: string | null
+          speaker_role: string | null
           starts_at: string
           title: string
         }
         Insert: {
+          agenda?: string | null
           capacity?: number
+          category?: string
           created_at?: string
           created_by: string
           description?: string
+          ends_at?: string | null
           id?: string
+          image_key?: string | null
           location?: string
           online_url?: string | null
+          speaker?: string | null
+          speaker_role?: string | null
           starts_at: string
           title: string
         }
         Update: {
+          agenda?: string | null
           capacity?: number
+          category?: string
           created_at?: string
           created_by?: string
           description?: string
+          ends_at?: string | null
           id?: string
+          image_key?: string | null
           location?: string
           online_url?: string | null
+          speaker?: string | null
+          speaker_role?: string | null
           starts_at?: string
           title?: string
         }

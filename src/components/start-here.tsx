@@ -68,7 +68,7 @@ async function load(role: StartRole, uid: string, email = "", owner = false): Pr
         { title: "Assignments to review", empty: "No submissions waiting for grading.", items: pending.slice(0, 4) },
         { title: "Course questions", empty: "No unanswered questions.", items: questions.slice(0, 4).map(q => ({ label: q.body.slice(0, 90), detail: `${q.author_name} · ${title(q.course_slug)}`, tool: "overview" })) },
         { title: "Student quiz results", empty: "No quiz attempts yet.", items: quizAttempts.slice(0, 4).map(a => ({ label: a.title, detail: `${title(a.slug)} · ${a.score}% · ${a.passed ? "passed" : "not passed"}`, tool: "quizzes" })) },
-        { title: "Noticeboard", empty: "No notices yet.", items: (noticeResult.data ?? []).map(x => ({ label: x.title, detail: x.body.slice(0, 90), tool: "notices" })) },
+        { title: "Noticeboard", empty: "No notices yet.", items: (noticeResult.data ?? []).map(x => ({ label: x.title, detail: x.body.slice(0, 90), tool: "classroom" })) },
         { title: "Upcoming events", empty: "No upcoming events.", items: (eventResult.data ?? []).map(x => ({ label: x.title, detail: day(x.starts_at), tool: "calendar" })) },
       ],
       steps: [

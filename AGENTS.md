@@ -22,3 +22,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.
 - Applicant accounts (staff-added or website) are created only in server functions with the admin client; website submissions never change an existing account's details.
 - Trainer Courses → Classroom groups each course into Stream, Classwork, People and Grades views reusing existing tables; keeps per-course teaching in one place.
+- Course-specific Community discussions use separate private threads and replies scoped by course membership, keeping public community posts distinct from classroom conversations.

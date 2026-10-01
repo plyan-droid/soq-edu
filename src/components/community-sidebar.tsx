@@ -2,6 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Home, HelpCircle, Images, Briefcase, BookHeart, Cpu, Users, Bookmark, Sparkles, CalendarDays, Wallet, LayoutDashboard, ScrollText, FileText, ShieldCheck, ChevronDown, Radio } from "lucide-react";
 import { memberTypes } from "@/lib/community";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { courses } from "@/lib/site-content";
 
 export const sections = [
   { tag: "question", label: "Ask & Answer", Icon: HelpCircle },
@@ -32,6 +36,7 @@ type Props = { active: string; who?: string | undefined };
 
 export function CommunitySidebar({ active, who }: Props) {
   const [open, setOpen] = useState(true);
+  const myCourses = useMyCourses();
   return (
     <aside className="hidden content-start gap-6 lg:grid">
       <nav className="grid gap-0.5">
@@ -44,6 +49,7 @@ export function CommunitySidebar({ active, who }: Props) {
         <Link to="/community/members" className={item(active === "members")}><Users className="size-4 text-brand-gold" />Members</Link>
         <Link to="/community/saved" className={item(active === "saved")}><Bookmark className="size-4 text-brand-gold" />Saved posts</Link>
       </nav>
+      {myCourses.length > 0 && <nav className="grid gap-0.5"><p className="eyebrow mb-1 px-3">My Courses</p>{myCourses.map(slug => <Link key={slug} to="/community/course/$slug" params={{ slug }} className={item(active === `course:${slug}`)}><BookHeart className="size-4 shrink-0 text-brand-gold" /><span className="min-w-0 truncate">{courses.find(c => c.slug === slug)?.title ?? slug}</span></Link>)}</nav>}
       <div>
         <button type="button" onClick={() => setOpen(o => !o)} className="eyebrow mb-1 flex w-full items-center justify-between px-3">
           Learn with SOQ <ChevronDown className={`size-4 transition ${open ? "" : "-rotate-90"}`} />
@@ -74,10 +80,12 @@ export function CommunitySidebar({ active, who }: Props) {
 }
 
 export function CommunityMobileNav({ active }: { active: string }) {
+  const myCourses = useMyCourses();
   const chip = (a: boolean) => `shrink-0 rounded-full border px-4 py-1.5 text-sm ${a ? "border-brand-navy bg-brand-navy text-primary-foreground" : "border-border text-foreground/80"}`;
   return (
     <nav className="-mx-5 mb-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:hidden">
       <Link to="/community" className={chip(active === "home")}>Home</Link>
+      {myCourses.map(slug => <Link key={slug} to="/community/course/$slug" params={{ slug }} className={chip(active === `course:${slug}`)}>{courses.find(c => c.slug === slug)?.title ?? slug}</Link>)}
       {sections.map(s => <Link key={s.tag} to="/community" search={{ tag: s.tag }} className={chip(active === s.tag)}>{s.label}</Link>)}
       <Link to="/community/live" className={chip(active === "live")}>Livestreams</Link>
       <Link to="/events" className={chip(false)}>Events</Link>
@@ -86,4 +94,16 @@ export function CommunityMobileNav({ active }: { active: string }) {
       <Link to="/community/guidelines" className={chip(active === "guidelines")}>Guidelines</Link>
     </nav>
   );
+}
+
+function useMyCourses() {
+  const { user } = useAuth();
+  const { data = [] } = useQuery({ enabled: !!user, queryKey: ["community-my-courses", user?.id], queryFn: async () => {
+    const [enrolled, teaching] = await Promise.all([
+      supabase.from("enrollments").select("course_slug").eq("student_id", user?.id ?? ""),
+      supabase.from("trainer_courses").select("course_slug").eq("trainer_id", user?.id ?? ""),
+    ]);
+    return [...new Set([...(enrolled.data ?? []), ...(teaching.data ?? [])].map(row => row.course_slug))];
+  } });
+  return data;
 }

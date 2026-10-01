@@ -45,6 +45,7 @@ export function CourseClassroom({ userId, isAdmin, onNavigate }: { userId: strin
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`-mb-px border-b-2 px-4 py-2 text-sm capitalize ${tab === t ? "border-primary font-semibold text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>{t}</button>
         ))}
       </div>
+      <Link to="/community/course/$slug" params={{ slug }} className="mt-3 inline-flex items-center gap-1 text-sm text-primary underline">Open class discussion <ExternalLink className="size-3" /></Link>
       {tab === "stream" && <Stream slug={slug} userId={userId} onNavigate={onNavigate} />}
       {tab === "classwork" && <Classwork slug={slug} userId={userId} isAdmin={isAdmin} onNavigate={onNavigate} />}
       {tab === "people" && <People slug={slug} userId={userId} />}

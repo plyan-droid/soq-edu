@@ -6,7 +6,7 @@ import { Lock } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CheckCircle2, Circle, Download, PlayCircle, Video } from "lucide-react";
+import { CheckCircle2, Circle, Download, PlayCircle, Video, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -55,6 +55,7 @@ function LearnPage() {
   const active = lessons.find(l => l.id === activeId) ?? lessons[0];
   const locked = (l: Lesson, i: number) => (!!l.unlock_at && new Date(l.unlock_at) > new Date());
   const doneCount = lessons.filter(l => data?.done.has(l.id)).length;
+  const activeIndex = active ? lessons.findIndex(l => l.id === active.id) : -1;
 
   const toggleDone = async (l: Lesson) => {
     if (data?.done.has(l.id)) await supabase.from("lesson_progress").delete().eq("user_id", user.id).eq("lesson_id", l.id);
@@ -85,14 +86,19 @@ function LearnPage() {
                   {active.file_url && <Button asChild variant="outline" className="rounded-full"><a href={safeHref(active.file_url)} target="_blank" rel="noreferrer"><Download /> Download materials</a></Button>}
                   <Button className="rounded-full" onClick={() => void toggleDone(active)}>{data?.done.has(active.id) ? "Mark as not done" : "Mark as done"}</Button>
                 </div>
+                <div className="mt-6 flex justify-between gap-3 border-t border-border pt-4">
+                  <Button variant="ghost" disabled={activeIndex <= 0} onClick={() => setActiveId(lessons[activeIndex - 1]?.id ?? null)}><ChevronLeft /> Previous lesson</Button>
+                  <Button variant="outline" disabled={activeIndex < 0 || activeIndex >= lessons.length - 1} onClick={() => setActiveId(lessons[activeIndex + 1]?.id ?? null)}>Next lesson <ChevronRight /></Button>
+                </div>
               </article>
             )}
             {active && <LessonNotes lessonId={active.id} />}
           </div>
           <aside className="space-y-6">
-            <CourseChatroom slug={slug} />
+            <div className="border-b border-border pb-5"><h2 className="font-serif text-2xl text-primary">Your class</h2><Link to="/community/course/$slug" params={{ slug }} className="mt-2 inline-block text-sm text-primary underline">Open class discussion →</Link></div>
             <StudentQuizzes slug={slug} />
             <StudentAssignments slug={slug} />
+            <CourseChatroom slug={slug} />
             <div className="rounded-lg border border-border bg-card p-5">
               <p className="text-sm text-muted-foreground">{doneCount} of {lessons.length} lessons done</p>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${lessons.length ? (doneCount / lessons.length) * 100 : 0}%` }} /></div>

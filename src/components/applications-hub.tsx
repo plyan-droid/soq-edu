@@ -66,7 +66,7 @@ export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string)
   return (
     <div className="mt-4 space-y-5">
       <div className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
-        Every application from the website (short courses and diplomas) lands here, plus anyone staff add by hand. Move each one through <b className="text-foreground">New → Contacted → Screening → Offer sent → Approved</b>, then <b className="text-foreground">Approve &amp; enrol</b> gives them their place: the course appears in their student portal and on trainer class lists. <b className="text-foreground">Closed</b> means they didn't go ahead.
+        Every application from the website (short courses and diplomas) lands here, plus anyone staff add by hand. Move each one through <b className="text-foreground">New → Contacted → Screening → Offer sent → Approved</b> (or <b className="text-foreground">Waitlist</b> if the class is full — website "Join the waitlist" requests land here too), then <b className="text-foreground">Approve &amp; enrol</b> gives them their place: the course appears in their student portal and on trainer class lists. <b className="text-foreground">Closed</b> means they didn't go ahead.
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

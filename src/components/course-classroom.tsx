@@ -1,18 +1,20 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ExternalLink, FileText, ClipboardCheck, HelpCircle, MapPin, Video, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, FileText, ClipboardCheck, HelpCircle, MapPin, Video, Plus, Bold, Italic, Underline, List, Strikethrough, Upload, Palette, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { courses } from "@/lib/site-content";
 import { fmtDateTime, type Lesson } from "@/lib/learning";
 import { useTrainerCourses } from "@/components/trainer-overview";
 import { noticeColor } from "@/components/trainer-tools";
-import { NoticeFileList, PendingFiles, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
+import { NoticeFileList, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
+import { NoticeBody } from "@/components/notice-body";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const courseName = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const sel = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";

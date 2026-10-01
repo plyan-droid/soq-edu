@@ -10,7 +10,7 @@ import type { User } from "@supabase/supabase-js";
 
 type Thread = { id: string; author_id: string; author_name: string; title: string; body: string; created_at: string };
 type Reply = { id: string; thread_id: string; author_id: string; author_name: string; body: string; created_at: string };
-const displayName = (user: User) => (typeof user.user_metadata?.full_name === "string" && user.user_metadata.full_name) || user.email?.split("@")[0] || "Member";
+const displayName = (user: User) => (typeof user.user_metadata?.["full_name"] === "string" && user.user_metadata["full_name"]) || user.email?.split("@")[0] || "Member";
 const when = (date: string) => new Date(date).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
 export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: User; isStaff: boolean }) {

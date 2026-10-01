@@ -196,14 +196,14 @@ function CoursePage() {
 
       <div className="mx-auto grid max-w-7xl gap-12 px-5 py-12 lg:grid-cols-[1fr_320px] lg:px-8">
         <div className="min-w-0 space-y-14">
-          <section id="about" className="scroll-mt-20">
+          {learn.length > 0 && <section id="about" className="scroll-mt-20">
             <h2 className="text-2xl font-semibold text-primary">What you'll learn</h2>
             <div className="mt-5 grid gap-4 rounded-lg border border-border p-6 md:grid-cols-2">
               {learn.slice(0, 8).map((item) => (
                 <p key={item} className="flex items-start gap-3 text-sm leading-6"><Check className="mt-0.5 size-4 shrink-0 text-primary" />{item}</p>
               ))}
             </div>
-          </section>
+          </section>}
 
           {course.requirements && <section>
             <h2 className="text-xl font-semibold text-primary">Who it's for / entry requirements</h2>

@@ -19,7 +19,7 @@ export async function createLiveCourse(f: CourseFields): Promise<{ slug?: string
   });
   if (error) return { error: error.message };
   if (f.intake_start) {
-    await supabase.from("course_intakes").insert({ course_slug: slug, start_date: f.intake_start, apply_by: f.intake_apply_by || null, session_time: f.intake_time.trim() || null, status: "open" });
+    await supabase.from("course_intakes").insert({ course_slug: slug, start_date: f.intake_start, apply_by: f.intake_apply_by || null, session_time: f.intake_time.trim() || null, status: "confirmed" });
   }
   return { slug };
 }

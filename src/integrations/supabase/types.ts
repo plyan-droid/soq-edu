@@ -53,6 +53,41 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_mark_drafts: {
+        Row: {
+          created_at: string
+          feedback: string
+          score: number | null
+          submission_id: string
+          trainer_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          feedback?: string
+          score?: number | null
+          submission_id: string
+          trainer_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string
+          score?: number | null
+          submission_id?: string
+          trainer_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_mark_drafts_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "assignment_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assignment_submissions: {
         Row: {
           assignment_id: string

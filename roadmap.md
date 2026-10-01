@@ -12,6 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
+- [x] Simplify the trainer workspace with a focused teaching Home, quieter course/student lists, clear navigation and trainer-only light typography.
 - [x] Combine course content editing, new courses and intake dates into one "Courses & intakes" staff tool under Courses; /staff-courses now redirects there and the misplaced Learners shortcut is gone.
 - [x] Redesign staff/admin Today as a modern operations grid with actionable queues, four recorded figures and recent activity; move detailed order figures to Reports.
 - [x] Expand the organisation Home with package, seats, team progress, notices, events and upcoming classes; enrich affiliate, store and employer previews with clearly labelled sample learning, calendar, support and performance information.

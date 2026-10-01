@@ -3,7 +3,7 @@ import { PendingSeatRequests, SessionRequests } from "@/components/session-booki
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ExternalLink, X, BookOpen, Users, CalendarDays, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,37 +45,28 @@ export function TrainerOverview({ userId }: { userId: string }) {
     await supabase.from("trainer_courses").delete().eq("trainer_id", userId).eq("course_slug", slug);
     void qc.invalidateQueries({ queryKey: ["t-courses", userId] }); void qc.invalidateQueries({ queryKey: ["t-roster", userId] });
   };
-  const stats = [
-    { Icon: BookOpen, label: "Courses I teach", value: mine.length },
-    { Icon: Users, label: "Enrolled students", value: roster.length },
-    { Icon: CalendarDays, label: "Upcoming sessions", value: next.length },
-    { Icon: CheckCircle2, label: "Avg. progress", value: roster.length ? `${Math.round(roster.reduce((a, r) => a + r.progress, 0) / roster.length)}%` : "—" },
-  ];
   return (
-    <div className="mt-6 space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{stats.map(({ Icon, label, value }) => (
-        <div key={label} className="rounded-xl border border-border bg-card p-5"><Icon className="size-5 text-brand-gold" /><p className="mt-3 font-serif text-4xl text-primary">{value}</p><p className="text-sm text-muted-foreground">{label}</p></div>
-      ))}</div>
-      <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+    <div className="mt-6 max-w-6xl space-y-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,320px)]">
         <section>
           <h2 className="font-serif text-2xl text-primary">My courses</h2>
           {mine.length === 0 && <p className="mt-2 text-sm text-muted-foreground">Add the courses you teach to see their students here.</p>}
-          <ul className="mt-3 grid gap-3 sm:grid-cols-2">{mine.map(slug => {
+          <ul className="mt-3 divide-y divide-border border-y border-border">{mine.map(slug => {
             const n = roster.filter(r => r.course_slug === slug).length;
             return (
-              <li key={slug} className="rounded-lg border border-border bg-card p-4">
+              <li key={slug} className="py-3">
                 <div className="flex items-start justify-between gap-2"><Link to="/courses/$slug" params={{ slug }} className="font-medium hover:underline">{courseName(slug)}</Link><button onClick={() => void remove(slug)} aria-label="Remove course"><X className="size-4 text-muted-foreground" /></button></div>
                 <p className="mt-1 text-sm text-muted-foreground">{n} student{n === 1 ? "" : "s"} · {next.filter(s => s.course_slug === slug).length} upcoming</p>
               </li>
             );
           })}</ul>
-          <div className="mt-4 flex gap-2"><select className={sel} value={pick} onChange={e => setPick(e.target.value)}><option value="">Add a course I teach…</option>{courses.filter(c => !mine.includes(c.slug)).map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select><Button className="rounded-full" onClick={() => void add()}>Add</Button></div>
+          <div className="mt-4 flex gap-2"><select className={sel} value={pick} onChange={e => setPick(e.target.value)}><option value="">Add a course I teach…</option>{courses.filter(c => !mine.includes(c.slug)).map(c => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select><Button disabled={!pick} onClick={() => void add()}>Add</Button></div>
         </section>
         <section>
           <h2 className="font-serif text-2xl text-primary">Next sessions</h2>
           {next.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">Nothing scheduled. Use the Calendar tab.</p> : (
-            <ul className="mt-3 space-y-2">{next.slice(0, 5).map(s => (
-              <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-muted-foreground">{fmtDateTime(s.starts_at)} · {courseName(s.course_slug)}</p>
+            <ul className="mt-3 divide-y divide-border border-y border-border">{next.slice(0, 5).map(s => (
+              <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-muted-foreground">{fmtDateTime(s.starts_at)} · {courseName(s.course_slug)}</p>
                 {s.meeting_url && <a href={s.meeting_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs underline"><ExternalLink className="size-3" />Start & host</a>}</li>
             ))}</ul>
           )}
@@ -93,12 +84,12 @@ export function TrainerStudents({ userId }: { userId: string }) {
   const [q, setQ] = useState("");
   const shown = roster.filter(r => (course === "all" || r.course_slug === course) && (!q || `${r.student_name} ${r.student_email}`.toLowerCase().includes(q.toLowerCase())));
   if (isLoading) return <ListSkeleton />;
-  if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach on the Overview tab first.</p>;
+  if (!mine.length) return <p className="mt-6 text-muted-foreground">Add the courses you teach in My courses first.</p>;
   return (
-    <div className="mt-6">
-      <div className="flex flex-wrap gap-3"><select className={`${sel} max-w-sm`} value={course} onChange={e => setCourse(e.target.value)}><option value="all">All my courses</option>{mine.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select><Input className="max-w-xs" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} /></div>
+    <div className="mt-6 max-w-6xl">
+      <div className="flex flex-wrap items-center gap-3"><select aria-label="Filter by course" className={`${sel} max-w-sm`} value={course} onChange={e => setCourse(e.target.value)}><option value="all">All my courses</option>{mine.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select><Input aria-label="Search students" className="max-w-xs" placeholder="Search name or email" value={q} onChange={e => setQ(e.target.value)} /><span className="text-xs text-muted-foreground">{shown.length} students</span></div>
       {shown.length === 0 ? <p className="mt-6 text-sm text-muted-foreground">No enrolled students yet. Staff enrol students from the Staff admin page.</p> : (
-        <div className="mt-4 overflow-x-auto rounded-lg border border-border"><table className="w-full text-sm">
+        <div className="mt-4 overflow-x-auto rounded-md border border-border bg-card"><table className="w-full min-w-[780px] text-sm">
           <thead className="bg-muted text-left"><tr>{["Student", "Course", "Progress", "Lessons done", "Dates", "Status"].map(h => <th key={h} className="px-3 py-2 font-medium">{h}</th>)}</tr></thead>
           <tbody>{shown.map(r => (
             <tr key={r.enrollment_id} className="border-t border-border">
@@ -185,22 +176,23 @@ export function TrainerCalendar({ userId }: { userId: string }) {
   const setStatus = async (id: string, status: string) => { await supabase.from("live_sessions").update({ status }).eq("id", id); refresh(); };
   const list = day ? byDay.get(day) ?? [] : [];
   return (
-    <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
-      <div className="rounded-xl border border-border bg-card p-4">
+    <div className="mt-6 grid max-w-6xl gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="min-w-0 rounded-md border border-border bg-card p-2 sm:p-4">
         <div className="mb-3 flex items-center justify-between">
           <Button variant="ghost" size="icon" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="Previous month"><ChevronLeft /></Button>
           <p className="font-serif text-2xl text-primary">{month.toLocaleDateString("en-SG", { month: "long", year: "numeric" })}</p>
           <Button variant="ghost" size="icon" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} aria-label="Next month"><ChevronRight /></Button>
         </div>
-        <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <div key={d} className="py-1">{d}</div>)}</div>
-        <div className="grid grid-cols-7 gap-1">{cells.map((d, i) => {
+        <div className="grid grid-cols-7 gap-0.5 text-center text-xs font-medium text-muted-foreground sm:gap-1">{["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(d => <div key={d} className="py-1">{d}</div>)}</div>
+        <div className="grid grid-cols-7 gap-0.5 sm:gap-1">{cells.map((d, i) => {
           if (!d) return <div key={`e${i}`} />;
            const k = dayKey(d); const items = byDay.get(k) ?? [];
           return (
-             <Button key={k} variant="outline" onClick={() => setDay(k)} className={`h-auto min-h-20 min-w-0 flex-col items-stretch justify-start whitespace-normal rounded-md p-1.5 text-left text-xs shadow-none ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
+             <Button key={k} variant="outline" onClick={() => setDay(k)} aria-label={`${d.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}, ${items.length} session${items.length === 1 ? "" : "s"}`} className={`h-auto min-h-12 min-w-0 flex-col items-stretch justify-start overflow-hidden whitespace-normal rounded-sm p-0.5 text-left text-xs shadow-none sm:min-h-20 sm:p-1.5 ${day === k ? "border-primary bg-secondary" : "border-border hover:bg-muted"}`}>
               <span className={`inline-flex size-6 items-center justify-center rounded-full ${k === today ? "bg-primary text-primary-foreground" : ""}`}>{d.getDate()}</span>
-               {items.slice(0, 2).map(item => <span key={item.data.id} className={`mt-0.5 block w-full truncate rounded px-1 ${item.kind === "class" ? "bg-brand-gold/20" : "bg-secondary text-primary"}`}>{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {item.kind === "class" ? item.data.title : `1-to-1 · ${item.data.topic}`}</span>)}
-              {items.length > 2 && <p className="mt-0.5 text-muted-foreground">+{items.length - 2} more</p>}
+               {items.slice(0, 2).map(item => <span key={item.data.id} className={`mt-0.5 hidden w-full truncate rounded px-1 sm:block ${item.kind === "class" ? "bg-brand-gold/20" : "bg-secondary text-primary"}`}>{new Date(item.data.starts_at).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" })} {item.kind === "class" ? item.data.title : `1-to-1 · ${item.data.topic}`}</span>)}
+              {items.length > 0 && <span className="text-[10px] text-muted-foreground sm:hidden">{items.length} item{items.length === 1 ? "" : "s"}</span>}
+              {items.length > 2 && <span className="mt-0.5 hidden text-muted-foreground sm:block">+{items.length - 2} more</span>}
              </Button>
           );
         })}</div>

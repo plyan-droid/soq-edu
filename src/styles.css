@@ -165,6 +165,21 @@
   ::selection { background: var(--brand-gold-soft); color: var(--brand-navy); }
 }
 
+/* Trainer tools use a quieter working type system without changing the public brand. */
+.trainer-workspace {
+  --background: oklch(1 0 0);
+  --secondary: oklch(0.97 0.004 255);
+  --muted: oklch(0.97 0.004 255);
+  --primary: oklch(0.30 0.055 255);
+  --brand-gold: oklch(0.74 0.11 82);
+  background: var(--background);
+  font-family: "Manrope", sans-serif;
+}
+.trainer-workspace h1,
+.trainer-workspace h2,
+.trainer-workspace h3,
+.trainer-workspace .font-serif { font-family: "Sora", sans-serif; }
+
 @utility eyebrow {
   font-size: 0.68rem;
   line-height: 1rem;

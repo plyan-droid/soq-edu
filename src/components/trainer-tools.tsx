@@ -16,7 +16,7 @@ const card = "rounded-lg border border-border bg-card p-5";
 function MyCoursePicker({ userId, isAdmin, value, onChange }: { userId: string; isAdmin: boolean; value: string; onChange: (v: string) => void }) {
   const { data: mine = [] } = useTrainerCourses(userId);
   const list = isAdmin ? courses.map(c => c.slug) : mine;
-  if (list.length === 0) return <p className="text-sm text-muted-foreground">Add your courses in the Overview tab first.</p>;
+  if (list.length === 0) return <p className="text-sm text-muted-foreground">Add your courses in My courses first.</p>;
   if (!list.includes(value) && list[0]) setTimeout(() => onChange(list[0]!), 0);
   return <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={value} onChange={e => onChange(e.target.value)}>{list.map(s => <option key={s} value={s}>{courseName(s)}</option>)}</select>;
 }

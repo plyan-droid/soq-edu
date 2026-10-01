@@ -13,7 +13,7 @@ import { aiWrite } from "@/lib/ai-writer.functions";
 import { CertificateView, downloadCertificatePdf, TEMPLATES, useCertDesign, type CertDesign } from "@/components/certificate";
 import { addApplicant, type ApplicantInput } from "@/lib/applicants.functions";
 import { useAllCourses } from "@/lib/course-overrides";
-import { bannerSrc } from "@/lib/form-banner";
+import { bannerSrc, fileToBanner, BANNER_W, BANNER_H } from "@/lib/form-banner";
 
 const title = (s: string) => courses.find(c => c.slug === s)?.title ?? s;
 const Box = ({ children }: { children: React.ReactNode }) => <div className="space-y-4 rounded-lg border border-border bg-card p-5">{children}</div>;
@@ -242,9 +242,12 @@ export function FormBuilder() {
     <Textarea placeholder="Intro text" value={f.intro} onChange={e => setF({ ...f, intro: e.target.value })} />
     <div className="space-y-2">
       <p className="text-sm font-medium">Banner picture <span className="font-normal text-muted-foreground">(optional)</span></p>
-      {preview && <div className="relative"><img src={preview} alt="Banner preview" className="h-36 w-full rounded-md object-cover" /><Button size="sm" variant="secondary" className="absolute right-2 top-2" onClick={() => setF({ ...f, banner: "" })}>Remove</Button></div>}
-      <div className="flex gap-2 overflow-x-auto pb-1">{courses.map(c => <button type="button" key={c.slug} onClick={() => setF({ ...f, banner: c.slug })} aria-label={`Use photo from ${c.title}`} className={`shrink-0 overflow-hidden rounded-md border-2 ${f.banner === c.slug ? "border-primary" : "border-transparent"}`}><img src={c.image} alt="" className="h-14 w-20 object-cover" loading="lazy" /></button>)}</div>
-      <Input placeholder="…or paste a picture link (https://…)" value={/^https?:/i.test(f.banner) ? f.banner : ""} onChange={e => setF({ ...f, banner: e.target.value.trim() })} />
+      {preview && <div className="relative"><img src={preview} alt="Banner preview" className="aspect-[3/1] w-full rounded-md object-cover" /><Button size="sm" variant="secondary" className="absolute right-2 top-2" onClick={() => setF({ ...f, banner: "" })}>Remove</Button></div>}
+      <label className="inline-flex h-10 cursor-pointer items-center rounded-full border border-input px-5 text-sm hover:bg-muted">
+        {preview ? "Change picture" : "Upload picture"}
+        <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={async e => { const file = e.target.files?.[0]; e.target.value = ""; if (!file) return; if (file.size > 10 * 1024 * 1024) return void toast.error("Picture must be under 10 MB"); try { setF({ ...f, banner: await fileToBanner(file) }); } catch { toast.error("Couldn't read that picture"); } }} />
+      </label>
+      <p className="text-xs text-muted-foreground">Best size: {BANNER_W} × {BANNER_H} px (wide, 3:1). JPG, PNG or WebP. Larger pictures are cropped to fit automatically.</p>
     </div>
     {fields.map((x, i) => <div key={i} className="flex flex-wrap items-center gap-2"><Input className="w-48" value={x.label} onChange={e => upd(i, { label: e.target.value })} />
       <select className={sel} value={x.type} onChange={e => upd(i, { type: e.target.value as Field["type"] })}><option value="text">Short answer</option><option value="email">Email</option><option value="textarea">Long answer</option><option value="select">Drop-down</option></select>

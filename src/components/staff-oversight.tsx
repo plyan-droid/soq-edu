@@ -139,6 +139,20 @@ function pageList(cur: number, total: number): number[] {
   sorted.forEach((n, i) => { if (i && n - sorted[i - 1]! > 1) out.push(0); out.push(n); });
   return out;
 }
+function Pager({ page, total, count, noun, onPage }: { page: number; total: number; count: number; noun: string; onPage: (n: number) => void }) {
+  return (
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <p className="text-xs text-muted-foreground">Page {page} of {total} · {count} {noun}</p>
+      <nav className="flex flex-wrap items-center gap-1" aria-label={`${noun} pages`}>
+        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Previous page" disabled={page <= 1} onClick={() => onPage(page - 1)}>&lt;</Button>
+        {pageList(page, total).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-1 text-xs text-muted-foreground">…</span> : (
+          <Button key={n} size="icon" variant="outline" aria-label={`Page ${n}`} aria-current={n === page ? "page" : undefined} className={`size-8 rounded-full text-xs ${n === page ? "border-brand-gold bg-brand-gold text-brand-navy hover:bg-brand-gold/85" : ""}`} onClick={() => onPage(n)}>{n}</Button>
+        ))}
+        <Button variant="outline" size="icon" className="size-8 rounded-full" aria-label="Next page" disabled={page >= total} onClick={() => onPage(page + 1)}>&gt;</Button>
+      </nav>
+    </div>
+  );
+}
 type Post = { id: string; title: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type Comment = { id: string; post_id: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type MemberProfile = { id: string; username: string; display_name: string; verified: boolean; member_type: string };

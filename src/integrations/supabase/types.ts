@@ -717,6 +717,7 @@ export type Database = {
       }
       course_notices: {
         Row: {
+          attachments: Json
           body: string
           color: string
           course_slug: string
@@ -726,6 +727,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          attachments?: Json
           body?: string
           color?: string
           course_slug: string
@@ -735,6 +737,7 @@ export type Database = {
           title: string
         }
         Update: {
+          attachments?: Json
           body?: string
           color?: string
           course_slug?: string

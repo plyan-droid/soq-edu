@@ -1,0 +1,4 @@
+ALTER TABLE public.course_notices ADD COLUMN attachments jsonb NOT NULL DEFAULT '[]'::jsonb;
+CREATE POLICY "notice files read" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'notice-files' AND public.in_course(auth.uid(), (storage.foldername(name))[1]));
+CREATE POLICY "notice files upload" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'notice-files' AND public.teaches(auth.uid(), (storage.foldername(name))[1]));
+CREATE POLICY "notice files delete" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'notice-files' AND public.teaches(auth.uid(), (storage.foldername(name))[1]));

@@ -112,3 +112,4 @@
 - [x] Issued valid certificates can be added to LinkedIn Licences & certifications with verification details (requires a genuine issued certificate to test live)
 - [x] Student payments have a viewable, downloadable invoice record with unconfirmed transfers clearly distinguished
 - [x] Open class lands in Community → My Courses → class discussion
+- [x] Give demo learners linked sample Stream, Classwork and Grades activity, including a returned example submission, without creating verified academic records

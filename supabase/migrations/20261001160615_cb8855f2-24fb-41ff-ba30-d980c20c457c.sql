@@ -1,0 +1,16 @@
+REVOKE EXECUTE ON FUNCTION public.guard_profile_verification() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.guard_session_booking() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.guard_sfc_balance() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.approve_bank_payment(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.book_slot(uuid, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.cancel_booking(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.claim_referral(text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.org_add_member(text, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.org_roster() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.place_mock_order(jsonb, text, text, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.session_roster(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.submit_quiz(uuid, jsonb) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.trainer_lesson_stats() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.trainer_roster() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.approve_bank_payment(uuid), public.book_slot(uuid, text), public.cancel_booking(uuid), public.claim_referral(text), public.org_add_member(text, text), public.org_roster(), public.place_mock_order(jsonb, text, text, text), public.session_roster(uuid), public.submit_quiz(uuid, jsonb), public.trainer_lesson_stats(), public.trainer_roster() TO authenticated, service_role;

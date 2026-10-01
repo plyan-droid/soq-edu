@@ -230,7 +230,6 @@ export function FormBuilder() {
   const { data = [] } = useQuery({ queryKey: ["forms-admin"], queryFn: async () => (await supabase.from("custom_forms").select("*").order("created_at")).data ?? [] });
   const { data: resp = [] } = useQuery({ enabled: !!view, queryKey: ["form-resp", view], queryFn: async () => (await supabase.from("form_responses").select("*").eq("form_id", view!).order("created_at", { ascending: false })).data ?? [] });
   const save = async () => {
-    if (f.banner && !bannerSrc(f.banner)) return void toast.error("Picture link must start with https://");
     const { error } = await supabase.from("custom_forms").insert({ title: f.title, slug: f.slug.toLowerCase(), intro: f.intro, fields, banner: f.banner || null });
     if (error) return void toast.error(error.message.includes("slug") ? "Page address must be 2–60 lowercase letters, numbers or dashes, and unused." : error.message);
     setF({ title: "", slug: "", intro: "", banner: "" }); void qc.invalidateQueries({ queryKey: ["forms-admin"] }); toast.success("Form published");

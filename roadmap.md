@@ -101,3 +101,4 @@
 - [x] Organisations (business packages, seats, expiry)
 - [x] Events (create, capacity, sign-up lists)
 - [x] Learning oversight (assignments + grading, quizzes and attempts, attendance)
+- [x] Full student details form: profiles gained phone/DOB/citizenship/address/emergency contact/referral fields; student "My details" tab, staff student detail form, application pre-fill

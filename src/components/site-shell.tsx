@@ -8,14 +8,21 @@ import logo from "@/assets/soq-logo-local.png";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ArrowRight,
+  BookOpen,
+  BriefcaseBusiness,
+  ChevronDown,
   Facebook,
+  FileText,
+  HelpCircle,
   Instagram,
   Linkedin,
   Mail,
   MapPin,
   Menu,
+  Newspaper,
   Phone,
   Search,
+  Users,
   X,
   Youtube,
 } from "lucide-react";

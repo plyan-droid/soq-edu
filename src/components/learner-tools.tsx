@@ -137,7 +137,7 @@ export function JoinWaitlist({ slug }: { slug: string }) {
   return <div className="mt-3 space-y-2 rounded-md border border-border p-3">
     <Input placeholder="Your name" value={f.name} onChange={e => setF({ ...f, name: e.target.value })} />
     <Input placeholder="Email" type="email" value={f.email} onChange={e => setF({ ...f, email: e.target.value })} />
-    <Input placeholder="Mobile (optional)" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
+    <Input placeholder="Mobile number" value={f.phone} onChange={e => setF({ ...f, phone: e.target.value })} />
     <Button className="w-full rounded-full" onClick={() => void join()}>Join waitlist</Button></div>;
 }
 

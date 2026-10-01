@@ -17,6 +17,7 @@ export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: Us
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [composing, setComposing] = useState(false);
   const [reply, setReply] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const { data: threads = [], isLoading, error } = useQuery({
@@ -37,12 +38,12 @@ export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: Us
   });
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["classroom-threads", slug] }); void qc.invalidateQueries({ queryKey: ["classroom-replies", slug] }); };
   const create = async () => {
-    if (title.trim().length < 3 || !body.trim() || busy) return;
+    if (!body.trim() || busy) return;
     setBusy(true);
-    const { error } = await supabase.from("classroom_threads").insert({ course_slug: slug, author_id: user.id, author_name: displayName(user), title: title.trim(), body: body.trim() });
+    const { error } = await supabase.from("classroom_threads").insert({ course_slug: slug, author_id: user.id, author_name: displayName(user), title: title.trim() || body.trim().split("\n")[0]?.slice(0, 120) || "Class post", body: body.trim() });
     setBusy(false);
     if (error) return void toast.error("Couldn't post this discussion");
-    setTitle(""); setBody(""); refresh();
+    setTitle(""); setBody(""); setComposing(false); refresh();
   };
   const respond = async (id: string) => {
     const text = reply[id]?.trim(); if (!text || busy) return;
@@ -60,10 +61,12 @@ export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: Us
   };
   return <div className="mx-auto max-w-3xl space-y-6">
     <div className="space-y-3 border-b border-border pb-6">
-      <h2 className="font-serif text-2xl text-primary">Start a discussion</h2>
-      <Input aria-label="Discussion title" placeholder="What would you like to discuss?" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} />
-      <Textarea aria-label="Discussion message" placeholder="Share a question, idea or resource with your class…" maxLength={5000} value={body} onChange={e => setBody(e.target.value)} />
-      <Button onClick={() => void create()} disabled={busy || title.trim().length < 3 || !body.trim()}>Post to class</Button>
+      {!composing ? <Button variant="outline" className="h-14 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Announce something to your class…</Button> : <div className="space-y-3 rounded-md border border-border p-4">
+        <h2 className="font-serif text-xl text-primary">Post to your class</h2>
+        <Input aria-label="Post title" placeholder="Title (optional)" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} />
+        <Textarea aria-label="Post message" placeholder="Share a question, idea or resource with your class…" maxLength={5000} value={body} onChange={e => setBody(e.target.value)} />
+        <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setComposing(false)}>Cancel</Button><Button onClick={() => void create()} disabled={busy || !body.trim()}>Post</Button></div>
+      </div>}
     </div>
     {isLoading ? <p className="text-muted-foreground">Loading discussions…</p> : error ? <p className="text-destructive">Couldn't load discussions. Please try again.</p> : threads.length === 0 ? <p className="text-muted-foreground">No discussions yet. Start one for your class.</p> : threads.map(t => <article key={t.id} className="border-b border-border pb-6">
       <div className="flex items-start justify-between gap-3"><div><h3 className="font-serif text-2xl text-primary">{t.title}</h3><p className="text-xs text-muted-foreground">{t.author_name} · {when(t.created_at)}</p></div>

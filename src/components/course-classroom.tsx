@@ -10,7 +10,7 @@ import { useTrainerCourses } from "@/components/trainer-overview";
 import { noticeColor } from "@/components/trainer-tools";
 import { NoticeFileList, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
-import { AssignmentFileList, assignmentFiles } from "@/components/assignment-files";
+import { AssignmentMarking } from "@/components/assignment-marking";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -319,10 +319,8 @@ function SpeedGrader({ subs, max, slug, start = 0 }: { subs: Sub[]; max: number;
         <p className="text-xs text-muted-foreground">Handed in {fmtDateTime(s.created_at)}</p>
         {s.body ? <p className="max-h-60 overflow-y-auto whitespace-pre-line rounded bg-muted/50 p-3">{s.body}</p> : <p className="text-muted-foreground">No written answer.</p>}
         {s.link && <a href={safe(s.link)} target="_blank" rel="noreferrer" className="text-primary underline">Open their link</a>}
-        <AssignmentFileList files={assignmentFiles(s.files)} />
-        <div className="flex items-center gap-2"><Input className="w-24" type="number" placeholder="Score" value={cur.score} onChange={e => setG({ ...g, [s.id]: { ...cur, score: e.target.value } })} /><span className="text-muted-foreground">/ {max}</span></div>
-        <Textarea placeholder="Feedback for the student" value={cur.feedback} onChange={e => setG({ ...g, [s.id]: { ...cur, feedback: e.target.value } })} />
-        <div className="flex gap-2"><Button size="sm" variant="outline" onClick={() => void save(false)}>Save mark</Button><Button size="sm" disabled={cur.score === ""} onClick={async () => { if (cur.score === "" || !Number.isInteger(Number(cur.score)) || Number(cur.score) < 0 || Number(cur.score) > max) return void toast.error(`Mark must be between 0 and ${max}`); const { error } = await supabase.from("assignment_submissions").update({ score: +cur.score, feedback: cur.feedback, status: "graded" }).eq("id", s.id); if (error) return void toast.error("Couldn't return work"); toast.success("Work returned to learner"); void qc.invalidateQueries({ queryKey: ["t-asg", slug] }); void qc.invalidateQueries({ queryKey: ["s-asg", slug] }); void qc.invalidateQueries({ queryKey: ["learn", slug] }); }}>Return to learner</Button>{i < subs.length - 1 && <Button size="sm" variant="outline" onClick={() => void save(true)}>Save & next</Button>}</div>
+        <AssignmentMarking submission={s} max={max} slug={slug} trainerId={trainerId} />
+        <Button size="sm" variant="outline" disabled={i >= subs.length - 1} onClick={() => setI(i + 1)}>Next learner</Button>
       </div>
     </div>
   );

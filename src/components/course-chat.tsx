@@ -6,7 +6,7 @@ import { Conversation, ConversationContent, ConversationScrollButton } from "@/c
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
-import logo from "@/assets/soq-logo.png.asset.json";
+import logo from "@/assets/soq-logo-local.png";
 
 const starters = ["How do I know if I'm ready?", "I'm switching careers, where should I start?", "Can I use SkillsFuture Credit?"];
 
@@ -22,7 +22,7 @@ export function CourseChat({ slug, title, onClose }: { slug: string; title: stri
   return (
     <div className="flex h-full flex-col bg-card">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2"><img src={logo.url} alt="SOQ" className="size-7 object-contain" /><span className="text-sm font-semibold text-primary">SOQ Course Adviser</span></div>
+        <div className="flex items-center gap-2"><img src={logo} alt="SOQ" className="size-7 object-contain" /><span className="text-sm font-semibold text-primary">SOQ Course Adviser</span></div>
         {onClose && <button onClick={onClose} aria-label="Close adviser" className="rounded p-1 text-muted-foreground hover:text-primary"><X className="size-4" /></button>}
       </div>
       <Conversation className="flex-1">

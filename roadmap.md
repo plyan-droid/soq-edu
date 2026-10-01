@@ -115,4 +115,4 @@
 - [x] Give demo learners linked sample Stream, Classwork and Grades activity, including a returned example submission, without creating verified academic records
 - [x] Let every enrolled class member post in Stream, keep one instructor-pinned announcement, show labelled PDF/audio-style sample work, and support private mark drafts before returning a learner submission.
 
-- [ ] Review the existing PEI profile, corporate training, job matching, FAQ and trainer list pages and recommend the best site navigation and cross-links.
+- [x] Review the existing PEI profile, corporate training, job matching, FAQ and trainer list pages and recommend the best site navigation and cross-links.

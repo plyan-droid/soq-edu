@@ -134,6 +134,43 @@ function Admin() {
   );
 }
 
+function StudentSearch({ students, studentId, onPick }: { students: Profile[]; studentId: string; onPick: (id: string) => void }) {
+  const [q, setQ] = useState("");
+  const selected = students.find(s => s.id === studentId);
+  const term = q.trim().toLowerCase();
+  const matches = term ? students.filter(s => (s.full_name ?? "").toLowerCase().includes(term) || s.email.toLowerCase().includes(term) || s.id.toLowerCase().startsWith(term)).slice(0, 8) : [];
+  return (
+    <div className="mt-6 w-full max-w-md">
+      {selected ? (
+        <div className="flex items-center justify-between gap-3 rounded-md border border-brand-gold bg-brand-gold-soft/40 px-4 py-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-primary">{selected.full_name || selected.email}</p>
+            <p className="truncate text-xs text-muted-foreground">{selected.email} · ID {selected.id.slice(0, 8)}</p>
+          </div>
+          <Button variant="outline" size="sm" className="rounded-full" onClick={() => { onPick(""); setQ(""); }}>Change</Button>
+        </div>
+      ) : (
+        <>
+          <Input value={q} onChange={e => setQ(e.target.value)} placeholder="Type a student's name, email or ID…" aria-label="Search students" />
+          {term && (
+            <ul className="mt-2 divide-y divide-border overflow-hidden rounded-md border border-border bg-card">
+              {matches.length === 0 && <li className="px-4 py-3 text-sm text-muted-foreground">No students match "{q}".</li>}
+              {matches.map(s => (
+                <li key={s.id}>
+                  <button type="button" className="block w-full px-4 py-3 text-left hover:bg-brand-gold-soft/40" onClick={() => { onPick(s.id); setQ(""); }}>
+                    <span className="block truncate text-sm font-medium text-primary">{s.full_name || s.email}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{s.email} · ID {s.id.slice(0, 8)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function StudentEditor({ studentId }: { studentId: string }) {
   const qc = useQueryClient();
   const key = ["admin-student", studentId];

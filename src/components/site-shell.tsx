@@ -178,6 +178,7 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <ResourcesMenu />
         </nav>
         <div className="hidden items-center gap-4 lg:flex">
           <Link

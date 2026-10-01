@@ -31,7 +31,51 @@ const nav = [
   { label: "Businesses", to: "/businesses" as const },
   { label: "Funding", to: "/funding" as const },
   { label: "About SOQ", to: "/about" as const },
-  { label: "Resources", to: "/resources" as const },
+];
+
+const resourceLinks = [
+  {
+    label: "Frequently asked questions",
+    desc: "Courses, payment, attendance and funding",
+    icon: HelpCircle,
+    to: "/faq" as const,
+  },
+  {
+    label: "News & updates",
+    desc: "Academy news and programme updates",
+    icon: Newspaper,
+    href: "https://soq.edu.sg/blog/list",
+  },
+  {
+    label: "PEI profile",
+    desc: "Registration, governance and facilities",
+    icon: BookOpen,
+    to: "/pei-profile" as const,
+  },
+  {
+    label: "Student policies",
+    desc: "Policies and guidance for learners",
+    icon: FileText,
+    href: "https://soq.edu.sg/upload/general/student-policy.pdf",
+  },
+  {
+    label: "Registration guide",
+    desc: "Registration and student administration",
+    icon: FileText,
+    href: "https://soq.edu.sg/upload/general/reg-guide.pdf",
+  },
+  {
+    label: "Job matching programme",
+    desc: "For graduates and employers",
+    icon: BriefcaseBusiness,
+    to: "/job-matching-program" as const,
+  },
+  {
+    label: "Our trainers",
+    desc: "Meet the SOQ training team",
+    icon: Users,
+    to: "/trainer/list" as const,
+  },
 ];
 
 const socials = [

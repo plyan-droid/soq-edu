@@ -1,5 +1,5 @@
 export type Lesson = { id: string; course_slug: string; position: number; title: string; body: string | null; video_url: string | null; file_url: string | null; created_by: string | null; created_at: string; unlock_at?: string | null };
-export type LiveSession = { id: string; course_slug: string; trainer_id: string; title: string; starts_at: string; duration_min: number; meeting_url: string | null; status: string };
+export type LiveSession = { id: string; course_slug: string; trainer_id: string; title: string; starts_at: string; duration_min: number; meeting_url: string | null; status: string; mode?: string; location?: string | null };
 
 /** Turn a YouTube / Vimeo link into an embeddable URL, or null. */
 export function embedUrl(url: string | null): string | null {

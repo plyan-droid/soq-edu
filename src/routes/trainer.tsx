@@ -18,6 +18,8 @@ import { categories, courses } from "@/lib/site-content";
 import { CourseForm, cleanCourse, emptyCourse, type CourseFields, type Faq } from "@/components/course-form";
 import type { CourseSection } from "@/lib/course-details";
 import { fmtDateTime, type Lesson, type LiveSession } from "@/lib/learning";
+import { CourseClassroom, LessonBody, SessionLine } from "@/components/course-classroom";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { TrainerOverview, TrainerStudents, TrainerLessonHistory, TrainerCalendar } from "@/components/trainer-overview";
 
 export const Route = createFileRoute("/trainer")({
@@ -60,6 +62,7 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
       { id: "history", label: "History", content: <TrainerLessonHistory userId={userId} /> },
     ] },
     { name: "Courses", icon: BookOpen, items: [
+      { id: "classroom", label: "Classroom", content: <CourseClassroom userId={userId} isAdmin={isAdmin} onNavigate={setActive} /> },
       { id: "overview", label: "My courses", content: <TrainerOverview userId={userId} /> },
       { id: "lessons", label: "Lessons", content: <Lessons userId={userId} isAdmin={isAdmin} /> },
       { id: "quizzes", label: "Quizzes", content: <TrainerQuizzes userId={userId} isAdmin={isAdmin} /> },
@@ -90,13 +93,14 @@ function CoursePicker({ value, onChange }: { value: string; onChange: (v: string
 function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const qc = useQueryClient();
   const [slug, setSlug] = useState(courses[0]!.slug);
-  const [f, setF] = useState({ title: "", body: "", video_url: "", file_url: "", unlock_at: "" });
+  const [f, setF] = useState({ title: "", topic: "", body: "", video_url: "", file_url: "", unlock_at: "" });
+  const [view, setView] = useState<Lesson | null>(null);
   const { data = [] } = useQuery({ queryKey: ["t-lessons", slug], queryFn: async () => ((await supabase.from("lessons").select("*").eq("course_slug", slug).order("position").order("created_at")).data ?? []) as Lesson[] });
   const add = async () => {
     if (f.title.trim().length < 3) return void toast.error("Give the lesson a title.");
-    const { error } = await supabase.from("lessons").insert({ course_slug: slug, position: data.length + 1, title: f.title.trim(), body: f.body || null, video_url: f.video_url || null, file_url: f.file_url || null, unlock_at: f.unlock_at ? new Date(f.unlock_at).toISOString() : null, created_by: userId });
+    const { error } = await supabase.from("lessons").insert({ course_slug: slug, position: data.length + 1, title: f.title.trim(), topic: f.topic.trim() || null, body: f.body || null, video_url: f.video_url || null, file_url: f.file_url || null, unlock_at: f.unlock_at ? new Date(f.unlock_at).toISOString() : null, created_by: userId });
     if (error) return void toast.error(error.message);
-    setF({ title: "", body: "", video_url: "", file_url: "", unlock_at: "" }); toast.success("Lesson added");
+    setF({ ...f, title: "", body: "", video_url: "", file_url: "", unlock_at: "" }); toast.success("Lesson added");
     void qc.invalidateQueries({ queryKey: ["t-lessons", slug] });
   };
   const del = async (id: string) => { if (!confirm("Delete this lesson?")) return; await supabase.from("lessons").delete().eq("id", id); void qc.invalidateQueries({ queryKey: ["t-lessons", slug] }); };
@@ -106,6 +110,7 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
         <h2 className="font-serif text-lg font-semibold text-primary">New lesson</h2>
         <label className="text-sm font-medium">Course</label><CoursePicker value={slug} onChange={setSlug} />
         <Input placeholder="Lesson title" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
+        <Input placeholder="Module / topic (optional, e.g. Module 1: Foundations)" value={f.topic} onChange={e => setF({ ...f, topic: e.target.value })} />
         <Textarea placeholder="Lesson notes" rows={5} value={f.body} onChange={e => setF({ ...f, body: e.target.value })} />
         <Input placeholder="Video link (YouTube or Vimeo)" value={f.video_url} onChange={e => setF({ ...f, video_url: e.target.value })} />
         <Input placeholder="Materials link (Google Drive, PDF…)" value={f.file_url} onChange={e => setF({ ...f, file_url: e.target.value })} />
@@ -117,23 +122,26 @@ function Lessons({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
         <h2 className="font-serif text-2xl text-primary">{courseName(slug)}</h2>
         {data.length === 0 ? <EmptyState text="No lessons for this course yet. Add a title and notes on the left to create the first one." /> : (
           <ol className="mt-3 space-y-2">{data.map((l, i) => (
-            <li key={l.id} className="flex items-center justify-between gap-3 border-b border-border py-3 text-sm"><span>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</span>
+            <li key={l.id} className="flex items-center justify-between gap-3 border-b border-border py-3 text-sm"><button className="min-w-0 flex-1 text-left hover:text-primary hover:underline" onClick={() => setView(l)}>{i + 1}. {l.title}{l.video_url && " · video"}{l.unlock_at && ` · opens ${new Date(l.unlock_at).toLocaleDateString("en-SG")}`}{l.file_url && " · file"}</button>
               {(l.created_by === userId || isAdmin) && <Button variant="ghost" size="icon" onClick={() => void del(l.id)} aria-label={`Delete ${l.title}`}><Trash2 className="size-4 text-muted-foreground" /></Button>}</li>))}</ol>
         )}
+        <p className="mt-3 text-xs text-muted-foreground">Click a lesson to read its notes. Edit lessons and group them into modules in Courses → Classroom.</p>
       </div>
+      <Sheet open={!!view} onOpenChange={o => !o && setView(null)}><SheetContent className="w-full overflow-y-auto sm:max-w-lg">{view && <><SheetHeader><SheetTitle>{view.title}</SheetTitle><SheetDescription>{courseName(view.course_slug)}</SheetDescription></SheetHeader><LessonBody l={view} /></>}</SheetContent></Sheet>
     </div>
   );
 }
 
 function Live({ userId }: { userId: string }) {
   const qc = useQueryClient();
-  const [f, setF] = useState({ slug: courses[0]!.slug, title: "", starts_at: "", duration_min: "60", meeting_url: "" });
+  const [f, setF] = useState({ slug: courses[0]!.slug, title: "", starts_at: "", duration_min: "60", meeting_url: "", mode: "online", location: "" });
   const { data = [] } = useQuery({ queryKey: ["t-live", userId], queryFn: async () => ((await supabase.from("live_sessions").select("*").eq("trainer_id", userId).order("starts_at")).data ?? []) as LiveSession[] });
   const add = async () => {
     if (!f.title.trim() || !f.starts_at) return void toast.error("Add a title and start time.");
-    const { error } = await supabase.from("live_sessions").insert({ course_slug: f.slug, trainer_id: userId, title: f.title.trim(), starts_at: new Date(f.starts_at).toISOString(), duration_min: Number(f.duration_min) || 60, meeting_url: f.meeting_url || null });
+    if (f.mode !== "online" && !f.location.trim()) return void toast.error("Add the classroom or venue.");
+    const { error } = await supabase.from("live_sessions").insert({ course_slug: f.slug, trainer_id: userId, title: f.title.trim(), starts_at: new Date(f.starts_at).toISOString(), duration_min: Number(f.duration_min) || 60, meeting_url: f.mode === "in_person" ? null : f.meeting_url || null, mode: f.mode, location: f.mode === "online" ? null : f.location.trim() });
     if (error) return void toast.error(error.message);
-    toast.success("Live class scheduled"); setF({ ...f, title: "", starts_at: "", meeting_url: "" });
+    toast.success("Class scheduled"); setF({ ...f, title: "", starts_at: "", meeting_url: "" });
     void qc.invalidateQueries({ queryKey: ["t-live", userId] });
   };
   const setStatus = async (id: string, status: string) => { await supabase.from("live_sessions").update({ status }).eq("id", id); void qc.invalidateQueries({ queryKey: ["t-live", userId] }); };
@@ -144,11 +152,13 @@ function Live({ userId }: { userId: string }) {
         <CoursePicker value={f.slug} onChange={slug => setF({ ...f, slug })} />
         <Input placeholder="Class title, e.g. Q&A: colour theory" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} />
         <div className="grid grid-cols-2 gap-3"><Input type="datetime-local" value={f.starts_at} onChange={e => setF({ ...f, starts_at: e.target.value })} /><Input type="number" min={15} placeholder="Minutes" value={f.duration_min} onChange={e => setF({ ...f, duration_min: e.target.value })} /></div>
-        <Input placeholder="Meeting link (Zoom, Google Meet, Teams)" value={f.meeting_url} onChange={e => setF({ ...f, meeting_url: e.target.value })} />
+        <div className="flex gap-1 text-sm">{([["in_person", "In person"], ["online", "Online"], ["hybrid", "Hybrid"]] as const).map(([v, l]) => <button key={v} type="button" onClick={() => setF({ ...f, mode: v })} className={`flex-1 rounded-md border px-2 py-1.5 ${f.mode === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{l}</button>)}</div>
+        {f.mode !== "online" && <Input placeholder="Classroom or venue, e.g. SOQ Campus, Room 302" value={f.location} onChange={e => setF({ ...f, location: e.target.value })} />}
+        {f.mode !== "in_person" && <Input placeholder="Meeting link (Zoom, Google Meet, Teams)" value={f.meeting_url} onChange={e => setF({ ...f, meeting_url: e.target.value })} />}
         <Button onClick={() => void add()}>Schedule class</Button>
       </div>
       <div className="min-w-0 space-y-4"><PendingSeatRequests userId={userId} /><section><h2 className="font-serif text-lg font-semibold text-primary">Scheduled classes</h2><ul className="mt-2 divide-y divide-border border-t border-border">{data.length === 0 ? <EmptyState text="No live classes yet. Schedule your first one so students can request a seat." /> : data.map(s => (
-        <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min</p>
+        <li key={s.id} className="py-3 text-sm"><p className="font-medium">{s.title} <span className="text-xs capitalize text-muted-foreground">({s.status})</span></p><p className="text-muted-foreground">{courseName(s.course_slug)} · {s.duration_min} min</p><SessionLine s={s} />
           {s.status !== "cancelled" && <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => void setStatus(s.id, "cancelled")}>Cancel class</Button>}{s.status !== "cancelled" && <SessionRequests sessionId={s.id} />}</li>))}</ul></section></div>
     </div>
   );

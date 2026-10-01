@@ -391,39 +391,66 @@ export type Database = {
       }
       course_applications: {
         Row: {
+          address: string | null
           citizenship: string | null
           course_slug: string
           created_at: string
+          date_of_birth: string | null
           email: string
           full_name: string
           id: string
+          id_number: string | null
+          id_type: string | null
           message: string | null
+          nationality: string | null
+          newsletter: boolean
           phone: string
           preferred_intake: string | null
+          qualification: string | null
+          sales_manager: string | null
+          source: string
           status: string
         }
         Insert: {
+          address?: string | null
           citizenship?: string | null
           course_slug: string
           created_at?: string
+          date_of_birth?: string | null
           email: string
           full_name: string
           id?: string
+          id_number?: string | null
+          id_type?: string | null
           message?: string | null
+          nationality?: string | null
+          newsletter?: boolean
           phone: string
           preferred_intake?: string | null
+          qualification?: string | null
+          sales_manager?: string | null
+          source?: string
           status?: string
         }
         Update: {
+          address?: string | null
           citizenship?: string | null
           course_slug?: string
           created_at?: string
+          date_of_birth?: string | null
           email?: string
           full_name?: string
           id?: string
+          id_number?: string | null
+          id_type?: string | null
           message?: string | null
+          nationality?: string | null
+          newsletter?: boolean
           phone?: string
           preferred_intake?: string | null
+          qualification?: string | null
+          sales_manager?: string | null
+          source?: string
           status?: string
         }
         Relationships: []
@@ -1674,8 +1701,12 @@ export type Database = {
           emergency_phone: string | null
           full_name: string | null
           id: string
+          id_number: string | null
+          id_type: string | null
+          nationality: string | null
           phone: string | null
           postal_code: string | null
+          qualification: string | null
           referral_source: string | null
         }
         Insert: {
@@ -1688,8 +1719,12 @@ export type Database = {
           emergency_phone?: string | null
           full_name?: string | null
           id: string
+          id_number?: string | null
+          id_type?: string | null
+          nationality?: string | null
           phone?: string | null
           postal_code?: string | null
+          qualification?: string | null
           referral_source?: string | null
         }
         Update: {
@@ -1702,8 +1737,12 @@ export type Database = {
           emergency_phone?: string | null
           full_name?: string | null
           id?: string
+          id_number?: string | null
+          id_type?: string | null
+          nationality?: string | null
           phone?: string | null
           postal_code?: string | null
+          qualification?: string | null
           referral_source?: string | null
         }
         Relationships: []

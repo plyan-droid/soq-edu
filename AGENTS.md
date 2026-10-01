@@ -27,3 +27,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - The official SOQ logo is bundled locally for shared chrome, chat and certificate PDF; this avoids intermittent CDN asset-proxy failures that broke the visible brand and PDF downloads.
 - Student invoice PDFs derive from account-scoped transfer or order records and label unconfirmed transfers and demo orders explicitly; a generated document never claims payment is verified.
 - Student Classroom examples live only in the presentation for identified demo learners; they must never become real submissions, grades or certificates.
+- Assignment mark drafts are instructor-only records separate from submitted work; learner-visible marks and feedback appear only when work is explicitly returned.

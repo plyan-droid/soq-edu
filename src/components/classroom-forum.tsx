@@ -61,7 +61,7 @@ export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: Us
   };
   return <div className="mx-auto max-w-3xl space-y-6">
     <div className="space-y-3 border-b border-border pb-6">
-      {!composing ? <Button variant="outline" className="h-14 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Announce something to your class…</Button> : <div className="space-y-3 rounded-md border border-border p-4">
+      {!composing ? <Button variant="outline" className="h-14 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border p-4">
         <h2 className="font-serif text-xl text-primary">Post to your class</h2>
         <Input aria-label="Post title" placeholder="Title (optional)" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} />
         <Textarea aria-label="Post message" placeholder="Share a question, idea or resource with your class…" maxLength={5000} value={body} onChange={e => setBody(e.target.value)} />

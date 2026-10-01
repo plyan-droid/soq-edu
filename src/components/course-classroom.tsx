@@ -11,6 +11,7 @@ import { noticeColor } from "@/components/trainer-tools";
 import { NoticeFileList, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
 import { AssignmentMarking } from "@/components/assignment-marking";
+import { ClassroomForum } from "@/components/classroom-forum";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +65,7 @@ type Draft = { id: string | null; text: string; color: string; keep: NoticeFile[
 const blankDraft: Draft = { id: null, text: "", color: "navy", keep: [], added: [], removed: [] };
 
 function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; onNavigate: (t: string) => void }) {
+  const { user } = useAuth();
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
@@ -130,8 +132,9 @@ function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; on
         <Button variant="link" size="sm" className="h-auto p-0" onClick={() => onNavigate("live")}>Schedule a class</Button>
       </aside>
       <div className="space-y-4">
+        {user && <ClassroomForum slug={slug} user={user} isStaff />}
         <button onClick={() => setDraft(blankDraft)} className="flex w-full items-center gap-3 rounded-full border border-border px-4 py-3 text-left text-sm text-muted-foreground shadow-sm hover:bg-muted/50">
-          <Megaphone className="size-4 shrink-0 text-primary" /> Announce something to your class
+          <Megaphone className="size-4 shrink-0 text-primary" /> Post a trainer announcement
         </button>
         <Dialog open={!!draft} onOpenChange={o => !o && setDraft(null)}>
           <DialogContent className="sm:max-w-2xl">

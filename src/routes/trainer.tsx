@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Plus, Trash2, Home, CalendarDays, BookOpen, Users, UserRound } from "lucide-react";
+import { TrainerSessionPlans } from "@/components/session-plans";
 import { TutorProfileEditor } from "@/components/tutor-profile-editor";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ function TrainerWorkspace({ userId, isAdmin, isTrainer }: { userId: string; isAd
     { name: "Classes", icon: CalendarDays, items: [
       { id: "live", label: "Live classes", content: <Live userId={userId} /> },
       { id: "calendar", label: "Calendar view", content: <TrainerCalendar userId={userId} /> },
+      { id: "plans", label: "Session plans", content: <TrainerSessionPlans userId={userId} /> },
       { id: "slots", label: "1-to-1 sessions", content: <TrainerSlots userId={userId} /> },
       { id: "history", label: "Past lessons", content: <TrainerLessonHistory userId={userId} /> },
     ] },

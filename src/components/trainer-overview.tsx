@@ -1,3 +1,5 @@
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { LessonBody, SessionLine } from "@/components/course-classroom";
 import { PageSkeleton, ListSkeleton } from "@/components/start-here";
 import { PendingSeatRequests, SessionRequests } from "@/components/session-bookings";
 import { useMemo, useState } from "react";
@@ -108,6 +110,9 @@ export function TrainerStudents({ userId }: { userId: string }) {
 
 /* ---------- Lesson history ---------- */
 export function TrainerLessonHistory({ userId }: { userId: string }) {
+  const [view, setView] = useState<Lesson | null>(null);
+  const [sess, setSess] = useState<LiveSession | null>(null);
+  const { data: att = [] } = useQuery({ enabled: !!sess, queryKey: ["t-hist-att", sess?.id], queryFn: async () => (await supabase.from("attendance").select("status").eq("session_id", sess!.id)).data ?? [] });
   const { data: lessons = [] } = useQuery({ queryKey: ["t-lesson-history", userId], queryFn: async () => ((await supabase.from("lessons").select("*").eq("created_by", userId).order("created_at", { ascending: false })).data ?? []) as Lesson[] });
   const { data: stats = [] } = useQuery({ queryKey: ["t-lesson-stats", userId], queryFn: async () => ((await supabase.rpc("trainer_lesson_stats" as never)).data ?? []) as unknown as { lesson_id: string; completions: number }[] });
   const { data: sessions = [] } = useSessions(userId);
@@ -119,17 +124,26 @@ export function TrainerLessonHistory({ userId }: { userId: string }) {
         <h2 className="font-serif text-2xl text-primary">Lessons I've published</h2>
         {lessons.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No lessons yet. Add one in the Lessons tab.</p> : (
           <ul className="mt-3 space-y-2">{lessons.map(l => (
-            <li key={l.id} className="rounded-md border border-border p-3 text-sm"><div className="flex justify-between gap-3"><p className="font-medium">{l.title}</p><span className="shrink-0 text-xs text-muted-foreground">{done(l.id)} completed</span></div>
-              <p className="text-xs text-muted-foreground">{courseName(l.course_slug)} · added {new Date(l.created_at).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" })}</p></li>
+            <li key={l.id}><button onClick={() => setView(l)} className="w-full rounded-md border border-border p-3 text-left text-sm hover:bg-muted"><div className="flex justify-between gap-3"><p className="font-medium">{l.title}</p><span className="shrink-0 text-xs text-muted-foreground">{done(l.id)} completed</span></div>
+              <p className="text-xs text-muted-foreground">{courseName(l.course_slug)} · added {new Date(l.created_at).toLocaleDateString("en-SG", { day: "numeric", month: "short", year: "numeric" })}</p></button></li>
           ))}</ul>
         )}
       </section>
       <section>
         <h2 className="font-serif text-2xl text-primary">Past sessions</h2>
         {past.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No past sessions yet.</p> : (
-          <ul className="mt-3 space-y-2">{past.map(s => <li key={s.id} className="rounded-md border border-border p-3 text-sm"><p className="font-medium">{s.title}</p><p className="text-xs text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min · <span className="capitalize">{s.status === "cancelled" ? "cancelled" : "held"}</span></p></li>)}</ul>
+          <ul className="mt-3 space-y-2">{past.map(s => <li key={s.id}><button onClick={() => setSess(s)} className="w-full rounded-md border border-border p-3 text-left text-sm hover:bg-muted"><p className="font-medium">{s.title}</p><p className="text-xs text-muted-foreground">{courseName(s.course_slug)} · {fmtDateTime(s.starts_at)} · {s.duration_min} min · <span className="capitalize">{s.status === "cancelled" ? "cancelled" : "held"}</span></p></button></li>)}</ul>
         )}
       </section>
+      <Sheet open={!!view || !!sess} onOpenChange={o => { if (!o) { setView(null); setSess(null); } }}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+          {view && <><SheetHeader><SheetTitle>{view.title}</SheetTitle><SheetDescription>{courseName(view.course_slug)} · {done(view.id)} students completed</SheetDescription></SheetHeader><LessonBody l={view} /></>}
+          {sess && <><SheetHeader><SheetTitle>{sess.title}</SheetTitle><SheetDescription>{courseName(sess.course_slug)} · {sess.duration_min} min</SheetDescription></SheetHeader>
+            <div className="mt-4 space-y-3 text-sm"><SessionLine s={sess} />
+              {sess.status === "cancelled" ? <p className="text-muted-foreground">This class was cancelled.</p> : att.length === 0 ? <p className="text-muted-foreground">No attendance marked. Mark it in Students → Attendance.</p>
+                : <p>{att.filter(a => a.status !== "absent").length} attended · {att.filter(a => a.status === "late").length} late · {att.filter(a => a.status === "absent").length} absent</p>}</div></>}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

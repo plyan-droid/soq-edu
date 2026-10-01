@@ -21,3 +21,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Partner previews are detailed read-only samples; signed-in organisations use account-linked learning records, while sample commerce, referral and hiring figures never imply real transactions.
 - Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.
 - Applicant accounts (staff-added or website) are created only in server functions with the admin client; website submissions never change an existing account's details.
+- Trainer Courses → Classroom groups each course into Stream, Classwork, People and Grades views reusing existing tables; keeps per-course teaching in one place.

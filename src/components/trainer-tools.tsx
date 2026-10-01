@@ -22,28 +22,28 @@ function MyCoursePicker({ userId, isAdmin, value, onChange }: { userId: string; 
 }
 
 /* ---------- Quizzes ---------- */
-type Q = { prompt: string; options: string[]; correct: number };
+type Q = { prompt: string; options: string[]; correct: number; kind: "mcq" | "short"; accepted: string };
 export function TrainerQuizzes({ userId, isAdmin }: { userId: string; isAdmin: boolean }) {
   const qc = useQueryClient();
   const [slug, setSlug] = useState("");
   const [title, setTitle] = useState("");
   const [pass, setPass] = useState(70);
   const [cert, setCert] = useState(false);
-  const [qs, setQs] = useState<Q[]>([{ prompt: "", options: ["", "", "", ""], correct: 0 }]);
+  const [qs, setQs] = useState<Q[]>([{ prompt: "", options: ["", "", "", ""], correct: 0, kind: "mcq", accepted: "" }]);
   const { data = [] } = useQuery({ enabled: !!slug, queryKey: ["t-quizzes", slug], queryFn: async () => {
     const { data: quizzes } = await supabase.from("quizzes").select("*, quiz_questions(id), quiz_attempts(score, passed)").eq("course_slug", slug).order("created_at", { ascending: false });
     return quizzes ?? [];
   } });
   const save = async () => {
-    const clean = qs.map(q => ({ ...q, prompt: q.prompt.trim(), options: q.options.map(o => o.trim()).filter(Boolean) })).filter(q => q.prompt && q.options.length >= 2);
-    if (!title.trim() || clean.length === 0) { toast.error("Add a title and at least one question with two answers"); return; }
+    const clean = qs.map(q => ({ ...q, prompt: q.prompt.trim(), options: q.kind === "short" ? [] : q.options.map(o => o.trim()).filter(Boolean), acc: q.accepted.split(",").map(a => a.trim()).filter(Boolean) })).filter(q => q.prompt && (q.kind === "short" ? q.acc.length > 0 : q.options.length >= 2));
+    if (!title.trim() || clean.length === 0) { toast.error("Add a title and at least one complete question"); return; }
     const { data: quiz, error } = await supabase.from("quizzes").insert({ course_slug: slug, title: title.trim(), pass_mark: pass, gives_certificate: cert, created_by: userId }).select().single();
     if (error || !quiz) { toast.error("Couldn't save the quiz"); return; }
     for (const [i, q] of clean.entries()) {
-      const { data: row } = await supabase.from("quiz_questions").insert({ quiz_id: quiz.id, prompt: q.prompt, options: q.options, position: i }).select().single();
-      if (row) await supabase.from("quiz_answer_keys").insert({ question_id: row.id, correct: Math.min(q.correct, q.options.length - 1) });
+      const { data: row } = await supabase.from("quiz_questions").insert({ quiz_id: quiz.id, prompt: q.prompt, options: q.options, position: i, kind: q.kind }).select().single();
+      if (row) await supabase.from("quiz_answer_keys").insert(q.kind === "short" ? { question_id: row.id, correct: 0, accepted: q.acc } : { question_id: row.id, correct: Math.min(q.correct, q.options.length - 1) });
     }
-    toast.success("Quiz saved"); setTitle(""); setQs([{ prompt: "", options: ["", "", "", ""], correct: 0 }]);
+    toast.success("Quiz saved"); setTitle(""); setQs([{ prompt: "", options: ["", "", "", ""], correct: 0, kind: "mcq", accepted: "" }]);
     void qc.invalidateQueries({ queryKey: ["t-quizzes", slug] });
   };
   const del = async (id: string) => { if (!confirm("Delete this quiz and all its results?")) return; await supabase.from("quizzes").delete().eq("id", id); void qc.invalidateQueries({ queryKey: ["t-quizzes", slug] }); };
@@ -60,17 +60,20 @@ export function TrainerQuizzes({ userId, isAdmin }: { userId: string; isAdmin: b
         {qs.map((q, i) => (
           <div key={i} className="space-y-2 rounded-md border border-border p-3">
             <div className="flex gap-2"><Input placeholder={`Question ${i + 1}`} value={q.prompt} onChange={e => upd(i, { prompt: e.target.value })} />{qs.length > 1 && <Button variant="ghost" size="icon" aria-label="Remove question" onClick={() => setQs(qs.filter((_, j) => j !== i))}><Trash2 /></Button>}</div>
+            <div className="flex gap-1 text-xs">{([["mcq", "Multiple choice"], ["short", "Fill in the answer"]] as const).map(([v, l]) => <button key={v} type="button" onClick={() => upd(i, { kind: v })} className={`rounded-full border px-3 py-1 ${q.kind === v ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{l}</button>)}</div>
+            {q.kind === "short" ? <><Input placeholder="Accepted answers, separated by commas (e.g. Generative AI, GenAI)" value={q.accepted} onChange={e => upd(i, { accepted: e.target.value })} /><p className="text-xs text-muted-foreground">Students type their answer. Capital letters and extra spaces are ignored.</p></> : <>
             {q.options.map((o, k) => (
               <label key={k} className="flex items-center gap-2 text-sm"><input type="radio" name={`c${i}`} checked={q.correct === k} onChange={() => upd(i, { correct: k })} title="Correct answer" />
                 <Input placeholder={`Answer ${k + 1}${k < 2 ? "" : " (optional)"}`} value={o} onChange={e => upd(i, { options: q.options.map((x, m) => m === k ? e.target.value : x) })} /></label>
             ))}
-            <p className="text-xs text-muted-foreground">Tick the circle next to the correct answer.</p>
+            <p className="text-xs text-muted-foreground">Tick the circle next to the correct answer.</p></>}
           </div>
         ))}
-        <div className="flex gap-2"><Button variant="outline" onClick={() => setQs([...qs, { prompt: "", options: ["", "", "", ""], correct: 0 }])}><Plus /> Add question</Button><Button className="rounded-full" onClick={() => void save()}>Save quiz</Button></div>
+        <div className="flex gap-2"><Button variant="outline" onClick={() => setQs([...qs, { prompt: "", options: ["", "", "", ""], correct: 0, kind: "mcq", accepted: "" }])}><Plus /> Add question</Button><Button className="rounded-full" onClick={() => void save()}>Save quiz</Button></div>
       </div>
       <div>
         <h2 className="font-serif text-2xl text-primary">Quizzes{slug && ` · ${courseName(slug)}`}</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Open Courses → Classroom → Classwork to see each quiz's questions and answers.</p>
         {data.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No quizzes yet.</p> : <ul className="mt-3 space-y-2">{data.map(q => {
           const at = (q.quiz_attempts ?? []) as { score: number; passed: boolean }[];
           const avg = at.length ? Math.round(at.reduce((s, a) => s + a.score, 0) / at.length) : null;

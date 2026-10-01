@@ -14,6 +14,7 @@ import { ArrowRight, BookOpenCheck, CalendarClock, ClipboardCheck, FileText, Lif
 import { Button } from "@/components/ui/button";
 import { contact } from "@/lib/site-content";
 import { BusinessWorkspace } from "@/components/business-workspace";
+import { StudentProfileForm } from "@/components/student-profile-form";
 
 export const Route = createFileRoute("/student-portal")({
   head: () => ({
@@ -41,6 +42,7 @@ function MemberWorkspace({ userId, email, isAdmin, isOrg }: { userId: string; em
   const sections: WorkspaceSection[] = [
     { name: "Home", icon: Home, items: [
        { id: "start", label: "Home", content: <StudentHome userId={userId} email={email} /> },
+       { id: "details", label: "My details", content: <StudentProfileForm userId={userId} email={email} heading="My details" /> },
     ] },
     { name: "My courses", icon: BookOpen, items: [
       { id: "courses", label: "My courses", content: <StudentDashboard userId={userId} email={email} isAdmin={isAdmin} /> },

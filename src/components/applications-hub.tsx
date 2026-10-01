@@ -101,7 +101,7 @@ export function ApplicationsHub({ onOpenStudent }: { onOpenStudent: (id: string)
                   <td className="whitespace-nowrap p-3">{new Date(a.created_at).toLocaleDateString("en-SG")}<div className="text-xs text-muted-foreground">{a.source === "staff" ? "Added by staff" : "Website"}</div></td>
                   <td className="p-3">
                     {pid ? <button type="button" className="text-left font-medium text-primary underline underline-offset-2" onClick={() => onOpenStudent(pid)}>{a.full_name}</button> : <span className="font-medium">{a.full_name}</span>}
-                    <div className="text-xs text-muted-foreground">{pid ? "Has an account" : "No account yet"}{a.nationality ? ` · ${a.nationality}` : a.citizenship ? ` · ${a.citizenship.replace(/_/g, " ")}` : ""}</div>
+                    <div className="text-xs text-muted-foreground">{!accounts ? "" : pid ? "Has an account" : "No account yet"}{a.nationality ? ` · ${a.nationality}` : a.citizenship ? ` · ${a.citizenship.replace(/_/g, " ")}` : ""}</div>
                   </td>
                   <td className="p-3"><a className="underline" href={`mailto:${a.email}`}>{a.email}</a><div>{a.phone}</div></td>
                   <td className="p-3">{titleOf(a.course_slug)}{isDiploma(titleOf(a.course_slug)) && <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase">Diploma</span>}</td>

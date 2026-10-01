@@ -10,6 +10,7 @@ import { noticeColor } from "@/components/trainer-tools";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { NoticeFileList, asFiles } from "@/components/notice-files";
 
 const card = "rounded-lg border border-border bg-card p-5";
 
@@ -17,7 +18,7 @@ export function CourseNoticesList({ slug }: { slug: string }) {
   const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false }).limit(5)).data ?? [] });
   if (data.length === 0) return null;
   return <div className="mb-6 space-y-2">{data.map(n => (
-    <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.title}</p>{n.body && <p className="mt-1 whitespace-pre-line text-sm">{n.body}</p>}</div>
+    <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.title}</p>{n.body && <p className="mt-1 whitespace-pre-line text-sm">{n.body}</p>}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
   ))}</div>;
 }
 

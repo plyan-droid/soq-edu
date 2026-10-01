@@ -8,6 +8,7 @@ import { courses } from "@/lib/site-content";
 import { fmtDateTime, type Lesson } from "@/lib/learning";
 import { useTrainerCourses } from "@/components/trainer-overview";
 import { noticeColor } from "@/components/trainer-tools";
+import { NoticeFileList, PendingFiles, asFiles, uploadNoticeFiles, removeNoticeFiles, type NoticeFile } from "@/components/notice-files";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,27 +59,40 @@ export function CourseClassroom({ userId, isAdmin, onNavigate }: { userId: strin
 function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; onNavigate: (t: string) => void }) {
   const qc = useQueryClient();
   const [f, setF] = useState({ title: "", body: "", color: "navy" });
+  const [files, setFiles] = useState<File[]>([]);
+  const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [ef, setEf] = useState({ title: "", body: "", color: "navy" });
+  const [eKeep, setEKeep] = useState<NoticeFile[]>([]);
+  const [eNew, setENew] = useState<File[]>([]);
+  const [eRemoved, setERemoved] = useState<NoticeFile[]>([]);
   const { data: notices = [] } = useQuery({ queryKey: ["t-notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   const { data: next = [] } = useQuery({ queryKey: ["c-next", slug, userId], queryFn: async () => ((await supabase.from("live_sessions").select("*").eq("course_slug", slug).eq("trainer_id", userId).neq("status", "cancelled").gte("starts_at", new Date().toISOString()).order("starts_at").limit(3)).data ?? []) as Session[] });
   const refresh = () => void qc.invalidateQueries({ queryKey: ["t-notices", slug] });
   const post = async () => {
     if (!f.title.trim()) return void toast.error("Add a title");
-    const { error } = await supabase.from("course_notices").insert({ course_slug: slug, title: f.title.trim(), body: f.body, color: f.color, created_by: userId });
-    if (error) return void toast.error("Couldn't post");
-    setF({ title: "", body: "", color: "navy" }); refresh(); toast.success("Announcement posted");
+    setBusy(true);
+    const attachments = await uploadNoticeFiles(slug, files);
+    const { error } = await supabase.from("course_notices").insert({ course_slug: slug, title: f.title.trim(), body: f.body, color: f.color, created_by: userId, attachments } as never);
+    setBusy(false);
+    if (error) { await removeNoticeFiles(attachments); return void toast.error("Couldn't post"); }
+    setF({ title: "", body: "", color: "navy" }); setFiles([]); refresh(); toast.success("Announcement posted");
   };
   const save = async (id: string) => {
     if (!ef.title.trim()) return void toast.error("Add a title");
-    const { error } = await supabase.from("course_notices").update({ title: ef.title.trim(), body: ef.body, color: ef.color }).eq("id", id);
-    if (error) return void toast.error("Couldn't save");
+    setBusy(true);
+    const added = await uploadNoticeFiles(slug, eNew);
+    const { error } = await supabase.from("course_notices").update({ title: ef.title.trim(), body: ef.body, color: ef.color, attachments: [...eKeep, ...added] } as never).eq("id", id);
+    setBusy(false);
+    if (error) { await removeNoticeFiles(added); return void toast.error("Couldn't save"); }
+    await removeNoticeFiles(eRemoved);
     setEditing(null); refresh(); toast.success("Announcement updated");
   };
-  const del = async (id: string) => {
+  const del = async (id: string, att: NoticeFile[]) => {
     if (!confirm("Delete this announcement?")) return;
     const { error } = await supabase.from("course_notices").delete().eq("id", id);
     if (error) return void toast.error("Couldn't delete");
+    await removeNoticeFiles(att);
     refresh();
   };
   const Colours = ({ value, onPick }: { value: string; onPick: (c: string) => void }) => (
@@ -94,19 +108,22 @@ function Stream({ slug, userId, onNavigate }: { slug: string; userId: string; on
       <div className="space-y-4">
         <div className="space-y-2 rounded-md border border-border p-4">
           <Input placeholder="Announce something to your class" value={f.title} onChange={e => setF({ ...f, title: e.target.value })} maxLength={120} />
-          {f.title && <><Textarea placeholder="Details (optional)" value={f.body} onChange={e => setF({ ...f, body: e.target.value })} maxLength={2000} /><Colours value={f.color} onPick={color => setF({ ...f, color })} /><Button size="sm" onClick={() => void post()}>Post</Button></>}
+          {f.title && <><Textarea placeholder="Details (optional)" value={f.body} onChange={e => setF({ ...f, body: e.target.value })} maxLength={2000} /><PendingFiles files={files} onChange={setFiles} /><Colours value={f.color} onPick={color => setF({ ...f, color })} /><Button size="sm" disabled={busy} onClick={() => void post()}>{busy ? "Posting…" : "Post"}</Button></>}
         </div>
-        {notices.length === 0 ? <p className="text-sm text-muted-foreground">No announcements yet.</p> : notices.map(n => (
+        {notices.length === 0 ? <p className="text-sm text-muted-foreground">No announcements yet.</p> : notices.map(n => { const att = asFiles((n as { attachments?: unknown }).attachments); return (
           <article key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color] ?? ""}`}>
             {editing === n.id ? <div className="space-y-2">
               <Input value={ef.title} onChange={e => setEf({ ...ef, title: e.target.value })} maxLength={120} />
               <Textarea value={ef.body} onChange={e => setEf({ ...ef, body: e.target.value })} maxLength={2000} />
+              <NoticeFileList files={eKeep} onRemove={x => { setEKeep(eKeep.filter(k => k.path !== x.path)); setERemoved([...eRemoved, x]); }} />
+              <PendingFiles files={eNew} onChange={setENew} />
               <Colours value={ef.color} onPick={color => setEf({ ...ef, color })} />
-              <div className="flex gap-2"><Button size="sm" onClick={() => void save(n.id)}>Save</Button><Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
+              <div className="flex gap-2"><Button size="sm" disabled={busy} onClick={() => void save(n.id)}>{busy ? "Saving…" : "Save"}</Button><Button size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button></div>
             </div> : <>
               <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="font-medium">{n.title}</p><p className="text-xs text-muted-foreground">{fmtDateTime(n.created_at)}</p></div>
-                <div className="flex shrink-0 gap-3 text-xs"><button className="text-primary underline" onClick={() => { setEditing(n.id); setEf({ title: n.title, body: n.body ?? "", color: n.color }); }}>Edit</button><button className="text-muted-foreground underline hover:text-destructive" onClick={() => void del(n.id)}>Delete</button></div></div>
+                <div className="flex shrink-0 gap-3 text-xs"><button className="text-primary underline" onClick={() => { setEditing(n.id); setEf({ title: n.title, body: n.body ?? "", color: n.color }); setEKeep(att); setENew([]); setERemoved([]); }}>Edit</button><button className="text-muted-foreground underline hover:text-destructive" onClick={() => void del(n.id, att)}>Delete</button></div></div>
               {n.body && <p className="mt-2 whitespace-pre-line text-sm">{n.body}</p>}
+              <NoticeFileList files={att} />
             </>}
           </article>
         ))}

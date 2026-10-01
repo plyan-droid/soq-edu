@@ -138,6 +138,14 @@ function HomePage() {
 
       <HomeEvents />
 
+      {/* TEACH */}
+      <section className="mx-auto max-w-7xl px-5 pb-16 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-6 rounded-xl border border-border bg-brand-cream px-8 py-8 shadow-sm">
+          <div className="max-w-xl"><p className="text-[11px] uppercase tracking-[0.35em] text-foreground/70">Teach with us</p><h2 className="mt-2 font-serif text-4xl text-primary">Share your expertise as an SOQ trainer.</h2><p className="mt-2 text-sm text-muted-foreground">Experienced in beauty, wellness, AI or business? Send us your CV and we'll be in touch.</p></div>
+          <Button asChild className="h-12 rounded-full px-7"><Link to="/teach">Apply to teach <ArrowRight /></Link></Button>
+        </div>
+      </section>
+
       {/* CORPORATE */}
       <section className="relative isolate overflow-hidden bg-primary text-primary-foreground">
         <img src={heroImage} alt="" loading="lazy" width={1536} height={1024} className="absolute inset-y-0 right-0 -z-10 hidden h-full w-1/2 object-cover lg:block" />

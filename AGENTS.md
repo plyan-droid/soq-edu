@@ -19,3 +19,4 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Staff Messages shows live Contact tickets alongside explicitly DEMO-only WhatsApp conversations; private WhatsApp tables remain empty until a verified Business connection and receiver exist, preventing mock chats from being mistaken for customer messages.
 - Partner previews are detailed read-only samples; signed-in organisations use account-linked learning records, while sample commerce, referral and hiring figures never imply real transactions.
 - Student Home reads learner-scoped activity and only an email-linked organisation name, never manager tools; this keeps dashboard details private.
+- Staff-added applicants go through a staff-verified server function that creates the account with the admin client; browser code never creates accounts.

@@ -8,6 +8,7 @@ import { EVENT_CATEGORIES, categoryLabel, eventImage, imageOptions, timeRange, t
 import { supabase } from "@/integrations/supabase/client";
 import { fmtDateTime } from "@/lib/learning";
 import { courseTitle } from "@/components/student-dashboard";
+import { StaffSessionPlans } from "@/components/session-plans";
 
 const sel = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 const selSm = "h-8 rounded-md border border-input bg-background px-2 text-xs";
@@ -132,6 +133,12 @@ export function TutorSlotsOversight() {
 }
 
 /* ---------- Community moderation ---------- */
+function pageList(cur: number, total: number): number[] {
+  const set = new Set([1, total, cur - 1, cur, cur + 1].filter(n => n >= 1 && n <= total));
+  const sorted = [...set].sort((a, b) => a - b); const out: number[] = [];
+  sorted.forEach((n, i) => { if (i && n - sorted[i - 1]! > 1) out.push(0); out.push(n); });
+  return out;
+}
 type Post = { id: string; title: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type Comment = { id: string; post_id: string; body: string; hidden: boolean; created_at: string; community_profiles: { username: string; display_name: string } | null };
 type MemberProfile = { id: string; username: string; display_name: string; verified: boolean; member_type: string };
@@ -163,7 +170,10 @@ export function CommunityModeration() {
   };
   const [q, setQ] = useState("");
   const [mtype, setMtype] = useState("all");
+  const [page, setPage] = useState(1);
+  const PER = 50;
   const shown = profiles.filter(p => (mtype === "all" || p.member_type === mtype) && (`${p.display_name} ${p.username}`.toLowerCase().includes(q.toLowerCase())));
+  const pages = Math.max(1, Math.ceil(shown.length / PER));
   const link = "font-medium text-primary underline-offset-2 hover:underline";
   if (!posts) return <ListSkeleton />;
   return (
@@ -188,21 +198,26 @@ export function CommunityModeration() {
             <td className={td}><select className={selSm} value={c.hidden ? "hidden" : "visible"} onChange={e => void toggle("post_comments", c.id, e.target.value === "hidden")}><option value="visible">Visible</option><option value="hidden">Hidden</option></select></td>
           </tr>))}</Table>)}
       <h3 className="mt-10 font-serif text-2xl text-primary">Members & verified badges</h3>
-      <p className="mt-1 text-sm text-muted-foreground">Every community member. Give the Verified SOQ badge only to checked trainers and partner businesses.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Every community member, sorted A to Z, 50 per page. Search by name to find someone fast. Give the Verified SOQ badge only to checked trainers and partner businesses.</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <input className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm" placeholder="Search name or @username" value={q} onChange={e => setQ(e.target.value)} />
-        <select className={selSm} value={mtype} onChange={e => setMtype(e.target.value)}>
+        <input className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm" placeholder="Search name or @username" value={q} onChange={e => { setQ(e.target.value); setPage(1); }} />
+        <select className={selSm} value={mtype} onChange={e => { setMtype(e.target.value); setPage(1); }}>
           <option value="all">All types</option><option value="trainer">Trainers</option><option value="business">Business</option><option value="student">Students</option><option value="alumni">Alumni</option><option value="member">Members</option>
         </select>
         <span className="self-center text-xs text-muted-foreground">{shown.length} of {profiles.length}</span>
       </div>
       {shown.length === 0 ? <p className="mt-2 text-muted-foreground">No matching members.</p> : (
-        <Table head={["Member", "Type", "Verified"]}>{shown.map(p => (
+        <><Table head={["Member", "Type", "Verified"]}>{shown.slice((Math.min(page, pages) - 1) * PER, Math.min(page, pages) * PER).map(p => (
           <tr key={p.id} className="border-t border-border">
             <td className={td}><a href={`/community/u/${p.username}`} target="_blank" rel="noopener noreferrer" className={link}>{p.display_name}</a><div className="text-xs text-muted-foreground">@{p.username}</div></td>
             <td className={td}>{p.member_type}</td>
             <td className={td}><select className={selSm} value={p.verified ? "yes" : "no"} onChange={e => void setVerified(p.id, e.target.value === "yes")}><option value="yes">Verified</option><option value="no">Not verified</option></select></td>
-          </tr>))}</Table>)}
+          </tr>))}</Table>
+        {pages > 1 && <nav className="mt-4 flex flex-wrap items-center justify-center gap-1" aria-label="Member pages">
+          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)} aria-label="Previous page">&lt;</Button>
+          {pageList(Math.min(page, pages), pages).map((n, i) => n === 0 ? <span key={`g${i}`} className="px-1 text-muted-foreground">…</span> : <Button key={n} size="sm" variant={n === Math.min(page, pages) ? "default" : "outline"} onClick={() => setPage(n)}>{n}</Button>)}
+          <Button size="sm" variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)} aria-label="Next page">&gt;</Button>
+        </nav>}</>)}
     </div>
   );
 }
@@ -525,6 +540,7 @@ export function LearningOversight() {
             </tr>);
           })}</Table>);
       })()}
+      <StaffSessionPlans />
     </div>
   );
 }

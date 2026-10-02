@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { courses } from "@/lib/site-content";
+import { Button } from "@/components/ui/button";
 
 export const sections = [
   { tag: "question", label: "Ask & Answer", Icon: HelpCircle },
@@ -49,7 +50,7 @@ export function CommunitySidebar({ active, who }: Props) {
         <Link to="/community/members" className={item(active === "members")}><Users className="size-4 text-brand-gold" />Members</Link>
         <Link to="/community/saved" className={item(active === "saved")}><Bookmark className="size-4 text-brand-gold" />Saved posts</Link>
       </nav>
-      {myCourses.length > 0 && <nav className="grid min-w-0 gap-0.5"><p className="eyebrow mb-1 px-3">My Courses</p>{myCourses.map(slug => { const title = courses.find(c => c.slug === slug)?.title ?? slug; return <Link key={slug} to="/community/course/$slug" params={{ slug }} title={title} className={item(active === `course:${slug}`)}><BookHeart className="size-4 shrink-0 text-brand-gold" /><span className="min-w-0 truncate">{title}</span></Link>; })}</nav>}
+      {myCourses.length > 0 && <nav className="grid min-w-0 gap-0.5"><p className="eyebrow mb-1 px-3">My Courses</p>{myCourses.map(slug => { const title = courses.find(c => c.slug === slug)?.title ?? slug; return <Link key={slug} to="/community/course/$slug" params={{ slug }} className={`${item(active === `course:${slug}`)} items-start leading-snug`}><BookHeart className="mt-0.5 size-4 shrink-0 text-brand-gold" /><span className="min-w-0 break-words">{title}</span></Link>; })}</nav>}
       <div>
         <button type="button" onClick={() => setOpen(o => !o)} className="eyebrow mb-1 flex w-full items-center justify-between px-3">
           Learn with SOQ <ChevronDown className={`size-4 transition ${open ? "" : "-rotate-90"}`} />
@@ -81,18 +82,28 @@ export function CommunitySidebar({ active, who }: Props) {
 
 export function CommunityMobileNav({ active }: { active: string }) {
   const myCourses = useMyCourses();
+  const [coursesOpen, setCoursesOpen] = useState(false);
+  const currentCourse = myCourses.find(slug => active === `course:${slug}`);
   const chip = (a: boolean) => `shrink-0 rounded-full border px-4 py-1.5 text-sm ${a ? "border-brand-navy bg-brand-navy text-primary-foreground" : "border-border text-foreground/80"}`;
   return (
-    <nav className="-mx-5 mb-5 flex gap-2 overflow-x-auto px-5 pb-1 lg:hidden">
-      <Link to="/community" className={chip(active === "home")}>Home</Link>
-      {myCourses.map(slug => <Link key={slug} to="/community/course/$slug" params={{ slug }} className={chip(active === `course:${slug}`)}>{courses.find(c => c.slug === slug)?.title ?? slug}</Link>)}
-      {sections.map(s => <Link key={s.tag} to="/community" search={{ tag: s.tag }} className={chip(active === s.tag)}>{s.label}</Link>)}
-      <Link to="/community/live" className={chip(active === "live")}>Livestreams</Link>
-      <Link to="/events" className={chip(false)}>Events</Link>
-      <Link to="/community/members" className={chip(active === "members")}>Members</Link>
-      <Link to="/community/saved" className={chip(active === "saved")}>Saved</Link>
-      <Link to="/community/guidelines" className={chip(active === "guidelines")}>Guidelines</Link>
-    </nav>
+    <div className="mb-5 lg:hidden">
+      {myCourses.length > 0 && <div className="mb-3">
+        <Button type="button" variant="outline" aria-expanded={coursesOpen} aria-controls="community-mobile-courses" onClick={() => setCoursesOpen(open => !open)} className="flex h-auto min-h-10 w-full min-w-0 justify-between gap-3 rounded-md px-3 py-2 text-left">
+          <span className="flex min-w-0 items-center gap-2"><BookHeart className="size-4 shrink-0 text-brand-gold" /><span className="min-w-0 truncate">{currentCourse ? courses.find(c => c.slug === currentCourse)?.title ?? currentCourse : "My Courses"}</span></span>
+          <ChevronDown className={`size-4 shrink-0 transition-transform ${coursesOpen ? "rotate-180" : ""}`} />
+        </Button>
+        {coursesOpen && <nav id="community-mobile-courses" aria-label="My Courses" className="mt-1 grid gap-0.5 border-l border-border pl-2">{myCourses.map(slug => <Link key={slug} to="/community/course/$slug" params={{ slug }} onClick={() => setCoursesOpen(false)} aria-current={active === `course:${slug}` ? "page" : undefined} className={`${item(active === `course:${slug}`)} leading-snug`}><span className="min-w-0 break-words">{courses.find(c => c.slug === slug)?.title ?? slug}</span></Link>)}</nav>}
+      </div>}
+      <nav aria-label="Community sections" className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+        <Link to="/community" className={chip(active === "home")}>Home</Link>
+        {sections.map(s => <Link key={s.tag} to="/community" search={{ tag: s.tag }} className={chip(active === s.tag)}>{s.label}</Link>)}
+        <Link to="/community/live" className={chip(active === "live")}>Livestreams</Link>
+        <Link to="/events" className={chip(false)}>Events</Link>
+        <Link to="/community/members" className={chip(active === "members")}>Members</Link>
+        <Link to="/community/saved" className={chip(active === "saved")}>Saved</Link>
+        <Link to="/community/guidelines" className={chip(active === "guidelines")}>Guidelines</Link>
+      </nav>
+    </div>
   );
 }
 

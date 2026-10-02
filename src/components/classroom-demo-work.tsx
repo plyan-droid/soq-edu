@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BookOpen, CheckCircle2, ClipboardList, FileAudio, FileText, MessageSquareText } from "lucide-react";
+import { BookOpen, CheckCircle2, ClipboardList, FileAudio, FileText, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/community-ui";
 
 type Topic = { topic: string; task: string; brief: string; answer: string; feedback: string };
 
@@ -27,19 +28,19 @@ function exampleFor(slug: string): Topic {
 
 export function DemoStreamWork({ slug, openClasswork }: { slug: string; openClasswork: () => void }) {
   const example = exampleFor(slug);
-  return <section className="mb-7 space-y-3" aria-label="Sample class activity">
-    <p className="text-xs font-semibold uppercase text-muted-foreground">[DEMO] Sample class activity</p>
-    <div className="rounded-md border border-border bg-card p-4 sm:p-5">
-      <p className="flex items-center gap-2 text-xs text-muted-foreground"><MessageSquareText className="size-4 shrink-0" /> [DEMO] Trainer · Class update</p>
-      <h3 className="mt-3 font-serif text-xl text-primary">Welcome to {example.topic}</h3>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">This week, explore the class materials and review the case study in Classwork. The example below shows what handed-in work and feedback look like.</p>
-    </div>
-    <div className="rounded-md border border-border bg-card p-4 sm:p-5">
-      <p className="flex items-center gap-2 text-xs text-muted-foreground"><ClipboardList className="size-4 shrink-0" /> [DEMO] Assignment posted</p>
-      <h3 className="mt-3 font-serif text-xl text-primary">{example.task}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">Example submitted work and trainer feedback are available to view.</p>
+  return <section className="mb-7 space-y-4" aria-label="Sample class activity">
+    <article className="rounded-md border border-border bg-card p-6">
+      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer</p><p className="text-xs text-muted-foreground">Sample class post</p></div></div>
+      <h3 className="mt-4 font-serif text-3xl leading-tight text-primary">What are you exploring in {example.topic}?</h3>
+      <p className="mt-3 text-sm leading-6">Share a question or idea from the class materials with your classmates.</p>
+      <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><MessageCircle className="size-4" /> 0 replies</p>
+    </article>
+    <article className="rounded-md border border-border bg-card p-6">
+      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer</p><p className="text-xs text-muted-foreground">Sample assignment post</p></div></div>
+      <h3 className="mt-4 font-serif text-3xl leading-tight text-primary">{example.task}</h3>
+      <p className="mt-3 text-sm leading-6">Example submitted work and trainer feedback are available in Classwork.</p>
       <Button className="mt-3 px-0" variant="link" onClick={openClasswork}>View sample classwork →</Button>
-    </div>
+    </article>
   </section>;
 }
 

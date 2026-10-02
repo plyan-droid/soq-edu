@@ -10,6 +10,7 @@ import { Avatar } from "@/components/community-ui";
 import { timeAgo } from "@/lib/community";
 import { NoticeFileList, asFiles } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
+import { DemoStreamWork } from "@/components/classroom-demo-work";
 import type { User } from "@supabase/supabase-js";
 
 type Thread = { id: string; author_id: string; author_name: string; title: string; body: string; created_at: string };
@@ -18,7 +19,7 @@ type Announcement = { id: string; title: string; body: string; created_at: strin
 const displayName = (user: User) => (typeof user.user_metadata?.["full_name"] === "string" && user.user_metadata["full_name"]) || user.email?.split("@")[0] || "Member";
 const when = (date: string) => new Date(date).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
-export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: string; user: User; isStaff: boolean; courseTitle?: string }) {
+export function ClassroomForum({ slug, user, isStaff, courseTitle, showDemo = false, openDemoWork }: { slug: string; user: User; isStaff: boolean; courseTitle?: string; showDemo?: boolean; openDemoWork?: () => void }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -80,8 +81,8 @@ export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: str
   const feed = [...ordered.map(thread => ({ kind: "thread" as const, date: thread.created_at, thread })),
     ...(courseTitle ? announcements.map(announcement => ({ kind: "announcement" as const, date: announcement.created_at, announcement })) : [])]
     .sort((a, b) => sort === "top" ? (a.kind === b.kind ? (a.kind === "thread" && b.kind === "thread" ? replies.filter(r => r.thread_id === b.thread.id).length - replies.filter(r => r.thread_id === a.thread.id).length || new Date(b.date).getTime() - new Date(a.date).getTime() : new Date(b.date).getTime() - new Date(a.date).getTime()) : a.kind === "announcement" ? -1 : 1) : new Date(b.date).getTime() - new Date(a.date).getTime());
-  return <div className="space-y-5">
-    {courseTitle && <div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2"><Button variant={sort === "latest" ? "default" : "ghost"} size="sm" className="rounded-full px-4" onClick={() => setSort("latest")}>Latest</Button><Button variant={sort === "top" ? "default" : "ghost"} size="sm" className="rounded-full px-4" onClick={() => setSort("top")}>Top</Button></div><Button onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
+  return <div className="space-y-4">
+    {courseTitle && <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3"><div className="flex items-center gap-1" aria-label="Sort posts"><Button variant={sort === "latest" ? "secondary" : "ghost"} size="sm" className="h-9 px-3" onClick={() => setSort("latest")}>Latest</Button><Button variant={sort === "top" ? "secondary" : "ghost"} size="sm" className="h-9 px-3" onClick={() => setSort("top")}>Top</Button></div><Button size="sm" onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
     <div className="space-y-3">
       {!composing ? !courseTitle && <Button variant="outline" className="h-12 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border bg-card p-4">
         <h2 className="font-serif text-xl text-primary">Post to your class</h2>
@@ -90,11 +91,11 @@ export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: str
         <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setComposing(false)}>Cancel</Button><Button onClick={() => void create()} disabled={busy || !body.trim()}>Post</Button></div>
       </div>}
     </div>
-    {isLoading ? <p className="text-muted-foreground">Loading discussions…</p> : error ? <p className="text-destructive">Couldn't load discussions. Please try again.</p> : feed.length === 0 ? <p className="border-t border-border py-6 text-muted-foreground">No posts yet. Start a conversation with your class.</p> : feed.map(item => item.kind === "announcement" ? <article key={`notice-${item.announcement.id}`} className="rounded-md border border-border bg-card p-6 transition-colors hover:border-brand-gold"><div className="flex items-center gap-3"><Avatar name="SOQ Trainer" size={36} /><div><p className="text-sm font-medium">Trainer <span className="ml-1 rounded-full bg-brand-gold-soft px-2 py-0.5 text-xs text-primary">Announcement</span></p><p className="text-xs text-muted-foreground">{timeAgo(item.date)}</p></div></div><h3 className="mt-4 font-serif text-3xl leading-tight text-primary">{item.announcement.title}</h3>{item.announcement.body && <NoticeBody text={item.announcement.body} className="mt-3 text-sm leading-6" />}<NoticeFileList files={asFiles(item.announcement.attachments)} /></article> : (() => { const t = item.thread; return <article key={t.id} className="rounded-md border border-border bg-card p-6 transition-colors hover:border-brand-gold">
+    {isLoading ? <p className="py-5 text-sm text-muted-foreground">Loading posts…</p> : error ? <p className="py-5 text-sm text-destructive">Couldn't load posts. Please try again.</p> : feed.length === 0 && !showDemo ? <p className="py-6 text-sm text-muted-foreground">No posts yet. Start a conversation with your class.</p> : feed.map(item => item.kind === "announcement" ? <article key={`notice-${item.announcement.id}`} className="rounded-md border border-border bg-card p-5 transition-colors hover:border-brand-gold sm:p-6"><div className="flex items-center gap-3"><Avatar name="SOQ Trainer" size={36} /><div><p className="text-sm font-medium">Trainer <span className="ml-1 rounded-full bg-brand-gold-soft px-2 py-0.5 text-xs text-primary">Announcement</span></p><p className="text-xs text-muted-foreground">{timeAgo(item.date)}</p></div></div><h3 className="mt-4 font-serif text-2xl leading-tight text-primary">{item.announcement.title}</h3>{item.announcement.body && <NoticeBody text={item.announcement.body} className="mt-3 text-sm leading-6" />}<NoticeFileList files={asFiles(item.announcement.attachments)} /></article> : (() => { const t = item.thread; return <article key={t.id} className="rounded-md border border-border bg-card p-5 transition-colors hover:border-brand-gold sm:p-6">
       <div className="flex items-start justify-between gap-3"><div className="flex items-center gap-3"><Avatar name={t.author_name} size={36} /><div><p className="text-sm font-medium text-foreground">{t.author_name}</p><p className="text-xs text-muted-foreground">{timeAgo(t.created_at)}</p></div></div>
         {(t.author_id === user.id || isStaff) && <Button variant="ghost" size="icon-sm" title="Delete discussion" aria-label="Delete discussion" onClick={() => void remove("classroom_threads", t.id)}><Trash2 /></Button>}
       </div>
-      <h3 className="mt-4 font-serif text-3xl leading-tight text-primary">{t.title}</h3>
+      <h3 className="mt-4 font-serif text-2xl leading-tight text-primary">{t.title}</h3>
       {t.body.trim() !== t.title.trim() && <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">{t.body}</p>}
       <Button variant="ghost" size="sm" className="mt-4 gap-2 px-0 text-muted-foreground" aria-expanded={expanded === t.id} onClick={() => setExpanded(expanded === t.id ? null : t.id)}><MessageCircle className="size-4" />{replies.filter(r => r.thread_id === t.id).length} replies <ChevronDown className={`size-3.5 transition-transform ${expanded === t.id ? "rotate-180" : ""}`} /></Button>
       {expanded === t.id && <div className="mt-3 border-t border-border pt-4">
@@ -102,5 +103,6 @@ export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: str
         <div className="flex flex-col gap-2 sm:flex-row"><Input aria-label={`Reply to ${t.title}`} placeholder="Reply to this discussion…" maxLength={3000} value={reply[t.id] ?? ""} onChange={e => setReply(p => ({ ...p, [t.id]: e.target.value }))} onKeyDown={e => { if (e.key === "Enter") void respond(t.id); }} /><Button variant="outline" disabled={busy || !reply[t.id]?.trim()} onClick={() => void respond(t.id)}>Reply</Button></div>
       </div>}
     </article>; })())}
+    {!isLoading && !error && showDemo && openDemoWork && <DemoStreamWork slug={slug} openClasswork={openDemoWork} />}
   </div>;
 }

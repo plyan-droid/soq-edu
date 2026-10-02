@@ -28,20 +28,20 @@ function exampleFor(slug: string): Topic {
 
 export function DemoStreamWork({ slug, openClasswork }: { slug: string; openClasswork: () => void }) {
   const example = exampleFor(slug);
-  return <section className="mb-7 space-y-4" aria-label="Sample class activity">
-    <article className="rounded-md border border-border bg-card p-6">
-      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer</p><p className="text-xs text-muted-foreground">Sample class post</p></div></div>
-      <h3 className="mt-4 font-serif text-3xl leading-tight text-primary">What are you exploring in {example.topic}?</h3>
+  return <>
+    <article className="rounded-md border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer <span className="ml-1 text-xs font-normal text-muted-foreground">Example</span></p><p className="text-xs text-muted-foreground">Sample class post</p></div></div>
+      <h3 className="mt-4 font-serif text-2xl leading-tight text-primary">What are you exploring in {example.topic}?</h3>
       <p className="mt-3 text-sm leading-6">Share a question or idea from the class materials with your classmates.</p>
       <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><MessageCircle className="size-4" /> 0 replies</p>
     </article>
-    <article className="rounded-md border border-border bg-card p-6">
-      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer</p><p className="text-xs text-muted-foreground">Sample assignment post</p></div></div>
-      <h3 className="mt-4 font-serif text-3xl leading-tight text-primary">{example.task}</h3>
+    <article className="rounded-md border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-center gap-3"><Avatar name="Demo Trainer" size={36} /><div><p className="text-sm font-medium">[DEMO] Trainer <span className="ml-1 text-xs font-normal text-muted-foreground">Example</span></p><p className="text-xs text-muted-foreground">Sample assignment post</p></div></div>
+      <h3 className="mt-4 font-serif text-2xl leading-tight text-primary">{example.task}</h3>
       <p className="mt-3 text-sm leading-6">Example submitted work and trainer feedback are available in Classwork.</p>
       <Button className="mt-3 px-0" variant="link" onClick={openClasswork}>View sample classwork →</Button>
     </article>
-  </section>;
+  </>;
 }
 
 export function DemoClasswork({ slug, expanded, onToggle }: { slug: string; expanded: boolean; onToggle: () => void }) {

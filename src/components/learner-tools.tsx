@@ -14,8 +14,6 @@ import { NoticeFileList, asFiles } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
 import { AssignmentFileList, AssignmentFilePicker, assignmentFiles, uploadAssignmentFiles, removeAssignmentFiles } from "@/components/assignment-files";
 
-const card = "rounded-lg border border-border bg-card p-5";
-
 export function CourseNoticesList({ slug, pinnedOnly = false, unpinnedOnly = false }: { slug: string; pinnedOnly?: boolean; unpinnedOnly?: boolean }) {
   const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   const visible = data.filter(n => pinnedOnly ? n.pinned : unpinnedOnly ? !n.pinned : true);

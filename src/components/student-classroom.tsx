@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Circle, Download, Lock, PlayCircle, Video } from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Download, Lock, PlayCircle, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ListSkeleton } from "@/components/start-here";
 import { SessionBookButton } from "@/components/session-bookings";
@@ -40,7 +40,7 @@ export function StudentClassroom({ slug }: { slug: string }) {
     return { member: !!membership.data?.length, lessons: (l.data ?? []) as Lesson[], live: (s.data ?? []) as LiveSession[], done: new Set((p.data ?? []).map(x => x.lesson_id)), assignments: a.data ?? [], submissions: sub.data ?? [], quizzes: q.data ?? [], attempts: attempts.data ?? [] };
   } });
   useEffect(() => {
-    const sync = () => { setTab(tabFromHash(window.location.hash)); const id = window.location.hash.slice(1); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" }), 150); };
+    const sync = () => { setTab(tabFromHash(window.location.hash)); const id = window.location.hash.slice(1); if (id.startsWith("lesson-")) setActiveId(id.slice(7)); if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" }), 150); };
     sync(); window.addEventListener("hashchange", sync); return () => window.removeEventListener("hashchange", sync);
   }, [slug, isPending]);
   if (loading) return <Shell slug={slug}><ListSkeleton /></Shell>;

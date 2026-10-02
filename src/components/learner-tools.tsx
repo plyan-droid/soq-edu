@@ -21,7 +21,7 @@ export function CourseNoticesList({ slug, pinnedOnly = false, unpinnedOnly = fal
   const visible = data.filter(n => pinnedOnly ? n.pinned : unpinnedOnly ? !n.pinned : true);
   if (visible.length === 0) return null;
   return <div className="mb-6 space-y-2">{[...visible].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(n => (
-    <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.pinned && <span className="text-xs text-primary">Pinned · </span>}{n.title}</p>{n.body && <NoticeBody text={n.body} className="mt-1 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
+    <div key={n.id} className={pinnedOnly ? "rounded-md border border-border bg-card p-6" : `rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 text-sm font-semibold text-primary"><Megaphone className="size-4 text-brand-gold" />{n.pinned && <span>Pinned announcement</span>}</p><h2 className="mt-3 font-serif text-2xl text-primary">{n.title}</h2>{n.body && <NoticeBody text={n.body} className="mt-2 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
   ))}</div>;
 }
 

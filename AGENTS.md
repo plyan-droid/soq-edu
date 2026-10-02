@@ -23,7 +23,7 @@ Staff Admin navigation groups existing tool IDs in one section definition on the
 - Applicant accounts (staff-added or website) are created only in server functions with the admin client; website submissions never change an existing account's details.
 - Trainer Courses → Classroom groups each course into Stream, Classwork, People and Grades views reusing existing tables; keeps per-course teaching in one place.
 - Course-specific Community discussions use separate private threads and replies scoped by course membership, keeping public community posts distinct from classroom conversations.
-- Student class links open a course-specific Community forum first within Stream, with Classwork and Grades alongside; /learn/$slug shares the workspace for assessment deep links, while People remains trainer-only.
+- Student class links open a course-specific Community-style post feed within Stream, with at most one trainer-pinned announcement above it; Classwork and Grades remain alongside, /learn/$slug shares the workspace for assessment deep links, and People remains trainer-only, so classes feel like the wider Community without exposing private posts.
 - The official SOQ logo is bundled locally for shared chrome, chat and certificate PDF; this avoids intermittent CDN asset-proxy failures that broke the visible brand and PDF downloads.
 - Student invoice PDFs derive from account-scoped transfer or order records and label unconfirmed transfers and demo orders explicitly; a generated document never claims payment is verified.
 - Student Classroom examples live only in the presentation for identified demo learners; they must never become real submissions, grades or certificates.

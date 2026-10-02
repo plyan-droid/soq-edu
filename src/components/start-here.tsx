@@ -274,6 +274,46 @@ function StaffOperationsHome({ data, isPending, greeting, onNavigate }: { data: 
   </div>;
 }
 
+/** Organisation home in the same operations-grid style as staff Today: priority actions first, four headline figures, then progress and upcoming columns. */
+function BusinessOperationsHome({ data, isPending, greeting, onNavigate, checklist, footer }: { data: Home | undefined; isPending: boolean; greeting: string; onNavigate: (tool: string) => void; checklist: React.ReactNode; footer: React.ReactNode }) {
+  const pending = data?.cards.filter(c => (c.count ?? 0) > 0) ?? [];
+  const pendingTotal = pending.reduce((sum, c) => sum + (c.count ?? 0), 0);
+  const value = (label: string) => data?.metrics?.find(m => m.label === label)?.value ?? "—";
+  const figures = [
+    { label: "Learners", value: value("Learners"), note: "Seats on your package", icon: UsersRound },
+    { label: "Course enrolments", value: value("Course enrolments"), note: "Linked course records", icon: ClipboardList },
+    { label: "Average progress", value: value("Average progress"), note: "Across linked enrolments", icon: TrendingUp },
+    { label: "Upcoming classes", value: value("Upcoming classes"), note: "For courses your team studies", icon: CalendarDays },
+  ];
+  const cards = data ? [...data.cards].sort((a, b) => Number(!!b.count) - Number(!!a.count)) : [];
+  const progressItems = data?.panels?.find(p => p.title === "Learner progress")?.items ?? [];
+  const eventItems = data?.panels?.find(p => p.title === "Upcoming events")?.items ?? [];
+  const noticeItems = data?.panels?.find(p => p.title === "Noticeboard")?.items ?? [];
+  const classItems = (data?.highlights ?? []).filter(h => h.detail.includes("live class")).map(i => ({ label: i.title, detail: i.detail, tool: i.tool }));
+  const coming = [...classItems, ...eventItems].slice(0, 6);
+  return <div className="mx-auto max-w-6xl space-y-6 font-sans">
+    <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+      <div><p className="text-xs font-medium uppercase text-muted-foreground">{new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p><p className="mt-1 text-sm text-foreground">{greeting}</p></div>
+      <span className="rounded-full bg-brand-gold-soft px-3 py-1.5 text-xs font-semibold text-primary">{isPending ? "Checking your team…" : pendingTotal ? `${pendingTotal} ${pendingTotal === 1 ? "item" : "items"} to follow up` : "All caught up"}</span>
+    </header>
+    <section aria-label="Priority actions">
+      <div className="mb-3 flex items-baseline justify-between gap-2"><h2 className="font-workspace text-lg font-semibold text-primary">Priority actions</h2><span className="text-xs text-muted-foreground">Open an area to take action</span></div>
+      {isPending ? <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map(i => <Skeleton key={i} className="h-24 rounded-md" />)}</div> : <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{cards.map(c => <Button key={c.title} type="button" variant="outline" onClick={() => onNavigate(c.tool)} className={`group flex h-auto min-h-24 w-full items-start justify-between gap-3 whitespace-normal rounded-md border-l-2 p-4 text-left transition-colors hover:bg-secondary/40 ${(c.count ?? 0) > 0 ? "border-l-brand-gold" : "border-l-border"}`}><span className="min-w-0 flex-1"><span className="block font-semibold text-foreground">{c.title}</span><span className="mt-1 block text-xs font-normal leading-relaxed text-muted-foreground">{c.text}</span></span><span className="flex shrink-0 flex-col items-end gap-2">{(c.count ?? 0) > 0 ? <span className="rounded-full bg-brand-gold-soft px-2 py-0.5 text-[11px] font-semibold text-primary">{c.count} pending</span> : c.badge ? <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-primary">{c.badge}</span> : null}<ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1" aria-hidden="true" /></span></Button>)}</div>}
+    </section>
+    <section aria-label="Your team at a glance" className="grid grid-cols-2 divide-x divide-y divide-border border-y border-border sm:grid-cols-4 sm:divide-y-0">
+      {isPending ? [0, 1, 2, 3].map(i => <Skeleton key={i} className="m-3 h-20" />) : figures.map(f => <div key={f.label} className="min-w-0 px-3 py-4 first:pl-0 sm:px-5 sm:first:pl-0"><div className="flex items-center gap-2 text-xs text-muted-foreground"><f.icon className="size-4 shrink-0 text-brand-gold" aria-hidden="true" /><span>{f.label}</span></div><p className="mt-2 break-words font-workspace text-xl font-semibold tabular-nums text-primary sm:text-2xl">{f.value}</p><p className="text-[11px] text-muted-foreground">{f.note}</p></div>)}
+    </section>
+    <div className="grid gap-7 lg:grid-cols-2 lg:gap-9">
+      <section className="min-w-0"><h2 className="mb-2 font-workspace text-lg font-semibold text-primary">Team progress</h2>{isPending ? <Skeleton className="h-40" /> : progressItems.length ? <ul className="divide-y divide-border">{progressItems.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="group flex h-auto min-h-16 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{item.label}</span><span className="text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></Button></li>)}</ul> : <p className="border-t border-border py-4 text-sm text-muted-foreground">No learners are linked to courses yet. Add employees, then ask SOQ to enrol them.</p>}</section>
+      <section className="min-w-0"><h2 className="mb-2 font-workspace text-lg font-semibold text-primary">Upcoming classes & events</h2>{isPending ? <Skeleton className="h-40" /> : coming.length ? <ul className="divide-y divide-border">{coming.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="group flex h-auto min-h-16 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{item.label}</span><span className="text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></Button></li>)}</ul> : <p className="border-t border-border py-4 text-sm text-muted-foreground">No classes, events or intakes scheduled.</p>}</section>
+    </div>
+    {noticeItems.length > 0 && <section aria-label="Noticeboard"><h2 className="font-workspace text-lg font-semibold text-primary">Noticeboard</h2><ul className="mt-3 divide-y divide-border border-t border-border">{noticeItems.map((item, i) => <li key={`${item.label}-${i}`}><Button variant="ghost" className="flex h-auto min-h-14 w-full justify-between gap-3 rounded-none px-0 py-3 text-left" onClick={() => onNavigate(item.tool)}><span className="min-w-0 whitespace-normal"><span className="block font-medium text-foreground">{item.label}</span><span className="text-xs text-muted-foreground">{item.detail}</span></span><ArrowRight className="size-4 shrink-0 text-muted-foreground" /></Button></li>)}</ul></section>}
+    {data?.breakdown && data.breakdown.items.length > 0 && <section aria-label="Team course overview"><h2 className="font-workspace text-lg font-semibold text-primary">{data.breakdown.title}</h2><div className="mt-3 grid gap-3">{data.breakdown.items.map(item => { const max = Math.max(1, ...data.breakdown!.items.map(x => x.count)); return <div key={item.label} className="grid grid-cols-[minmax(7rem,12rem)_1fr_3rem] items-center gap-3 text-sm"><span className="truncate" title={item.label}>{item.label}</span><div className="h-2 bg-muted"><div className="h-full bg-brand-gold" style={{ width: `${item.count / max * 100}%` }} /></div><span className="text-right tabular-nums">{item.count}</span></div>; })}</div></section>}
+    {checklist}
+    {footer}
+  </div>;
+}
+
 export function StaffOperationsReport({ userId, owner }: { userId: string; owner: boolean }) {
   const { data, isPending } = useQuery({ queryKey: ["start-here", "staff", userId, "", owner], queryFn: () => load("staff", userId, "", owner) });
   return <section className="mt-6 border-t border-border pt-6" aria-label="Operational reporting"><h2 className="font-workspace text-xl font-semibold text-primary">Operational figures</h2><p className="mt-1 text-sm text-muted-foreground">Sales and order figures are calculated from the latest 500 orders.</p>
@@ -311,6 +351,7 @@ export function StartHere({ role, userId, email, greeting, onNavigate: fallback,
         </button></li>))}</ul>
     </section>
   );
+  if (role === "business") return <BusinessOperationsHome data={data} isPending={isPending} greeting={greeting} onNavigate={onNavigate} checklist={checklist} footer={steps.length > 0 && !showList ? <Button variant="link" className="h-auto p-0 text-sm" onClick={() => hide(false)}>{allDone ? "All set-up steps done ✓" : "Show getting-started checklist"}</Button> : null} />;
   if (role === "trainer") {
     const attention = cards.filter(c => c.count && c.count > 0);
     const summary = (data?.metrics ?? []).filter(m => ["Courses I teach", "Students", "Upcoming live classes", "Booked 1-to-1 meetings"].includes(m.label));

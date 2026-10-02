@@ -65,12 +65,9 @@ export function StudentClassroom({ slug }: { slug: string }) {
     <div role="tablist" aria-label="Class areas" className="-mx-5 mb-7 flex overflow-x-auto border-b border-border px-5 sm:mx-0 sm:px-0">{tabs.map(t => <Button key={t.id} type="button" variant="ghost" role="tab" aria-selected={tab === t.id} onClick={() => selectTab(t.id)} className={`h-11 shrink-0 rounded-none border-b-2 px-4 ${tab === t.id ? "border-primary font-semibold text-primary" : "border-transparent text-muted-foreground"}`}>{t.label}</Button>)}</div>
     {tab === "stream" && <div id="stream" className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]"><div className="min-w-0"><CourseNoticesList slug={slug} pinnedOnly /><div id="discussion" className="scroll-mt-6"><ClassroomForum slug={slug} user={user} isStaff={isAdmin || isTrainer} courseTitle={course?.title ?? slug} showDemo={showDemo} openDemoWork={openDemoWork} /></div></div><aside className="self-start border-t border-border pt-4 lg:sticky lg:top-6"><h3 className="text-sm font-semibold text-primary">Upcoming</h3><ul className="mt-3 divide-y divide-border">{data?.assignments.filter(a => !submissions.some(s => s.assignment_id === a.id)).slice(0, 4).map(a => <li key={a.id} className="py-3 text-sm"><a href={`#assignment-${a.id}`} onClick={() => setTab("classwork")} className="font-medium text-primary hover:underline">{a.title}</a><p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"}</p></li>)}</ul><Button variant="link" className="px-0" onClick={() => selectTab("classwork")}>All classwork →</Button></aside></div>}
     {tab === "classwork" && <div id="classwork" className="max-w-3xl space-y-9 pb-8">
-      <div className="border-b border-border pb-5">
-        <h2 className="font-serif text-3xl text-primary">Classwork</h2>
-        {lessons.length > 0 && <p className="mt-1 text-sm text-muted-foreground">{doneCount} of {lessons.length} lessons done</p>}
-      </div>
-      {showDemo && <DemoClasswork slug={slug} expanded={demoWorkOpen} onToggle={() => setDemoWorkOpen(v => !v)} />}
+      {lessons.length > 0 && <p className="border-b border-border pb-4 text-sm text-muted-foreground">{doneCount} of {lessons.length} lessons done</p>}
       <StudentAssignments slug={slug} />
+      {showDemo && <DemoClasswork slug={slug} expanded={demoWorkOpen} onToggle={() => setDemoWorkOpen(v => !v)} />}
       <StudentQuizzes slug={slug} />
       {lessons.length > 0 && <section aria-label="Lessons and materials">
         <h3 className="border-b border-border pb-3 font-serif text-2xl text-primary">Lessons & materials</h3>

@@ -60,7 +60,7 @@ export function DemoClasswork({ slug, expanded, onToggle }: { slug: string; expa
         <p className="mt-4 text-sm"><strong>Sample trainer feedback:</strong> {example.feedback}</p>
       </div>
     </div>}
-    <div className="border-t border-border py-4"><p className="flex items-center gap-3 text-sm text-muted-foreground"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><BookOpen className="size-4" /></span> [DEMO] Material · Consultation and reflection guide</p></div>
+    <div className="border-t border-border py-4"><p className="flex items-center gap-3 text-sm text-muted-foreground"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><BookOpen className="size-4" /></span> [DEMO] Material · {example.topic} guide</p></div>
   </section>;
 }
 

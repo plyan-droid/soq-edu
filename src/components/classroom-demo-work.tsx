@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, CheckCircle2, ClipboardList, FileAudio, FileText, MessageCircle, MessageSquareText } from "lucide-react";
+import { BookOpen, CheckCircle2, ClipboardList, FileAudio, FileText, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/community-ui";
 

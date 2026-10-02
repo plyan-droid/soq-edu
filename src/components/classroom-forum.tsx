@@ -13,7 +13,7 @@ type Reply = { id: string; thread_id: string; author_id: string; author_name: st
 const displayName = (user: User) => (typeof user.user_metadata?.["full_name"] === "string" && user.user_metadata["full_name"]) || user.email?.split("@")[0] || "Member";
 const when = (date: string) => new Date(date).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
-export function ClassroomForum({ slug, user, isStaff, title }: { slug: string; user: User; isStaff: boolean; title?: string }) {
+export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: string; user: User; isStaff: boolean; courseTitle?: string }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -60,7 +60,7 @@ export function ClassroomForum({ slug, user, isStaff, title }: { slug: string; u
     refresh();
   };
   return <div className="space-y-5">
-    {title && <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><h2 className="font-serif text-3xl text-primary">{title} forum</h2><p className="mt-1 text-sm text-muted-foreground">Conversations with your class</p></div><Button onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
+    {courseTitle && <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><h2 className="font-serif text-3xl text-primary">Course forum</h2><p className="mt-1 text-sm text-muted-foreground">Conversations with your class</p></div><Button onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
     <div className="space-y-3">
       {!composing ? <Button variant="outline" className="h-12 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border bg-card p-4">
         <h2 className="font-serif text-xl text-primary">Post to your class</h2>

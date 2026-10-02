@@ -62,7 +62,7 @@ export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: str
   return <div className="space-y-5">
     {courseTitle && <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><h2 className="font-serif text-3xl text-primary">Course forum</h2><p className="mt-1 text-sm text-muted-foreground">Conversations with your class</p></div><Button onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
     <div className="space-y-3">
-      {!composing ? <Button variant="outline" className="h-12 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border bg-card p-4">
+      {!composing ? !courseTitle && <Button variant="outline" className="h-12 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border bg-card p-4">
         <h2 className="font-serif text-xl text-primary">Post to your class</h2>
         <Input aria-label="Post title" placeholder="Title (optional)" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} />
         <Textarea aria-label="Post message" placeholder="Share a question, idea or resource with your class…" maxLength={5000} value={body} onChange={e => setBody(e.target.value)} />

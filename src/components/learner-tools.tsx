@@ -14,8 +14,6 @@ import { NoticeFileList, asFiles } from "@/components/notice-files";
 import { NoticeBody } from "@/components/notice-body";
 import { AssignmentFileList, AssignmentFilePicker, assignmentFiles, uploadAssignmentFiles, removeAssignmentFiles } from "@/components/assignment-files";
 
-const card = "rounded-lg border border-border bg-card p-5";
-
 export function CourseNoticesList({ slug, pinnedOnly = false, unpinnedOnly = false }: { slug: string; pinnedOnly?: boolean; unpinnedOnly?: boolean }) {
   const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
   const visible = data.filter(n => pinnedOnly ? n.pinned : unpinnedOnly ? !n.pinned : true);
@@ -40,17 +38,17 @@ export function StudentQuizzes({ slug }: { slug: string }) {
     setResult(r as never); void qc.invalidateQueries({ queryKey: ["s-quizzes", slug] });
   };
   return (
-    <div className={card}>
-      <h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><Trophy className="size-5" /> Quizzes</h3>
-      <ul className="mt-3 space-y-3">{data.map(q => {
+    <section aria-label="Quizzes">
+      <h3 className="border-b border-border pb-3 font-serif text-2xl text-primary">Quizzes</h3>
+      <ul className="divide-y divide-border">{data.map(q => {
         const tries = (q.quiz_attempts ?? []).filter(Boolean) as { score: number; passed: boolean; certificate_code: string | null }[];
         const best = tries.reduce((m, t) => Math.max(m, t.score), -1);
         const cert = tries.find(t => t.certificate_code)?.certificate_code;
         const qs = [...(q.quiz_questions ?? [])].sort((a, b) => a.position - b.position);
-        return <li key={q.id} id={`quiz-${q.id}`} className="scroll-mt-24 text-sm">
-          <div className="flex items-center justify-between gap-2"><span className="font-medium">{q.title}</span>
+        return <li key={q.id} id={`quiz-${q.id}`} className="scroll-mt-24 py-4 text-sm">
+          <div className="flex items-center justify-between gap-3"><span className="flex min-w-0 items-center gap-3 font-medium"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Trophy className="size-4" /></span>{q.title}</span>
             <Button size="sm" variant="outline" onClick={() => { setOpen(open === q.id ? null : q.id); setAns({}); setResult(null); }}>{open === q.id ? "Close" : best >= 0 ? "Try again" : "Start"}</Button></div>
-          <p className="text-xs text-muted-foreground">Pass mark {q.pass_mark}%{best >= 0 && ` · best ${best}%`}{cert && <> · <Link to="/verify-certificate" className="underline">Certificate {cert}</Link></>}</p>
+          <p className="ml-12 text-xs text-muted-foreground">Pass mark {q.pass_mark}%{best >= 0 && ` · best ${best}%`}{cert && <> · <Link to="/verify-certificate" className="underline">Certificate {cert}</Link></>}</p>
           {open === q.id && (
             <div className="mt-3 space-y-4 rounded-md bg-muted/50 p-3">
               {result ? (
@@ -67,7 +65,7 @@ export function StudentQuizzes({ slug }: { slug: string }) {
           )}
         </li>;
       })}</ul>
-    </div>
+    </section>
   );
 }
 
@@ -95,14 +93,13 @@ export function StudentAssignments({ slug }: { slug: string }) {
     toast.success("Handed in"); setFiles(p => ({ ...p, [id]: [] })); setOpen(null); void qc.invalidateQueries({ queryKey: ["s-asg", slug] }); void qc.invalidateQueries({ queryKey: ["learn", slug] }); void qc.invalidateQueries({ queryKey: ["t-asg", slug] });
   };
   return (
-    <div className={card}>
-      <h3 className="flex items-center gap-2 font-serif text-2xl text-primary"><ClipboardList className="size-5" /> Assignments</h3>
-      <ul className="mt-3 space-y-4">{data.map(a => {
+    <section aria-label="Assignments">
+      <h3 className="border-b border-border pb-3 font-serif text-2xl text-primary">Assignments</h3>
+      <ul className="divide-y divide-border">{data.map(a => {
         const mine = (a.assignment_submissions ?? []).find(s => s.student_id === user.id);
         const v = f[a.id] ?? { body: "", link: "" };
-        return <li key={a.id} id={`assignment-${a.id}`} className="scroll-mt-24 text-sm">
-          <Button variant="ghost" className="h-auto w-full justify-between whitespace-normal px-0 py-1 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="font-medium">{a.title}</span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Returned" : mine.status === "marked" ? "Being marked" : "Handed in" : a.due_at && new Date(a.due_at) < new Date() ? "Overdue" : "To do"}</span></Button>
-          <p className="text-xs text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"} · {a.max_score} marks</p>
+        return <li key={a.id} id={`assignment-${a.id}`} className="scroll-mt-24 py-3 text-sm">
+          <Button variant="ghost" className="h-auto min-h-12 w-full justify-start gap-3 whitespace-normal px-2 py-2 text-left" onClick={() => setOpen(open === a.id ? null : a.id)} aria-expanded={open === a.id}><span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><ClipboardList className="size-4" /></span><span className="min-w-0 flex-1 font-medium">{a.title}<span className="mt-0.5 block text-xs font-normal text-muted-foreground">{a.due_at ? `Due ${fmtDateTime(a.due_at)}` : "No due date"} · {a.max_score} marks</span></span><span className="shrink-0 text-xs text-muted-foreground">{mine ? mine.status === "graded" ? "Returned" : mine.status === "marked" ? "Being marked" : "Handed in" : a.due_at && new Date(a.due_at) < new Date() ? "Overdue" : "To do"}</span></Button>
           {open === a.id && <div className="mt-3 space-y-3 border-t border-border pt-3">
             {a.instructions && <p className="whitespace-pre-line">{a.instructions}</p>}
             {mine ? <div className="rounded-md bg-muted/50 p-3"><p className="font-medium">{mine.status === "graded" ? `Returned: ${mine.score}/${a.max_score}` : mine.status === "marked" ? "Being marked" : "Handed in · waiting for marking"}</p>{mine.body && <p className="mt-2 whitespace-pre-line">{mine.body}</p>}{mine.link && <a href={mine.link} target="_blank" rel="noreferrer" className="mt-2 block text-primary underline">Your submitted link</a>}<AssignmentFileList files={assignmentFiles(mine.files)} />{mine.status === "graded" && mine.feedback && <p className="mt-2 whitespace-pre-line"><b>Trainer feedback:</b> {mine.feedback}</p>}</div>
@@ -110,7 +107,7 @@ export function StudentAssignments({ slug }: { slug: string }) {
           </div>}
         </li>;
       })}</ul>
-    </div>
+    </section>
   );
 }
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, PenLine, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ type Reply = { id: string; thread_id: string; author_id: string; author_name: st
 const displayName = (user: User) => (typeof user.user_metadata?.["full_name"] === "string" && user.user_metadata["full_name"]) || user.email?.split("@")[0] || "Member";
 const when = (date: string) => new Date(date).toLocaleString("en-SG", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
-export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: User; isStaff: boolean }) {
+export function ClassroomForum({ slug, user, isStaff, courseTitle }: { slug: string; user: User; isStaff: boolean; courseTitle?: string }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -59,16 +59,17 @@ export function ClassroomForum({ slug, user, isStaff }: { slug: string; user: Us
     if (error) return void toast.error("Couldn't delete this message");
     refresh();
   };
-  return <div className="mx-auto max-w-3xl space-y-6">
-    <div className="space-y-3 border-b border-border pb-6">
-      {!composing ? <Button variant="outline" className="h-14 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border p-4">
+  return <div className="space-y-5">
+    {courseTitle && <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4"><div><h2 className="font-serif text-3xl text-primary">Course forum</h2><p className="mt-1 text-sm text-muted-foreground">Conversations with your class</p></div><Button onClick={() => setComposing(true)}><PenLine className="size-4" /> Write a post</Button></div>}
+    <div className="space-y-3">
+      {!composing ? !courseTitle && <Button variant="outline" className="h-12 w-full justify-start text-muted-foreground" onClick={() => setComposing(true)}>Post something to your class…</Button> : <div className="space-y-3 rounded-md border border-border bg-card p-4">
         <h2 className="font-serif text-xl text-primary">Post to your class</h2>
         <Input aria-label="Post title" placeholder="Title (optional)" maxLength={160} value={title} onChange={e => setTitle(e.target.value)} />
         <Textarea aria-label="Post message" placeholder="Share a question, idea or resource with your class…" maxLength={5000} value={body} onChange={e => setBody(e.target.value)} />
         <div className="flex justify-end gap-2"><Button variant="ghost" onClick={() => setComposing(false)}>Cancel</Button><Button onClick={() => void create()} disabled={busy || !body.trim()}>Post</Button></div>
       </div>}
     </div>
-    {isLoading ? <p className="text-muted-foreground">Loading discussions…</p> : error ? <p className="text-destructive">Couldn't load discussions. Please try again.</p> : threads.length === 0 ? <p className="text-muted-foreground">No discussions yet. Start one for your class.</p> : threads.map(t => <article key={t.id} className="border-b border-border pb-6">
+    {isLoading ? <p className="text-muted-foreground">Loading discussions…</p> : error ? <p className="text-destructive">Couldn't load discussions. Please try again.</p> : threads.length === 0 ? <p className="border-t border-border py-6 text-muted-foreground">No discussions yet. Start one for your class.</p> : threads.map(t => <article key={t.id} className="rounded-md border border-border bg-card p-5 transition-colors hover:border-brand-gold">
       <div className="flex items-start justify-between gap-3"><div><h3 className="font-serif text-2xl text-primary">{t.title}</h3><p className="text-xs text-muted-foreground">{t.author_name} · {when(t.created_at)}</p></div>
         {(t.author_id === user.id || isStaff) && <Button variant="ghost" size="icon-sm" title="Delete discussion" aria-label="Delete discussion" onClick={() => void remove("classroom_threads", t.id)}><Trash2 /></Button>}
       </div>

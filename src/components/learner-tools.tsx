@@ -16,10 +16,11 @@ import { AssignmentFileList, AssignmentFilePicker, assignmentFiles, uploadAssign
 
 const card = "rounded-lg border border-border bg-card p-5";
 
-export function CourseNoticesList({ slug }: { slug: string }) {
+export function CourseNoticesList({ slug, pinnedOnly = false, unpinnedOnly = false }: { slug: string; pinnedOnly?: boolean; unpinnedOnly?: boolean }) {
   const { data = [] } = useQuery({ queryKey: ["notices", slug], queryFn: async () => (await supabase.from("course_notices").select("*").eq("course_slug", slug).order("created_at", { ascending: false })).data ?? [] });
-  if (data.length === 0) return null;
-  return <div className="mb-6 space-y-2">{[...data].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(n => (
+  const visible = data.filter(n => pinnedOnly ? n.pinned : unpinnedOnly ? !n.pinned : true);
+  if (visible.length === 0) return null;
+  return <div className="mb-6 space-y-2">{[...visible].sort((a, b) => Number(b.pinned) - Number(a.pinned)).map(n => (
     <div key={n.id} className={`rounded-md border-l-4 p-4 ${noticeColor[n.color]}`}><p className="flex items-center gap-2 font-semibold"><Megaphone className="size-4" />{n.pinned && <span className="text-xs text-primary">Pinned · </span>}{n.title}</p>{n.body && <NoticeBody text={n.body} className="mt-1 text-sm" />}<NoticeFileList files={asFiles((n as { attachments?: unknown }).attachments)} /></div>
   ))}</div>;
 }

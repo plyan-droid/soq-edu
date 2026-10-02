@@ -46,11 +46,10 @@ export function DemoStreamWork({ slug, openClasswork }: { slug: string; openClas
 
 export function DemoClasswork({ slug, expanded, onToggle }: { slug: string; expanded: boolean; onToggle: () => void }) {
   const example = exampleFor(slug);
-  return <section className="mb-7" aria-label="Sample classwork">
-    <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">[DEMO] Sample classwork</p>
-    <h2 className="border-b border-border pb-3 font-serif text-2xl text-primary">{example.topic}</h2>
-    <Button variant="ghost" className="mt-1 h-auto min-h-14 w-full justify-start gap-3 whitespace-normal px-2 text-left" onClick={onToggle} aria-expanded={expanded}>
-      <ClipboardList className="size-5 shrink-0 text-brand-gold" /><span className="min-w-0 flex-1">{example.task}</span><span className="shrink-0 text-xs text-muted-foreground">Sample returned work</span>
+  return <section aria-label="Sample classwork">
+    <h3 className="border-b border-border pb-3 font-serif text-2xl text-primary">{example.topic} <span className="ml-2 align-middle font-sans text-xs font-normal text-muted-foreground">[DEMO] example</span></h3>
+    <Button variant="ghost" className="h-auto min-h-16 w-full justify-start gap-3 whitespace-normal px-2 py-3 text-left" onClick={onToggle} aria-expanded={expanded}>
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><ClipboardList className="size-4" /></span><span className="min-w-0 flex-1 font-medium">{example.task}<span className="block text-xs font-normal text-muted-foreground">Sample returned work · not your submission</span></span>
     </Button>
     {expanded && <div className="rounded-md border border-border bg-muted/40 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground"><span>[DEMO] Example assignment</span><span>Returned · sample mark 8/10</span></div>
@@ -61,7 +60,7 @@ export function DemoClasswork({ slug, expanded, onToggle }: { slug: string; expa
         <p className="mt-4 text-sm"><strong>Sample trainer feedback:</strong> {example.feedback}</p>
       </div>
     </div>}
-    <div className="mt-5 border-b border-border pb-3"><p className="flex items-center gap-2 text-sm text-muted-foreground"><BookOpen className="size-4 shrink-0" /> [DEMO] Material · Consultation and reflection guide</p></div>
+    <div className="border-t border-border py-4"><p className="flex items-center gap-3 text-sm text-muted-foreground"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><BookOpen className="size-4" /></span> [DEMO] Material · Consultation and reflection guide</p></div>
   </section>;
 }
 

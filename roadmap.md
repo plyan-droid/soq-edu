@@ -12,7 +12,7 @@
 - [x] Course comparison (select multiple, side by side)
 
 ## Current
-- [ ] Revise event PNG using course-page styling and combine ticket quantity and Attend Event into one booking panel; website unchanged.
+- [x] Revise event PNG using course-page styling and combine ticket quantity and Attend Event into one booking panel; website unchanged.
 - [x] Revise the instructor-finder PNG to use person and calendar icons only for profile and meeting actions; website unchanged.
 - [x] Add private per-course Community discussions with My Courses navigation; improve student assignment hand-in and lesson navigation.
 - [x] Simplify the trainer workspace with a focused teaching Home, quieter course/student lists, clear navigation and trainer-only light typography.
